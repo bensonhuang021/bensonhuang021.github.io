@@ -277,78 +277,206 @@
     }
 
     const rawData = `
-ADC	Arrival Airport Restriction - Curfew/Night/Noise
-ADD	Arrival Airport Restriction - Runway/Taxiway
-ADG	Arrival Airport Restriction - Operational Concern
-ADO	Arrival Airport Restriction - Other
-AEK	Air Traffic Control due to Non-Weather - Arrival Airport
-AFC	Airport Facility - Ground Traffic
-AFH	Airport Facility - Cargo Terminal
-AFJ	Airport Facility - Jet Bridge
-AFL	Airport Facility - Baggage
-AFN	Airport Facility - Passenger Terminal
-AFO	Airport Facility - Apron
-AFP	Airport Facility - Parking Bay Availability
-AGB	Customs/Immigration/Quarantine - Disembarkation/Boarding
-AGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff
-AGD	Customs/Immigration/Quarantine - Passenger
-AGO	Customs/Immigration/Quarantine - Other
-AMA	Air Traffic Control due to Non-Weather - Departure Airport
-AMC	Departure Airport Restriction - Curfew/Night/Noise
-AMD	Departure Airport Restriction - Runway/Taxiway
-AMO	Departure Airport Restriction - Other
-AMR	Ground Traffic - Aircraft Towing
-AMS	Ground Traffic - Aircraft Pushback
-AMW	Air Traffic Control due to Weather - Departure Airport
-ASC	Mandatory Security - Cargo/Mail
-ASE	Mandatory Security - Additional Requirement
-ASF	Mandatory Security - Facility
-ASI	Mandatory Security - Aircraft
-ASL	Mandatory Security - Staff Lateness / Lack of
-ASN	Mandatory Security - Aerobridge / Boarding Gate
-ASS	Mandatory Security - Staff Error
-ASU	Mandatory Security - Baggage Offload
-ASX	Mandatory Security - Passenger / Hand Baggage
-ATK	Air Traffic Control due to Non-Weather – En Route
-GLS	Loading/Unloading – Staff Availability
-GLC	Loading/Unloading – Cargo
-GLB	Loading/Unloading – Baggage
-RAN	Aircraft Rotation - Network
-RAP	Aircraft Rotation - Passenger
-RAT	Aircraft Rotation - Technical
-RAU	Aircraft Rotation - Authority
-RAW	Aircraft Rotation - Weather
-RCA	Crew Rotation - Flight Deck / Entire Crew
-RLO	Load Connection - Non- CX Group
-RLX	Load Connection - CX Group
-ROB	Operation Control - Crewing
-ROC	Operation Control - Flight Consolidation
-ROH	Operation Control - Aircraft Change
-ROR	Operation Control - Diversion/Reroute
-ROV	Operation Control - Await First Available Aircraft
-RSA	Crew Rotation - Cabin Crew
-RTK	Through Check-In
-SGK	Scheduled Ground Time
-TAA	Technical - AOG Spare from other Aircraft/Station
-TAE	Technical - AOG Spare for other Aircraft/Station
-TCT	Technical - Aircraft Change
-TDA	Technical - Without Aircraft Change
-TDD	Technical - Engineering Documentation
-TDL	Technical - Cargo Loading System (CLS)
-TDT	Technical - High Cabin Temperature
-TDU	Technical - Extra Start-Up Time
-TLT	Technical - Await First Available Aircraft
-TML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance
-TMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance
-TMT	Technical - Scheduled Maintenance
-TNA	Technical - Non-Scheduled Maintenance
-TSS	Technical - Lack of Spare
-TST	Technical - Await Spare from Technical Store
-WGI	Weather - Ground Handling Impaired
-WIK	Weather - Aircraft Frost/Ice/Snow Handling
-WOK	Weather - Departure Airport
-WRK	Weather - Alternate / En Route
-WSR	Weather - Airport Ice/Snow
+ADC	Arrival Airport Restriction - Curfew/Night/Noise 
+ADD	Arrival Airport Restriction - Runway/Taxiway 
+ADG	Arrival Airport Restriction - Operational Concern 
+ADO	Arrival Airport Restriction - Other 
+AEK	Air Traffic Control due to Non-Weather - Arrival Airport 
+AFC	Airport Facility - Ground Traffic 
+AFH	Airport Facility - Cargo Terminal 
+AFJ	Airport Facility - Jet Bridge 
+AFL	Airport Facility - Baggage 
+AFN	Airport Facility - Passenger Terminal 
+AFO	Airport Facility - Apron 
+AFP	Airport Facility - Parking Bay Availability 
+AGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance 
+AGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff 
+AGD	Customs/Immigration/Quarantine - Passenger 
+AGO	Customs/Immigration/Quarantine - Other 
+AMA	Air Traffic Control due to Non-Weather - Departure Airport 
+AMC	Departure Airport Restriction - Curfew/Night/Noise 
+AMD	Departure Airport Restriction - Runway/Taxiway 
+AMO	Departure Airport Restriction - Other 
+AMR	Ground Traffic - Aircraft Towing 
+AMS	Ground Traffic - Aircraft Pushback 
+AMW	Air Traffic Control due to Weather - Departure Airport 
+ASC	Mandatory Security - Cargo/Mail 
+ASE	Mandatory Security - Additional Requirement 
+ASF	Mandatory Security - Facility 
+ASI	Mandatory Security - Aircraft 
+ASL	Mandatory Security - Staff Lateness / Lack of 
+ASN	Mandatory Security - Aerobridge / Boarding Gate 
+ASS	Mandatory Security - Staff Error 
+ASU	Mandatory Security - Baggage Offload 
+ASX	Mandatory Security - Major Security Incident 
+ATK	Air Traffic Control due to Non-Weather - En Route 
+ATW	Air Traffic Control due to Weather - En Route 
+AWK	Air Traffic Control due to Weather - Arrival Airport 
+CCK	Cargo/Mail Acceptance 
+CDI	Cargo/Mail Documentation - Error/Missing 
+CDL	Cargo/Mail Documentation - Lateness 
+CIC	Cargo/Mail Packing - Unit Load Device (ULD) 
+CIL	Cargo/Mail Packing - Collapse/Shift 
+CIO	Cargo/Mail Packing - Other 
+CIP	Cargo/Mail Packing - Damage/Inadequate/Leakage 
+CIS	Cargo/Mail Packing - Odorous 
+CPD	Cargo/Mail Positioning - Drop Off 
+CPO	Cargo/Mail Positioning - Other 
+CPP	Cargo/Mail Positioning - Pick Up 
+CUC	Cargo/Mail Preparation - Warehouse Congestion 
+CUS	Cargo/Mail Preparation - Staff 
+DFK	Aircraft Damage - During Flying/Taxiing 
+DGK	Aircraft Damage - During Parking/Towing 
+ECD	IT-CX Group Cargo Documentation/Preparation System 
+ECE	IT-CTO/GHA Cargo Documentation/Preparation System 
+EDA	IT-Departure Control System (DCS) 
+EFK	IT-Computer Flight Planning System 
+EOA	IT-Aircraft Communications Addressing and Reporting System (ACARS) 
+EOB	IT-Baggage Handling System (BHS) 
+EON	IT-Network 
+EOO	IT-Other 
+EOS	IT-Airport Self-Service 
+FAA	Cabin Crew Handling - After Landing Procedure 
+FAC	Cabin Crew Handling - Cabin Management 
+FAE	Cabin Crew Handling - Cabin Crew Error 
+FAF	Cabin Crew Handling - Passenger Health Clarification 
+FAH	Cabin Crew Handling - Passenger Headcount 
+FAL	Cabin Crew Handling - Pre-Flight Procedure 
+FAM	Cabin Crew Handling - Catering 
+FAO	Cabin Crew Handling - Other 
+FAP	Cabin Crew Handling - Passenger Requirement 
+FAT	Cabin Crew Handling - Technical 
+FAW	Cabin Crew Handling - Cabin Cleaning 
+FBS	Flight Deck Crew Handling - Extraordinary Security Check 
+FCL	Cabin Crew Availability - Flight Time Limitation 
+FCO	Cabin Crew Availability - Other 
+FCS	Cabin Crew Availability - Sickness 
+FFC	Operational Requirement - Computer Flight Plan (CFP) Change 
+FFF	Operational Requirement - Refuelling 
+FFL	Operational Requirement - Loadsheet/Payload Change 
+FFM	Operational Requirement - Maintenance Request 
+FFO	Operational Requirement - Other 
+FFT	Operational Requirement - Technical Clarification 
+FLI	Cabin Crew Boarding - Late Arrival to Reporting Point 
+FLM	Cabin Crew Boarding - Other 
+FLW	Cabin Crew Boarding - Late Arrival to Aircraft 
+FPD	Flight Operational Documentation - Error/Lateness 
+FPE	Flight Operational Documentation - EFB Device / Accessory 
+FRN	Flight Deck Crew Handling - Non-Operational Requirement 
+FSF	Flight Deck Crew Availability - Fatigue 
+FSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point 
+FSL	Flight Deck Crew Availability - Flight Time Limitation 
+FSM	Flight Deck Crew Boarding - Other 
+FSO	Flight Deck Crew Availability - Other 
+FSS	Flight Deck Crew Availability - Sickness 
+FTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point 
+FTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation 
+FTM	Flight Deck and Cabin Crew Boarding - Other 
+FTO	Flight Deck and Cabin Crew Availability - Other 
+FTS	Flight Deck and Cabin Crew Availability - Sickness 
+FTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft 
+GBD	Catering - Delivery/Loading/Unloading 
+GBO	Catering - Other 
+GBS	Catering - Aircraft Switch 
+GCL	Cabin Cleaning - Service Provider 
+GCO	Cabin Cleaning - Other 
+GDC	Aircraft Documentation - Centralized Load Control (CLC) 
+GDO	Aircraft Documentation - Other 
+GDS	Aircraft Documentation - Departure Station 
+GET	Loading/Unloading - Equipment 
+GFA	Fuelling - Fuel Supplier / Intoplane Operator 
+GFE	Fuelling - Engineering Documentation 
+GFO	Fuelling - Other 
+GLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time 
+GLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time 
+GLC	Loading/Unloading - Cabin 
+GLD	Loading/Unloading - Difficulty 
+GLE	Loading/Unloading - Staff Error 
+GLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time 
+GLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only) 
+GLR	Loading/Unloading - Rearrangement 
+GLS	Loading/Unloading - Staff Availability 
+GLV	Loading/Unloading - Space/Volumetric 
+GLX	Loading/Unloading - Other 
+GSL	Servicing Equipment - Equipment 
+GSS	Servicing Equipment - Staff 
+GTL	Technical Equipment - Equipment 
+GTS	Technical Equipment - Staff 
+GUK	Loading/Unloading - Unit Load Device (ULD) 
+IAK	Air Traffic Control - Unknown Reason 
+ICK	Commercial (Cargo Service only) 
+IGK	Aircraft Door Operation 
+IPK	Disembarkation 
+IWH	Weather - High Cabin Temperature 
+MIK	Industrial Action - With CX Group 
+MOK	Industrial Action - Outside CX Group 
+MXX	No Matched Reason 
+PBK	Baggage Handling 
+PCO	Catering Order 
+PDO	Passenger Acceptance - Other 
+PDP	Passenger Acceptance - Transfer due to Irregular Operation 
+PEK	Check-In Error 
+PHB	Boarding - Cabin Baggage 
+PHH	Boarding - Staff 
+PHM	Boarding - Missing Passenger 
+PHO	Boarding - Other 
+PHS	Boarding - Passenger Seating 
+PLK	Check-In Area 
+POK	Overbooking 
+PSI	Passenger Special Handling - Intoxicated/Sick Passenger 
+PSO	Passenger Special Handling - Other 
+PSP	Passenger Special Handling - Item Missing 
+PSU	Passenger Special Handling - Unruly Passenger 
+PWK	Reduced Mobility 
+RAA	Aircraft Rotation - Air Traffic Control 
+RAC	Aircraft Rotation - Crewing 
+RAD	Aircraft Rotation - Aircraft Damage 
+RAE	Aircraft Rotation - Information Technology 
+RAF	Aircraft Rotation - Flight Operation 
+RAG	Aircraft Rotation - Aircraft Servicing 
+RAH	Aircraft Rotation - Cargo/Mail 
+RAM	Aircraft Rotation - Ground Traffic 
+RAN	Aircraft Rotation - En Route 
+RAO	Aircraft Rotation - Other 
+RAP	Aircraft Rotation - Passenger 
+RAQ	Aircraft Rotation - Security 
+RAR	Aircraft Rotation - Reactionary 
+RAS	Aircraft Rotation - Schedule 
+RAT	Aircraft Rotation - Technical 
+RAU	Aircraft Rotation - Authority 
+RAW	Aircraft Rotation - Weather 
+RCA	Crew Rotation - Flight Deck / Entire Crew 
+RLO	Load Connection - Non- CX Group 
+RLX	Load Connection - CX Group 
+ROB	Operation Control - Crewing 
+ROC	Operation Control - Flight Consolidation 
+ROH	Operation Control - Aircraft Change 
+ROR	Operation Control - Diversion/Reroute 
+ROV	Operation Control - Await First Available Aircraft 
+RSA	Crew Rotation - Cabin Crew 
+RTK	Through Check-In 
+SGK	Scheduled Ground Time 
+TAA	Technical - AOG Spare from other Aircraft/Station 
+TAE	Technical - AOG Spare for other Aircraft/Station 
+TCT	Technical - Aircraft Change 
+TDA	Technical - Without Aircraft Change 
+TDD	Technical - Engineering Documentation 
+TDL	Technical - Cargo Loading System (CLS) 
+TDT	Technical - High Cabin Temperature 
+TDU	Technical - Extra Start-Up Time 
+TLT	Technical - Await First Available Aircraft 
+TML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance 
+TMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance 
+TMT	Technical - Scheduled Maintenance 
+TNA	Technical - Non-Scheduled Maintenance 
+TSS	Technical - Lack of Spare 
+TST	Technical - Await Spare from Technical Store 
+WGI	Weather - Ground Handling Impaired 
+WIK	Weather - Aircraft Frost/Ice/Snow Handling 
+WOK	Weather - Departure Airport 
+WRK	Weather - Alternate / En Route 
+WSR	Weather - Airport Ice/Sand/Snow/Water Handling 
+WTK	Weather - Arrival Airport 
     `;
 
     let delayDB = {};
