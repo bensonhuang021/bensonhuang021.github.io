@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCO Report Generator V12</title>
+    <style>
+        :root {
+            --primary: #0f4c81; 
+            --secondary: #e2e8f0;
+            --text-dark: #1e293b;
+            --bg-color: #f8fafc;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            display: flex;
+            gap: 25px;
+            width: 100%;
+            max-width: 1450px; 
+            align-items: flex-start;
+        }
+        .form-section, .output-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .form-section { flex: 1; }
+        .output-section { flex: 1.35; position: sticky; top: 20px; } 
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 15px;
+            font-size: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: #475569;
+        }
+        input[type="text"], input[type="date"], select, textarea {
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #fff;
+            font-family: inherit;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1);
+        }
+        input[type="date"] { cursor: pointer; }
+        select {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto; padding-right: 30px;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        .delay-code-builder {
+            background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .delay-code-item {
+            display: flex; gap: 10px; align-items: center; background: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-top: 10px; font-size: 0.9rem;
+        }
+        .delay-desc { flex: 1; color: #64748b; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .log-entry { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        .log-time { width: 90px; text-align: center; }
+        .log-desc { flex: 1; }
+        
+        button {
+            background-color: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+        }
+        button:hover { background-color: #0b3a63; }
+        .btn-outline { background-color: transparent; color: var(--primary); border: 1px dashed var(--primary); width: 100%; margin-top: 10px;}
+        .btn-outline:hover { background-color: rgba(15, 76, 129, 0.05); }
+        .btn-danger { background-color: #ef4444; padding: 10px 12px; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-clear { background-color: #ef4444; width: 100%; margin-top: 25px; padding: 12px; font-size: 1rem; }
+        .btn-clear:hover { background-color: #dc2626; }
+        .btn-small { padding: 6px 10px; font-size: 0.8rem; }
+        
+        pre {
+            background: #1e293b; color: #f8fafc; padding: 25px; border-radius: 8px; white-space: pre-wrap; font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; line-height: 1.6; letter-spacing: 0.5px; min-height: 400px; overflow-x: auto;
+        }
+        
+        .validation-box {
+            margin-top: 15px; padding: 14px 18px; border-radius: 8px; font-size: 0.95rem; display: none; line-height: 1.6;
+        }
+        .validation-warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .validation-match { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .task-alert { font-size: 0.9rem; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.1); }
+        .text-red { color: #dc2626; font-weight: bold; }
+
+        .copy-btn { width: 100%; padding: 14px; font-size: 1rem; font-weight: bold; background-color: #10b981; margin-top: 15px; }
+        .copy-btn:hover { background-color: #059669; }
+        .helper-text { font-size: 0.8rem; color: #64748b; margin-top: -10px; margin-bottom: 15px; display: block;}
+        .highlight-text { color: #10b981; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-section">
+        <h2>📝 填寫 TCO 報告</h2>
+        
+        <div class="row">
+            <div class="col"><label>Flight</label><input type="text" id="flight"></div>
+            <div class="col"><label>Date</label><input type="date" id="date"></div>
+            <div class="col"><label>Reporter</label><input type="text" id="reporter"></div>
+        </div>
+
+        <div class="row">
+            <div class="col"><label>STA (計算用)</label><input type="text" id="sta" maxlength="4"></div>
+            <div class="col"><label>STD (計算用)</label><input type="text" id="std" maxlength="4"></div>
+            <div class="col"><label>ETA</label><input type="text" id="eta" maxlength="4"></div>
+            <div class="col"><label>ETD</label><input type="text" id="etd" maxlength="4"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>ATA (計算用)</label><input type="text" id="ata" maxlength="4"></div>
+            <div class="col"><label>ATD (計算用)</label><input type="text" id="atd" maxlength="4"></div>
+            <div class="col"><label>DCT (Optional)</label><input type="text" id="dct" maxlength="4"></div>
+        </div>
+
+        <div class="row">
+            <div class="col"><label>PTS</label><select id="pts"><option value="N">N</option><option value="Y">Y</option></select></div>
+            <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
+            <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
+        </div>
+
+        <div class="delay-code-builder">
+            <label style="margin: 0; color: var(--primary); display: block; margin-bottom: 15px;">⚠️ 自動化 Delay Code 生成器</label>
+            
+            <div class="row" style="margin-bottom: 0;">
+                <div class="col" style="flex: 2.2;">
+                    <select id="inputDelayCode" style="width: 100%;">
+                        <option value="">-- 請選擇 Delay Code --</option>
+                    </select>
+                </div>
+                <div class="col" style="flex: 1.2; flex-direction: row; align-items: center; gap: 5px;">
+                    <input type="text" id="inputDelayHH" maxlength="2" placeholder="時" style="width: 100%; text-align: center;">
+                    <span style="font-weight: bold; color: #475569;">:</span>
+                    <input type="text" id="inputDelayMM" maxlength="2" placeholder="分" style="width: 100%; text-align: center;">
+                </div>
+                <div><button type="button" onclick="addDelayCode()" style="height: 100%;">+ 新增</button></div>
+            </div>
+            <div id="addedCodesContainer"></div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Delay Summary</label>
+                <textarea id="summary"></textarea>
+            </div>
+        </div>
+
+        <hr style="border:1px solid #e2e8f0; margin: 20px 0;">
+
+        <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px;">⏱️ 時間軸紀錄 (Chronological Log)</h3>
+        <span class="helper-text">💡 <span class="highlight-text">未填時間項目自動隱藏</span>。系統會根據 Turnaround Plan 自動偵測作業超時。</span>
+        
+        <div id="logContainer"></div>
+        <button type="button" class="btn-outline" onclick="addLog('')">+ 新增自訂時間紀錄</button>
+
+        <button type="button" class="btn-clear" onclick="clearForm()">🗑️ 清除所有表格內容</button>
+
+    </div>
+
+    <div class="output-section">
+        <h2>📄 報告預覽</h2>
+        <pre id="outputReport">您的報告將會顯示在這裡...</pre>
+        
+        <div id="delayValidation" class="validation-box"></div>
+
+        <button class="copy-btn" onclick="copyReport()">📋 一鍵複製報告</button>
+    </div>
+</div>
+
+<script>
+    // =========================================================
+    // ⬇️⬇️⬇️ 只要把 Excel 的完整內容，直接貼在下方的引號中間即可！⬇️⬇️⬇️
+    // =========================================================
+    const rawData = `
+ADC	Arrival Airport Restriction - Curfew/Night/Noise 
+ADD	Arrival Airport Restriction - Runway/Taxiway 
+ADG	Arrival Airport Restriction - Operational Concern 
+ADO	Arrival Airport Restriction - Other 
+AEK	Air Traffic Control due to Non-Weather - Arrival Airport 
+AFC	Airport Facility - Ground Traffic 
+AFH	Airport Facility - Cargo Terminal 
+AFJ	Airport Facility - Jet Bridge 
+AFL	Airport Facility - Baggage 
+AFN	Airport Facility - Passenger Terminal 
+AFO	Airport Facility - Apron 
+AFP	Airport Facility - Parking Bay Availability 
+AGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance 
+AGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff 
+AGD	Customs/Immigration/Quarantine - Passenger 
+AGO	Customs/Immigration/Quarantine - Other 
+AMA	Air Traffic Control due to Non-Weather - Departure Airport 
+AMC	Departure Airport Restriction - Curfew/Night/Noise 
+AMD	Departure Airport Restriction - Runway/Taxiway 
+AMO	Departure Airport Restriction - Other 
+AMR	Ground Traffic - Aircraft Towing 
+AMS	Ground Traffic - Aircraft Pushback 
+AMW	Air Traffic Control due to Weather - Departure Airport 
+ASC	Mandatory Security - Cargo/Mail 
+ASE	Mandatory Security - Additional Requirement 
+ASF	Mandatory Security - Facility 
+ASI	Mandatory Security - Aircraft 
+ASL	Mandatory Security - Staff Lateness / Lack of 
+ASN	Mandatory Security - Aerobridge / Boarding Gate 
+ASS	Mandatory Security - Staff Error 
+ASU	Mandatory Security - Baggage Offload 
+ASX	Mandatory Security - Major Security Incident 
+ATK	Air Traffic Control due to Non-Weather - En Route 
+ATW	Air Traffic Control due to Weather - En Route 
+AWK	Air Traffic Control due to Weather - Arrival Airport 
+CCK	Cargo/Mail Acceptance 
+CDI	Cargo/Mail Documentation - Error/Missing 
+CDL	Cargo/Mail Documentation - Lateness 
+CIC	Cargo/Mail Packing - Unit Load Device (ULD) 
+CIL	Cargo/Mail Packing - Collapse/Shift 
+CIO	Cargo/Mail Packing - Other 
+CIP	Cargo/Mail Packing - Damage/Inadequate/Leakage 
+CIS	Cargo/Mail Packing - Odorous 
+CPD	Cargo/Mail Positioning - Drop Off 
+CPO	Cargo/Mail Positioning - Other 
+CPP	Cargo/Mail Positioning - Pick Up 
+CUC	Cargo/Mail Preparation - Warehouse Congestion 
+CUS	Cargo/Mail Preparation - Staff 
+DFK	Aircraft Damage - During Flying/Taxiing 
+DGK	Aircraft Damage - During Parking/Towing 
+ECD	IT-CX Group Cargo Documentation/Preparation System 
+ECE	IT-CTO/GHA Cargo Documentation/Preparation System 
+EDA	IT-Departure Control System (DCS) 
+EFK	IT-Computer Flight Planning System 
+EOA	IT-Aircraft Communications Addressing and Reporting System (ACARS) 
+EOB	IT-Baggage Handling System (BHS) 
+EON	IT-Network 
+EOO	IT-Other 
+EOS	IT-Airport Self-Service 
+FAA	Cabin Crew Handling - After Landing Procedure 
+FAC	Cabin Crew Handling - Cabin Management 
+FAE	Cabin Crew Handling - Cabin Crew Error 
+FAF	Cabin Crew Handling - Passenger Health Clarification 
+FAH	Cabin Crew Handling - Passenger Headcount 
+FAL	Cabin Crew Handling - Pre-Flight Procedure 
+FAM	Cabin Crew Handling - Catering 
+FAO	Cabin Crew Handling - Other 
+FAP	Cabin Crew Handling - Passenger Requirement 
+FAT	Cabin Crew Handling - Technical 
+FAW	Cabin Crew Handling - Cabin Cleaning 
+FBS	Flight Deck Crew Handling - Extraordinary Security Check 
+FCL	Cabin Crew Availability - Flight Time Limitation 
+FCO	Cabin Crew Availability - Other 
+FCS	Cabin Crew Availability - Sickness 
+FFC	Operational Requirement - Computer Flight Plan (CFP) Change 
+FFF	Operational Requirement - Refuelling 
+FFL	Operational Requirement - Loadsheet/Payload Change 
+FFM	Operational Requirement - Maintenance Request 
+FFO	Operational Requirement - Other 
+FFT	Operational Requirement - Technical Clarification 
+FLI	Cabin Crew Boarding - Late Arrival to Reporting Point 
+FLM	Cabin Crew Boarding - Other 
+FLW	Cabin Crew Boarding - Late Arrival to Aircraft 
+FPD	Flight Operational Documentation - Error/Lateness 
+FPE	Flight Operational Documentation - EFB Device / Accessory 
+FRN	Flight Deck Crew Handling - Non-Operational Requirement 
+FSF	Flight Deck Crew Availability - Fatigue 
+FSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point 
+FSL	Flight Deck Crew Availability - Flight Time Limitation 
+FSM	Flight Deck Crew Boarding - Other 
+FSO	Flight Deck Crew Availability - Other 
+FSS	Flight Deck Crew Availability - Sickness 
+FTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point 
+FTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation 
+FTM	Flight Deck and Cabin Crew Boarding - Other 
+FTO	Flight Deck and Cabin Crew Availability - Other 
+FTS	Flight Deck and Cabin Crew Availability - Sickness 
+FTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft 
+GBD	Catering - Delivery/Loading/Unloading 
+GBO	Catering - Other 
+GBS	Catering - Aircraft Switch 
+GCL	Cabin Cleaning - Service Provider 
+GCO	Cabin Cleaning - Other 
+GDC	Aircraft Documentation - Centralized Load Control (CLC) 
+GDO	Aircraft Documentation - Other 
+GDS	Aircraft Documentation - Departure Station 
+GET	Loading/Unloading - Equipment 
+GFA	Fuelling - Fuel Supplier / Intoplane Operator 
+GFE	Fuelling - Engineering Documentation 
+GFO	Fuelling - Other 
+GLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time 
+GLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time 
+GLC	Loading/Unloading - Cabin 
+GLD	Loading/Unloading - Difficulty 
+GLE	Loading/Unloading - Staff Error 
+GLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time 
+GLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only) 
+GLR	Loading/Unloading - Rearrangement 
+GLS	Loading/Unloading - Staff Availability 
+GLV	Loading/Unloading - Space/Volumetric 
+GLX	Loading/Unloading - Other 
+GSL	Servicing Equipment - Equipment 
+GSS	Servicing Equipment - Staff 
+GTL	Technical Equipment - Equipment 
+GTS	Technical Equipment - Staff 
+GUK	Loading/Unloading - Unit Load Device (ULD) 
+IAK	Air Traffic Control - Unknown Reason 
+ICK	Commercial (Cargo Service only) 
+IGK	Aircraft Door Operation 
+IPK	Disembarkation 
+IWH	Weather - High Cabin Temperature 
+MIK	Industrial Action - With CX Group 
+MOK	Industrial Action - Outside CX Group 
+MXX	No Matched Reason 
+PBK	Baggage Handling 
+PCO	Catering Order 
+PDO	Passenger Acceptance - Other 
+PDP	Passenger Acceptance - Transfer due to Irregular Operation 
+PEK	Check-In Error 
+PHB	Boarding - Cabin Baggage 
+PHH	Boarding - Staff 
+PHM	Boarding - Missing Passenger 
+PHO	Boarding - Other 
+PHS	Boarding - Passenger Seating 
+PLK	Check-In Area 
+POK	Overbooking 
+PSI	Passenger Special Handling - Intoxicated/Sick Passenger 
+PSO	Passenger Special Handling - Other 
+PSP	Passenger Special Handling - Item Missing 
+PSU	Passenger Special Handling - Unruly Passenger 
+PWK	Reduced Mobility 
+RAA	Aircraft Rotation - Air Traffic Control 
+RAC	Aircraft Rotation - Crewing 
+RAD	Aircraft Rotation - Aircraft Damage 
+RAE	Aircraft Rotation - Information Technology 
+RAF	Aircraft Rotation - Flight Operation 
+RAG	Aircraft Rotation - Aircraft Servicing 
+RAH	Aircraft Rotation - Cargo/Mail 
+RAM	Aircraft Rotation - Ground Traffic 
+RAN	Aircraft Rotation - En Route 
+RAO	Aircraft Rotation - Other 
+RAP	Aircraft Rotation - Passenger 
+RAQ	Aircraft Rotation - Security 
+RAR	Aircraft Rotation - Reactionary 
+RAS	Aircraft Rotation - Schedule 
+RAT	Aircraft Rotation - Technical 
+RAU	Aircraft Rotation - Authority 
+RAW	Aircraft Rotation - Weather 
+RCA	Crew Rotation - Flight Deck / Entire Crew 
+RLO	Load Connection - Non- CX Group 
+RLX	Load Connection - CX Group 
+ROB	Operation Control - Crewing 
+ROC	Operation Control - Flight Consolidation 
+ROH	Operation Control - Aircraft Change 
+ROR	Operation Control - Diversion/Reroute 
+ROV	Operation Control - Await First Available Aircraft 
+RSA	Crew Rotation - Cabin Crew 
+RTK	Through Check-In 
+SGK	Scheduled Ground Time 
+TAA	Technical - AOG Spare from other Aircraft/Station 
+TAE	Technical - AOG Spare for other Aircraft/Station 
+TCT	Technical - Aircraft Change 
+TDA	Technical - Without Aircraft Change 
+TDD	Technical - Engineering Documentation 
+TDL	Technical - Cargo Loading System (CLS) 
+TDT	Technical - High Cabin Temperature 
+TDU	Technical - Extra Start-Up Time 
+TLT	Technical - Await First Available Aircraft 
+TML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance 
+TMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance 
+TMT	Technical - Scheduled Maintenance 
+TNA	Technical - Non-Scheduled Maintenance 
+TSS	Technical - Lack of Spare 
+TST	Technical - Await Spare from Technical Store 
+WGI	Weather - Ground Handling Impaired 
+WIK	Weather - Aircraft Frost/Ice/Snow Handling 
+WOK	Weather - Departure Airport 
+WRK	Weather - Alternate / En Route 
+WSR	Weather - Airport Ice/Sand/Snow/Water Handling 
+WTK	Weather - Arrival Airport 
+    `;
+    // =========================================================
+    // ⬆️⬆️⬆️ 貼到這裡為止 ⬆️⬆️⬆️
+    // =========================================================
+
+    let delayDB = {};
+    let selectedDelayCodes = [];
+
+    // 自動將上方的文字轉換為資料庫 (支援 Excel 的 Tab 空白 或逗號分隔)
+    function buildDelayDB() {
+        const lines = rawData.trim().split('\n');
+        lines.forEach(line => {
+            if(!line.trim()) return;
+            let parts = line.split('\t'); // 優先嘗試 Excel 預設的 Tab 分隔
+            if(parts.length < 2) parts = line.split(','); // 如果是用逗號分隔的 CSV 也支援
+            
+            if (parts.length >= 2) {
+                const code = parts[0].trim().toUpperCase();
+                const desc = parts.slice(1).join(',').replace(/^"|"$/g, '').trim(); 
+                if (code && code.length >= 2) {
+                    delayDB[code] = desc;
+                }
+            }
+        });
+    }
+
+    // 將資料庫塞進下拉式選單 (按照字母排序)
+    function populateDelayCodeSelect() {
+        const select = document.getElementById('inputDelayCode');
+        select.innerHTML = '<option value="">-- 請選擇 Delay Code --</option>';
+        
+        const sortedKeys = Object.keys(delayDB).sort();
+        for (const code of sortedKeys) {
+            const option = document.createElement('option');
+            option.value = code; 
+            option.textContent = `${code} - ${delayDB[code]}`; 
+            select.appendChild(option);
+        }
+    }
+
+    function addDelayCode() {
+        const codeInput = document.getElementById('inputDelayCode');
+        const hhInput = document.getElementById('inputDelayHH');
+        const mmInput = document.getElementById('inputDelayMM');
+        
+        const code = codeInput.value;
+        if (!code) return alert("請從下拉選單選擇 Delay Code！");
+        
+        let hh = hhInput.value.trim();
+        let mm = mmInput.value.trim();
+        
+        if (!hh && !mm) return alert("請輸入時間（小時或分鐘）！");
+        
+        // 自動補零機制 (例如: 小時沒填變 00，分鐘填 5 變 05)
+        hh = hh ? hh.padStart(2, '0') : '00';
+        mm = mm ? mm.padStart(2, '0') : '00';
+        let time = hh + mm;
+        
+        selectedDelayCodes.push({ code, time, desc: delayDB[code] || "Custom/Unknown Code" });
+        
+        codeInput.value = ''; 
+        hhInput.value = ''; 
+        mmInput.value = '';
+        
+        renderDelayCodes(); 
+        generateReport();
+    }
+
+    function removeDelayCode(index) {
+        selectedDelayCodes.splice(index, 1);
+        renderDelayCodes(); generateReport();
+    }
+
+    function renderDelayCodes() {
+        const container = document.getElementById('addedCodesContainer');
+        container.innerHTML = '';
+        selectedDelayCodes.forEach((item, index) => {
+            const div = document.createElement('div'); div.className = 'delay-code-item';
+            div.innerHTML = `<strong>${item.code}</strong> (${item.time}) <span class="delay-desc">${item.desc}</span> <button class="btn-danger btn-small" onclick="removeDelayCode(${index})">✕</button>`;
+            container.appendChild(div);
+        });
+    }
+
+    const defaultLogs = [
+        "A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.",
+        "Cleaning completed.", "Cabin security check started.", "Boarding signal released.",
+        "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."
+    ];
+
+    function initLogs() {
+        const container = document.getElementById('logContainer');
+        container.innerHTML = ''; 
+        defaultLogs.forEach(desc => { addLogItem('', desc); });
+    }
+
+    function addLog(desc = '') { addLogItem('', desc); }
+
+    function addLogItem(time = '', desc = '') {
+        const container = document.getElementById('logContainer');
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.innerHTML = `
+            <input type="text" class="log-time" maxlength="4" value="${time}">
+            <input type="text" class="log-desc" value="${desc}">
+            <button tabindex="-1" type="button" class="btn-danger btn-small" onclick="removeLog(this)">✕</button>
+        `;
+        container.appendChild(logEntry);
+        generateReport();
+    }
+
+    function removeLog(button) {
+        button.parentElement.remove();
+        generateReport();
+    }
+
+    function clearForm() {
+        if (!confirm("確定要清除所有填寫的內容嗎？這個動作無法復原。")) return;
+
+        const textInputs = ['flight', 'date', 'reporter', 'sta', 'std', 'eta', 'etd', 'ata', 'atd', 'dct', 'summary', 'inputDelayHH', 'inputDelayMM'];
+        textInputs.forEach(id => document.getElementById(id).value = '');
+
+        document.getElementById('pts').value = 'N';
+        document.getElementById('otp').value = 'N';
+        document.getElementById('earlyCleaning').value = 'Y';
+        document.getElementById('inputDelayCode').value = '';
+
+        selectedDelayCodes = [];
+        renderDelayCodes();
+        initLogs();
+        generateReport();
+        
+        alert("表格已全部清除！");
+    }
+
+    document.addEventListener('input', generateReport);
+
+    function formatTime(val) { return val ? val + 'L' : '----L'; }
+
+    function formatAviationDate(dateStr) {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr.toUpperCase();
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        return parts[2] + months[parseInt(parts[1], 10) - 1];
+    }
+
+    function timeStrToIntMins(timeStr) {
+        if (!timeStr || timeStr.length !== 4 || isNaN(timeStr)) return null;
+        let h = parseInt(timeStr.substring(0,2), 10);
+        let m = parseInt(timeStr.substring(2,4), 10);
+        return h * 60 + m;
+    }
+
+    function minsToDurationStr(mins) {
+        let h = Math.floor(mins / 60);
+        let m = mins % 60;
+        return String(h).padStart(2, '0') + String(m).padStart(2, '0');
+    }
+
+    function getLogTimeStr(logs, descSnippet) {
+        const log = logs.find(l => l.descStr.toLowerCase().includes(descSnippet.toLowerCase()));
+        return log ? log.timeStr : null;
+    }
+
+    function generateReport() {
+        const flight = document.getElementById('flight').value.toUpperCase();
+        const rawDate = document.getElementById('date').value;
+        const date = formatAviationDate(rawDate);
+        const reporter = document.getElementById('reporter').value;
+
+        const staVal = document.getElementById('sta').value;
+        const ataVal = document.getElementById('ata').value;
+        const stdVal = document.getElementById('std').value;
+        const atdVal = document.getElementById('atd').value;
+        
+        const sta = formatTime(staVal);
+        const std = formatTime(stdVal);
+        const eta = formatTime(document.getElementById('eta').value);
+        const etd = formatTime(document.getElementById('etd').value);
+        const ata = formatTime(ataVal);
+        const atd = formatTime(atdVal);
+        const dctVal = document.getElementById('dct').value;
+        const dctStr = dctVal ? `(DCT/${formatTime(dctVal)})` : '';
+
+        const pts = document.getElementById('pts').value;
+        const otp = document.getElementById('otp').value;
+        const earlyCleaning = document.getElementById('earlyCleaning').value;
+
+        let delayCodeString = ''; let delayDescString = '';
+        let totalExplainedMins = 0; 
+
+        if (selectedDelayCodes.length > 0) {
+            const codes = selectedDelayCodes.map(item => item.code).join('/');
+            const times = selectedDelayCodes.map(item => item.time).join('/');
+            delayCodeString = `DL${codes}/${times}\n`;
+            
+            selectedDelayCodes.forEach(item => { 
+                delayDescString += `//${item.code}// ${item.desc}\n`; 
+                totalExplainedMins += timeStrToIntMins(item.time) || 0;
+            });
+        }
+        const summary = document.getElementById('summary').value.trim();
+
+        let logText = '';
+        let validLogs = [];
+        const logEntries = document.querySelectorAll('.log-entry');
+        
+        logEntries.forEach(entry => {
+            const time = entry.querySelector('.log-time').value.trim();
+            const desc = entry.querySelector('.log-desc').value.trim();
+            if (time) validLogs.push({ timeStr: time, descStr: desc });
+        });
+
+        validLogs.sort((a, b) => {
+            let timeA = parseInt(a.timeStr, 10);
+            let timeB = parseInt(b.timeStr, 10);
+            if (isNaN(timeA)) timeA = 9999;
+            if (isNaN(timeB)) timeB = 9999;
+            if (Math.abs(timeA - timeB) > 1200) {
+                if (timeA < timeB) timeA += 2400; else timeB += 2400;
+            }
+            return timeA - timeB;
+        });
+
+        validLogs.forEach(log => { logText += `${log.timeStr}L ${log.descStr}\n`; });
+
+        let displayFlight = flight || "----";
+        let displayDate = date || "----";
+        let report = `--${displayFlight}/${displayDate} TCO report--\n`;
+        report += `STA/${sta} , STD/${std}\n`;
+        report += `ETA/${eta} , ETD/${etd}\n`;
+        report += `ATA/${ata} , ATD/${atd}${dctStr}\n`;
+        report += `PTS: ${pts}\n`;
+        report += `OTP: ${otp}\n`;
+        report += `Early cleaning: ${earlyCleaning}\n`;
+        if (delayCodeString) { report += delayCodeString; report += delayDescString; }
+        if (summary) report += `${summary}\n`;
+        report += `--\n`;
+        if (logText) report += `${logText}`;
+        if (reporter) report += `End of report/${reporter}`;
+        else report += `End of report`;
+
+        document.getElementById('outputReport').textContent = report;
+
+        // 驗證與超時判斷邏輯
+        const validationBox = document.getElementById('delayValidation');
+        
+        let staMins = timeStrToIntMins(staVal);
+        let ataMins = timeStrToIntMins(ataVal);
+        let stdMins = timeStrToIntMins(stdVal);
+        let atdMins = timeStrToIntMins(atdVal);
+        
+        let hasDelayWarning = false;
+        let warningHTML = "";
+        let taskHTML = "";
+
+        // 飛機晚到判斷
+        if (staMins !== null && ataMins !== null) {
+            let arrDiff = ataMins - staMins;
+            if (arrDiff < -720) arrDiff += 24 * 60; 
+            if (arrDiff > 0) {
+                hasDelayWarning = true;
+                taskHTML += `<div class="task-alert">👉 建議 Code 判斷：飛機晚到 <span class="text-red">${arrDiff}</span> 分鐘</div>`;
+                if(validationBox.className !== 'validation-box validation-warning') validationBox.className = 'validation-box validation-warning';
+            }
+        }
+
+        // 總 Delay 時間驗證
+        if (stdMins !== null && atdMins !== null) {
+            let actualDelayMins = atdMins - stdMins;
+            if (actualDelayMins < -720) actualDelayMins += 24 * 60; 
+
+            if (actualDelayMins > 0) {
+                hasDelayWarning = true;
+                let diffMins = actualDelayMins - totalExplainedMins;
+
+                if (diffMins > 0) {
+                    let missingTimeFormat = minsToDurationStr(diffMins);
+                    warningHTML = `<strong>⚠️ 實際起飛 Delay 時間為 ${actualDelayMins} 分鐘。</strong><br>目前 Code 已解釋 ${totalExplainedMins} 分鐘，還需要 <strong>${missingTimeFormat}</strong> 的 delay code 補充說明！`;
+                    validationBox.className = 'validation-box validation-warning';
+                } else if (diffMins < 0) {
+                    warningHTML = `<strong>⚠️ 警告：解釋的 Delay 時間 (${totalExplainedMins} 分) 超過總 Delay 時間 (${actualDelayMins} 分)！請檢查輸入。</strong>`;
+                    validationBox.className = 'validation-box validation-warning';
+                } else {
+                    warningHTML = `<strong>✅ DELAY時間與DELAY CODE MATCH (${actualDelayMins} 分鐘)</strong>`;
+                    validationBox.className = 'validation-box validation-match';
+                }
+            }
+        }
+
+        // 作業超時判斷
+        let paxStart = getLogTimeStr(validLogs, "Pax off started");
+        let paxEnd = getLogTimeStr(validLogs, "Pax off completed");
+        if (paxStart && paxEnd) {
+            let sm = timeStrToIntMins(paxStart); let em = timeStrToIntMins(paxEnd);
+            if (sm !== null && em !== null) {
+                let actual = em - sm; if (actual < 0) actual += 24 * 60;
+                if (actual > 8) {
+                    hasDelayWarning = true;
+                    taskHTML += `<div class="task-alert">👉 建議 Code 判斷：PAX OFF 超時 <span class="text-red">${actual - 8}</span> 分鐘 (標準 8 分 / 實際 ${actual} 分)</div>`;
+                    if(validationBox.className !== 'validation-box validation-warning') validationBox.className = 'validation-box validation-warning';
+                }
+            }
+        }
+
+        let cleanStart = getLogTimeStr(validLogs, "Cleaning started");
+        let cleanEnd = getLogTimeStr(validLogs, "Cleaning completed");
+        if (cleanStart && cleanEnd) {
+            let sm = timeStrToIntMins(cleanStart); let em = timeStrToIntMins(cleanEnd);
+            if (sm !== null && em !== null) {
+                let actual = em - sm; if (actual < 0) actual += 24 * 60;
+                if (actual > 20) {
+                    hasDelayWarning = true;
+                    taskHTML += `<div class="task-alert">👉 建議 Code 判斷：CABIN CLEANING 超時 <span class="text-red">${actual - 20}</span> 分鐘 (標準 20 分 / 實際 ${actual} 分)</div>`;
+                    if(validationBox.className !== 'validation-box validation-warning') validationBox.className = 'validation-box validation-warning';
+                }
+            }
+        }
+
+        let boardStart = getLogTimeStr(validLogs, "Boarding signal released");
+        let boardEnd = getLogTimeStr(validLogs, "All pax onboard");
+        if (boardStart && boardEnd) {
+            let sm = timeStrToIntMins(boardStart); let em = timeStrToIntMins(boardEnd);
+            if (sm !== null && em !== null) {
+                let actual = em - sm; if (actual < 0) actual += 24 * 60;
+                if (actual > 20) {
+                    hasDelayWarning = true;
+                    taskHTML += `<div class="task-alert">👉 建議 Code 判斷：BOARDING 超時 <span class="text-red">${actual - 20}</span> 分鐘 (標準 20 分 / 實際 ${actual} 分)</div>`;
+                    if(validationBox.className !== 'validation-box validation-warning') validationBox.className = 'validation-box validation-warning';
+                }
+            }
+        }
+
+        if (hasDelayWarning) {
+            validationBox.style.display = 'block';
+            validationBox.innerHTML = warningHTML + taskHTML;
+        } else {
+            validationBox.style.display = 'none';
+        }
+    }
+
+    function copyReport() {
+        const reportText = document.getElementById('outputReport').textContent;
+        navigator.clipboard.writeText(reportText).then(() => {
+            alert("報告已成功複製！");
+        }).catch(err => { alert("複製失敗，請手動全選複製。"); });
+    }
+
+    // 啟動程序
+    buildDelayDB(); // 解析文字為資料庫
+    populateDelayCodeSelect(); // 填入選單
+    initLogs(); // 建立時間軸
+    generateReport(); // 預先生成畫面
+</script>
+
+</body>
+</html>
