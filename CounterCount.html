@@ -83,7 +83,7 @@
             color: #333;
         }
         .req-counter {
-            background-color: #e6f0f0; /* 給自動計算欄位一點淺綠色提示 */
+            background-color: #e6f0f0; 
             color: var(--cx-green);
         }
         .calc-cell {
@@ -518,6 +518,8 @@
                 const j = parseInt(row.querySelector('.j-pax').value) || 0;
                 const pey = parseInt(row.querySelector('.pey-pax').value) || 0;
                 const y = parseInt(row.querySelector('.y-pax').value) || 0;
+                
+                // 假設 G4 = j + pey + y
                 const rowTtl = j + pey + y;
                 const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
 
@@ -536,13 +538,14 @@
                 
                 // 只有在填入總人數大於 0 時才進行計算
                 if (rowTtl > 0) {
+                    // 套用指定公式: =IF(AND(G4>199,G4<260),7,((G4/12*6)/24+2))
                     if (rowTtl > 199 && rowTtl < 260) {
                         req = 7;
                     } else {
-                        req = (rowTtl / 48) + 2;
+                        req = ((rowTtl / 12 * 6) / 24) + 2;
                     }
-                    // 顯示至小數點後兩位 (如果剛好是整數，parseFloat 可以自動去尾)
-                    reqInput.value = parseFloat(req.toFixed(2));
+                    // 顯示小數點後位數
+                    reqInput.value = req.toFixed(3); // 可依需求調整保留位數，目前抓小數點後三位
                 } else {
                     reqInput.value = ""; // 沒填人數則留空
                 }
