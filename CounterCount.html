@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>排班開台數計算 - S26 29MAR26起</title>
+    <title>排班開台數計算 - S26 29MAR26起 (HU 4版)</title>
     <style>
         :root {
             --cx-green: #006564;
             --border-color: #a0a0a0;
             --highlight-bg: #fffccc;
             --alert-red: #d9534f;
-            /* 艙等顏色 */
-            --color-j: #d9e9f3;   /* 藍底 */
-            --color-pey: #e5f1fb; /* 淺藍底 */
-            --color-y: #eaf1dd;   /* 綠底 */
+            --color-j: #d9e9f3;
+            --color-w: #e5f1fb;
+            --color-y: #eaf1dd;
         }
         body {
             font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
@@ -36,7 +35,7 @@
         }
         th, td {
             border: 1px solid var(--border-color);
-            padding: 4px 6px;
+            padding: 4px;
             text-align: center;
             height: 26px;
         }
@@ -49,7 +48,7 @@
             z-index: 10;
         }
         .th-j { background-color: #2f75b5; }
-        .th-pey { background-color: #5b9bd5; }
+        .th-w { background-color: #5b9bd5; }
         .th-y { background-color: #70ad47; }
 
         input[type="text"] {
@@ -72,7 +71,7 @@
         }
 
         input.j-pax { background-color: var(--color-j); }
-        input.pey-pax { background-color: var(--color-pey); }
+        input.w-pax { background-color: var(--color-w); }
         input.y-pax { background-color: var(--color-y); }
         
         .readonly-field {
@@ -105,7 +104,7 @@
 </head>
 <body>
 
-    <h2>排班開台數計算 (S26 29MAR26 起)</h2>
+    <h2>排班開台數計算 S26 (依據 HU 4 邏輯動態重疊計算)</h2>
     <div class="subtitle">ETD-60MINS CTR CLOSED</div>
 
     <table id="scheduleTable">
@@ -115,9 +114,11 @@
                 <th rowspan="2">FLT / ETD</th>
                 <th rowspan="2">CTR OPEN TIME</th>
                 <th colspan="3">訂位人數分流</th>
-                <th rowspan="2">團體GRP</th>
+                <th rowspan="2">總訂位人數<br>TTL</th>
+                <th rowspan="2">團體<br>GRP</th>
+                <th rowspan="2">FIT</th>
                 <th rowspan="2">時間帶</th>
-                <th rowspan="2">至少台數需求<br>(自動計算)</th>
+                <th rowspan="2">至少台數需求<br>(精準重疊)</th>
                 <th rowspan="2">現有台數</th>
                 <th rowspan="2">尚有台數</th>
                 <th rowspan="2">寰宇商務/<br>Q分流大使</th>
@@ -127,7 +128,7 @@
             </tr>
             <tr>
                 <th class="th-j">J</th>
-                <th class="th-pey">PEY</th>
+                <th class="th-w">W</th>
                 <th class="th-y">Y</th>
             </tr>
         </thead>
@@ -135,12 +136,14 @@
             <tr class="am-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX407 08:00"></td>
-                <td><input type="text" value="05:00~07:00"></td>
+                <td><input type="text" class="open-time" value="05:00-07:00" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>05~06</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">05~06</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -152,12 +155,14 @@
             <tr class="am-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX477 09:55"></td>
-                <td><input type="text" value="06:55~08:55"></td>
+                <td><input type="text" class="open-time" value="06:55~08:55" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>06~07</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">06~07</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -169,12 +174,14 @@
             <tr class="am-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="text"></td>
+                <td><input type="text" class="open-time" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>07~08</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">07~08</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -186,12 +193,14 @@
             <tr class="am-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX489 10:50"></td>
-                <td><input type="text" value="07:50~09:50"></td>
+                <td><input type="text" class="open-time" value="07:50~09:50" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>08~09</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">08~09</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -203,12 +212,14 @@
             <tr class="am-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX564 11:05"></td>
-                <td><input type="text" value="08:05~10:05"></td>
+                <td><input type="text" class="open-time" value="08:05~10:05" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>09~10</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">09~10</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -220,12 +231,14 @@
             <tr class="am-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX530 11:30"></td>
-                <td><input type="text" value="08:30~10:30"></td>
+                <td><input type="text" class="open-time" value="08:30~10:30" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td></td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str"></td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -237,12 +250,14 @@
             <tr class="am-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX461 12:00"></td>
-                <td><input type="text" value="09:00~11:00"></td>
+                <td><input type="text" class="open-time" value="09:00~11:00" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td></td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str"></td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -254,12 +269,14 @@
             <tr class="am-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX450 13:00"></td>
-                <td><input type="text" value="10:00~12:00"></td>
+                <td><input type="text" class="open-time" value="10:00~12:00" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>10~11</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">10~11</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -271,12 +288,14 @@
             <tr class="am-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX495 13:20"></td>
-                <td><input type="text" value="10:20~12:20"></td>
+                <td><input type="text" class="open-time" value="10:20~12:20" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>11~12</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">11~12</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -285,15 +304,18 @@
                 <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
+            
             <tr class="pm-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="text"></td>
+                <td><input type="text" class="open-time" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>12~13</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">12~13</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -305,12 +327,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX443 16:10"></td>
-                <td><input type="text" value="13:10~15:10"></td>
+                <td><input type="text" class="open-time" value="13:10~15:10" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>13~14</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">13~14</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -322,12 +346,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX421 16:30"></td>
-                <td><input type="text" value="13:30~15:30"></td>
+                <td><input type="text" class="open-time" value="13:30~15:30" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>14~15</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">14~15</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -339,12 +365,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX473 18:40"></td>
-                <td><input type="text" value="15:40~17:40"></td>
+                <td><input type="text" class="open-time" value="15:40~17:40" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>15~16</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">15~16</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -356,12 +384,14 @@
             <tr class="pm-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="text"></td>
+                <td><input type="text" class="open-time" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>16~17</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">16~17</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -373,12 +403,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX565 19:15"></td>
-                <td><input type="text" value="16:15~18:15"></td>
+                <td><input type="text" class="open-time" value="16:15~18:15" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>17~18</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">17~18</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -390,12 +422,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX451 19:30"></td>
-                <td><input type="text" value="16:30~18:30"></td>
+                <td><input type="text" class="open-time" value="16:30~18:30" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>18~19</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">18~19</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -407,12 +441,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX531 19:55"></td>
-                <td><input type="text" value="16:55~18:55"></td>
+                <td><input type="text" class="open-time" value="16:55~18:55" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td></td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str"></td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -424,12 +460,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX479 21:05"></td>
-                <td><input type="text" value="18:05~20:05"></td>
+                <td><input type="text" class="open-time" value="18:05~20:05" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>19~20</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">19~20</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -441,12 +479,14 @@
             <tr class="pm-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX469 22:20"></td>
-                <td><input type="text" value="19:20~21:20"></td>
+                <td><input type="text" class="open-time" value="19:20~21:20" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>20~21</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">20~21</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -458,12 +498,14 @@
             <tr class="pm-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="text"></td>
+                <td><input type="text" class="open-time" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="w-pax" oninput="calculateAll()"></td>
                 <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field ttl-pax" readonly></td>
                 <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
-                <td>21~22</td>
+                <td><input type="text" class="readonly-field fit-pax" readonly></td>
+                <td class="band-str">21~22</td>
                 <td><input type="text" class="readonly-field req-counter" readonly></td>
                 <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
@@ -474,135 +516,128 @@
             </tr>
 
             <tr class="summary-row">
-                <td colspan="3" class="summary-title">TOTAL BKG =</td>
-                <td id="totalBkg" colspan="4">0</td>
-                <td colspan="5" class="summary-title">總加班時數需求</td>
+                <td colspan="6" class="summary-title">TOTAL BKG =</td>
+                <td id="totalBkg" colspan="3">0</td>
+                <td colspan="6" class="summary-title">總加班時數需求</td>
                 <td id="totalOt" colspan="2">0.0</td>
-                <td></td>
             </tr>
             <tr class="summary-row">
-                <td colspan="2" class="summary-title">上午總訂位人數</td>
-                <td id="amBkg">0</td>
-                <td colspan="2" class="summary-title">上午FIT人數</td>
-                <td id="amFit">0</td>
-                <td class="summary-title">上午團體GRP</td>
-                <td id="amGrp">0</td>
-                <td colspan="4" class="summary-title">上午加班</td>
+                <td colspan="6" class="summary-title">上午訂位人數</td>
+                <td id="amBkg" colspan="3">0</td>
+                <td colspan="6" class="summary-title">上午加班</td>
                 <td id="amOt" colspan="2">0.0</td>
-                <td></td>
             </tr>
             <tr class="summary-row">
-                <td colspan="2" class="summary-title">下午總訂位人數</td>
-                <td id="pmBkg">0</td>
-                <td colspan="2" class="summary-title">下午FIT人數</td>
-                <td id="pmFit">0</td>
-                <td class="summary-title">下午團體GRP</td>
-                <td id="pmGrp">0</td>
-                <td colspan="4" class="summary-title">下午加班</td>
+                <td colspan="6" class="summary-title">下午訂位人數</td>
+                <td id="pmBkg" colspan="3">0</td>
+                <td colspan="6" class="summary-title">下午加班</td>
                 <td id="pmOt" colspan="2">0.0</td>
-                <td></td>
             </tr>
         </tbody>
     </table>
 
     <script>
-        function calculateAll() {
-            let amTotal = 0, amGrpTotal = 0, amOt = 0;
-            let pmTotal = 0, pmGrpTotal = 0, pmOt = 0;
+        // 解析 "HH:MM~HH:MM" 或 "HH:MM-HH:MM" 為當天的分鐘數
+        function parseTimeRange(str) {
+            if (!str) return null;
+            let m = str.match(/(\d{1,2}):(\d{2})\s*[~\-]\s*(\d{1,2}):(\d{2})/);
+            if (m) {
+                let start = parseInt(m[1]) * 60 + parseInt(m[2]);
+                let end = parseInt(m[3]) * 60 + parseInt(m[4]);
+                if (end < start) end += 24 * 60; // 跨夜處理
+                return { start, end };
+            }
+            return null;
+        }
 
-            const gValues = {}; // 儲存每一列的總人數 (G = J+PEY+Y)
+        // 解析時間帶 "05~06" 為分鐘數 (300 to 360)
+        function parseBand(str) {
+            if (!str) return null;
+            let m = str.match(/(\d{1,2})\s*~\s*(\d{1,2})/);
+            if (m) {
+                let start = parseInt(m[1]) * 60;
+                let end = parseInt(m[2]) * 60;
+                if (end < start) end += 24 * 60;
+                return { start, end };
+            }
+            return null;
+        }
+
+        // HU 4 Excel 各時段預設基礎台數 (Baseline)
+        const baselines = {
+            "05~06": 2, "06~07": 1, "07~08": 1, 
+            "12~13": 1, "13~14": 2, 
+            "20~21": 1, "21~22": 1
+        };
+
+        function calculateAll() {
+            let amTotal = 0, amOt = 0;
+            let pmTotal = 0, pmOt = 0;
+
             const rows = document.querySelectorAll('#scheduleTable tbody tr:not(.summary-row)');
-            
-            // 第一步：先掃描所有列，把所有航班的 G 值抓出來記錄
-            rows.forEach((row, index) => {
-                const excelRowNum = index + 4; // 第一列從 Excel Row 4 (05~06) 開始算
-                row.setAttribute('data-excel-row', excelRowNum);
-                
+            const flightData = [];
+
+            // 第一階段：掃描整張表，把每個航班的開櫃時間跟總人數記錄下來
+            rows.forEach(row => {
                 const j = parseInt(row.querySelector('.j-pax').value) || 0;
-                const pey = parseInt(row.querySelector('.pey-pax').value) || 0;
+                const w = parseInt(row.querySelector('.w-pax').value) || 0;
                 const y = parseInt(row.querySelector('.y-pax').value) || 0;
+                const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
                 
-                gValues[excelRowNum] = j + pey + y;
+                const ttl = j + w + y;
+                const fit = Math.max(0, ttl - grp);
+                
+                // 更新畫面上的 TTL 與 FIT
+                row.querySelector('.ttl-pax').value = ttl > 0 ? ttl : "";
+                row.querySelector('.fit-pax').value = ttl > 0 ? fit : "";
+
+                const timeStr = row.querySelector('.open-time').value;
+                const timeRange = parseTimeRange(timeStr);
+
+                flightData.push({ ttl, timeRange });
+
+                // 加總上下午訂位人數
+                if (row.classList.contains('am-row')) {
+                    amTotal += ttl;
+                } else if (row.classList.contains('pm-row')) {
+                    pmTotal += ttl;
+                }
             });
 
-            // 第二步：正式執行計算
-            rows.forEach((row) => {
-                const excelRowNum = parseInt(row.getAttribute('data-excel-row'));
-                const rowTtl = gValues[excelRowNum] || 0; 
-                const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
-
-                // 上下午人數統計分流
-                if (row.classList.contains('am-row')) {
-                    amTotal += rowTtl;
-                    amGrpTotal += grp;
-                } else if (row.classList.contains('pm-row')) {
-                    pmTotal += rowTtl;
-                    pmGrpTotal += grp;
-                }
-
+            // 第二階段：計算每個時間帶的精準重疊台數
+            rows.forEach((row, index) => {
+                const bandStr = row.querySelector('.band-str').innerText.trim() || row.querySelector('.band-str').value;
+                const band = parseBand(bandStr);
                 const reqInput = row.querySelector('.req-counter');
-                let req = 0;
                 
-                // ==========================================
-                // 尖峰時間帶特殊連動計算 (依據 Excel 行號判斷)
-                // ==========================================
-                
-                // 1. 【08~09 時間帶 (Row 7)】
-                if (excelRowNum === 7) { 
-                    const g5 = gValues[5] || 0; // CX477 (跨越至08:55) -> 算滿1小時(6個單位)
-                    const g7 = gValues[7] || 0; // CX489 -> 算滿1小時(6個單位)
-                    const g8 = gValues[8] || 0; // CX564 -> 算滿1小時(6個單位)
-                    const g9 = gValues[9] || 0; // CX530 (08:30開櫃) -> 算半小時(3個單位)
+                let totalReq = 0;
+                let base = 0;
+
+                if (band) {
+                    base = baselines[bandStr] || 0;
+                    let overlapSum = 0;
+
+                    // 遍歷所有航班，計算它在這個時間帶裡「待了幾分鐘」
+                    flightData.forEach(flt => {
+                        if (flt.ttl > 0 && flt.timeRange) {
+                            let overlapStart = Math.max(band.start, flt.timeRange.start);
+                            let overlapEnd = Math.min(band.end, flt.timeRange.end);
+                            let overlapMins = Math.max(0, overlapEnd - overlapStart);
+                            
+                            if (overlapMins > 0) {
+                                // HU 4 核心邏輯：(總人數 ÷ 48) × (重疊分鐘 ÷ 60)
+                                overlapSum += (flt.ttl / 48) * (overlapMins / 60);
+                            }
+                        }
+                    });
                     
-                    if (g5 > 0 || g7 > 0 || g8 > 0 || g9 > 0) {
-                        req = ((g5/12*6) + (g7/12*6) + (g8/12*6) + (g9/12*3)) / 24;
-                        reqInput.value = parseFloat(req.toFixed(3));
-                    } else {
-                        reqInput.value = "";
-                    }
-                } 
-                // 2. 【09~10 時間帶 (Row 8)】
-                else if (excelRowNum === 8) { 
-                    const g7 = gValues[7] || 0;  // CX489 (至09:50) -> 算50分鐘(5個單位)
-                    const g8 = gValues[8] || 0;  // CX564 -> 算滿1小時(6個單位)
-                    const g9 = gValues[9] || 0;  // CX530 -> 算滿1小時(6個單位)
-                    const g10 = gValues[10] || 0; // CX461 -> 算滿1小時(6個單位)
-                    
-                    if (g7 > 0 || g8 > 0 || g9 > 0 || g10 > 0) {
-                        req = ((g7/12*5) + (g8/12*6) + (g9/12*6) + (g10/12*6)) / 24;
-                        reqInput.value = parseFloat(req.toFixed(3));
-                    } else {
-                        reqInput.value = "";
-                    }
-                } 
-                // 3. 【10~11 時間帶 (Row 11)】
-                else if (excelRowNum === 11) { 
-                    const g9 = gValues[9] || 0;   // CX530 (至10:30) -> 算30分鐘(3個單位)
-                    const g10 = gValues[10] || 0; // CX461 -> 算滿1小時(6個單位)
-                    const g11 = gValues[11] || 0; // CX450 -> 算滿1小時(6個單位)
-                    const g12 = gValues[12] || 0; // CX495 (10:20開櫃) -> 算40分鐘(4個單位)
-                    
-                    if (g9 > 0 || g10 > 0 || g11 > 0 || g12 > 0) {
-                        req = ((g9/12*3) + (g10/12*6) + (g11/12*6) + (g12/12*4)) / 24;
-                        reqInput.value = parseFloat(req.toFixed(3));
-                    } else {
-                        reqInput.value = "";
-                    }
-                } 
-                // ==========================================
-                // 其餘一般時間帶：恢復散客/30 + 團客/50 邏輯
-                // ==========================================
-                else {
-                    if (rowTtl > 0 || grp > 0) {
-                        const fit = Math.max(0, rowTtl - grp);
-                        req = Math.ceil((fit / 30) + (grp / 50));
-                        reqInput.value = req;
-                    } else {
-                        reqInput.value = "";
-                    }
+                    totalReq = overlapSum + base;
+                    reqInput.value = totalReq > 0 ? parseFloat(totalReq.toFixed(3)) : base;
+                } else {
+                    reqInput.value = ""; // 如果連時間帶都沒有，就不算需求
                 }
 
-                // 3. 計算台數差額 (現有 - 需求)
+                // 處理台數差額與顯示
                 const curInput = row.querySelector('.cur-counter');
                 const surplusField = row.querySelector('.surplus');
                 const shortageField = row.querySelector('.shortage-col');
@@ -624,32 +659,33 @@
                         surplusField.classList.remove('shortage');
                         shortageField.classList.remove('shortage');
                     }
+                } else {
+                    surplusField.value = "";
+                    shortageField.value = "";
+                    surplusField.classList.remove('shortage');
+                    shortageField.classList.remove('shortage');
                 }
 
-                // 加總加班時數
+                // 統計加班時數
                 const otValue = parseFloat(otInput.value) || 0;
                 if (row.classList.contains('am-row')) amOt += otValue;
                 if (row.classList.contains('pm-row')) pmOt += otValue;
             });
 
-            // 計算 FIT 總和
-            const amFit = Math.max(0, amTotal - amGrpTotal);
-            const pmFit = Math.max(0, pmTotal - pmGrpTotal);
-
-            // 更新總計面板
+            // 更新總計區塊
             document.getElementById('totalBkg').innerText = amTotal + pmTotal;
-            document.getElementById('totalOt').innerText = (amOt + pmOt).toFixed(1);
-
             document.getElementById('amBkg').innerText = amTotal;
-            document.getElementById('amFit').innerText = amFit;
-            document.getElementById('amGrp').innerText = amGrpTotal;
-            document.getElementById('amOt').innerText = amOt.toFixed(1);
-
             document.getElementById('pmBkg').innerText = pmTotal;
-            document.getElementById('pmFit').innerText = pmFit;
-            document.getElementById('pmGrp').innerText = pmGrpTotal;
+            
+            document.getElementById('totalOt').innerText = (amOt + pmOt).toFixed(1);
+            document.getElementById('amOt').innerText = amOt.toFixed(1);
             document.getElementById('pmOt').innerText = pmOt.toFixed(1);
         }
+
+        // 初始化第一次計算，顯示 Baseline
+        window.onload = function() {
+            calculateAll();
+        };
     </script>
 </body>
 </html>
