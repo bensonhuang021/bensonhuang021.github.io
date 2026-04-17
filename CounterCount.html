@@ -1,1142 +1,573 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Arial; color: #434343; -webkit-text-stroke: #434343}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Arial; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px 'PingFang TC'; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px 'Helvetica Neue'; -webkit-text-stroke: #000000}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Arial; -webkit-text-stroke: #000000; min-height: 14.0px}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 12.0px Arial; -webkit-text-stroke: #000000}
-    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 12.0px Arial; color: #0b5351; -webkit-text-stroke: #0b5351}
-    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 12.0px 'PingFang TC Semibold'; color: #0b5351; -webkit-text-stroke: #0b5351}
-    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: right; font: 12.0px 'PingFang TC'; color: #0b5351; -webkit-text-stroke: #0b5351}
-    span.s1 {font: 18.0px 'PingFang TC'; font-kerning: none}
-    span.s2 {font-kerning: none}
-    span.s3 {font: 12.0px 'PingFang TC'; font-kerning: none}
-    span.s4 {font: 12.0px Arial; font-kerning: none}
-    span.s5 {font-kerning: none; background-color: #ffffff}
-    table.t1 {border-collapse: collapse}
-    td.td1 {width: 33.3px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td2 {width: 54.2px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td3 {width: 94.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td4 {width: 87.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td5 {width: 74.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td6 {width: 36.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td7 {width: 72.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td8 {width: 48.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td9 {width: 57.3px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td10 {width: 24.0px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td11 {width: 37.3px; background-color: #0b5351; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td12 {width: 26.5px; background-color: #2560a6; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td13 {width: 26.5px; background-color: #4b88cb; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td14 {width: 8.0px; background-color: #5fa137; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td15 {width: 33.3px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td16 {width: 54.2px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td17 {width: 94.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td18 {width: 26.5px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td19 {width: 8.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td20 {width: 74.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td21 {width: 36.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td22 {width: 72.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td23 {width: 48.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td24 {width: 57.3px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td25 {width: 24.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td26 {width: 37.3px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td27 {width: 207.6px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td28 {width: 174.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td29 {width: 313.3px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td30 {width: 109.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td31 {width: 37.3px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td32 {width: 100.6px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td33 {width: 94.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td34 {width: 66.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td35 {width: 8.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td36 {width: 74.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td37 {width: 36.0px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-    td.td38 {width: 264.3px; background-color: #ececec; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #8f8f8f #8f8f8f #8f8f8f #8f8f8f; padding: 4.0px 6.0px 4.0px 6.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排班開台數計算 - S26 29MAR26起</title>
+    <style>
+        :root {
+            --cx-green: #006564;
+            --border-color: #a0a0a0;
+            --highlight-bg: #fffccc;
+            --alert-red: #d9534f;
+            /* 艙等顏色 */
+            --color-j: #d9e9f3;   /* 藍底 */
+            --color-pey: #e5f1fb; /* 淺藍底 */
+            --color-y: #eaf1dd;   /* 綠底 */
+        }
+        body {
+            font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+            margin: 10px;
+            font-size: 12px;
+        }
+        h2 {
+            color: var(--cx-green);
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            white-space: nowrap;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 4px 6px;
+            text-align: center;
+            height: 24px;
+        }
+        th {
+            background-color: var(--cx-green);
+            color: white;
+            font-weight: normal;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .th-j { background-color: #2f75b5; }
+        .th-pey { background-color: #5b9bd5; }
+        .th-y { background-color: #70ad47; }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            padding: 2px;
+            text-align: center;
+            font-size: 12px;
+        }
+        input.j-pax { background-color: var(--color-j); }
+        input.pey-pax { background-color: var(--color-pey); }
+        input.y-pax { background-color: var(--color-y); }
+        
+        .readonly-field {
+            background-color: #f2f2f2;
+            border: none;
+            font-weight: bold;
+            color: #333;
+        }
+        .calc-cell {
+            background-color: var(--highlight-bg);
+        }
+        .shortage {
+            color: white !important;
+            background-color: var(--alert-red) !important;
+            font-weight: bold;
+        }
+        .summary-row td {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .summary-title {
+            text-align: right;
+            color: var(--cx-green);
+        }
+    </style>
 </head>
 <body>
-<h2 style="margin: 0.0px 0.0px 5.0px 0.0px; font: 18.0px Arial; color: #0b5351; -webkit-text-stroke: #0b5351"><span class="s1"><b>排班開台數計算</b></span><span class="s2"><b> (S26 29MAR26 </b></span><span class="s1"><b>起</b></span><span class="s2"><b>)</b></span></h2>
-<p class="p2"><span class="s2"><b>ETD-60MINS CTR CLOSED</b></span></p>
-<table cellspacing="0" cellpadding="0" class="t1">
-  <tbody>
-    <tr>
-      <td rowspan="2" valign="middle" class="td1">
-        <p class="p3"><span class="s2">ACFG</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td2">
-        <p class="p3"><span class="s2">FLT / ETD</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td3">
-        <p class="p3"><span class="s2">CTR OPEN TIME</span></p>
-      </td>
-      <td colspan="3" valign="middle" class="td4">
-        <p class="p4"><span class="s2">訂位人數分流</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td5">
-        <p class="p3"><span class="s3">團體</span><span class="s2">GRP</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td6">
-        <p class="p4"><span class="s2">時間帶</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td7">
-        <p class="p4"><span class="s2">至少台數需求</span></p>
-        <p class="p3"><span class="s2">(</span><span class="s3">固定</span><span class="s2">)</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td8">
-        <p class="p4"><span class="s2">現有台數</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td8">
-        <p class="p4"><span class="s2">尚有台數</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td9">
-        <p class="p4"><span class="s2">寰宇商務</span><span class="s4">/</span></p>
-        <p class="p4"><span class="s4">Q</span><span class="s2">分流大使</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td10">
-        <p class="p4"><span class="s2">缺少</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td7">
-        <p class="p4"><span class="s2">加班時數需求</span></p>
-      </td>
-      <td rowspan="2" valign="middle" class="td11">
-        <p class="p3"><span class="s2">remark</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td12">
-        <p class="p3"><span class="s2">J</span></p>
-      </td>
-      <td valign="middle" class="td13">
-        <p class="p3"><span class="s2">PEY</span></p>
-      </td>
-      <td valign="middle" class="td14">
-        <p class="p3"><span class="s2">Y</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">333</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX407 08:00</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">05:00~07:00</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">05~06</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">A32Q</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX477 09:55</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">06:55~08:55</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">06~07</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">07~08</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">A32Q</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX489 10:50</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">07:50~09:50</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">08~09</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">773</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX564 11:05</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">08:05~10:05</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">09~10</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">773</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX530 11:30</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">08:30~10:30</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">A32Q</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX461 12:00</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">09:00~11:00</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">773</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX450 13:00</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">10:00~12:00</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">10~11</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">333</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX495 13:20</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">10:20~12:20</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">11~12</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">12~13</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">333</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX443 16:10</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">13:10~15:10</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">13~14</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">A32Q</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX421 16:30</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">13:30~15:30</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">14~15</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">333</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX473 18:40</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">15:40~17:40</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">15~16</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">16~17</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">773</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX565 19:15</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">16:15~18:15</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">17~18</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">773</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX451 19:30</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">16:30~18:30</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">18~19</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">333</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX531 19:55</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">16:55~18:55</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">333</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX479 21:05</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">18:05~20:05</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">19~20</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p5"><span class="s5">A32Q</span></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p5"><span class="s5">CX469 22:20</span></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p5"><span class="s5">19:20~21:20</span></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">20~21</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td15">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td16">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td17">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td18">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td19">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td20">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td21">
-        <p class="p7"><span class="s2">21~22</span></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td23">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td24">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td25">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td22">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-      <td valign="middle" class="td26">
-        <p class="p6"><span class="s2"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="3" valign="middle" class="td27">
-        <p class="p8"><span class="s2"><b>TOTAL BKG =</b></span></p>
-      </td>
-      <td colspan="4" valign="middle" class="td28">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td colspan="5" valign="middle" class="td29">
-        <p class="p9"><span class="s3"><b>總加班時數需求</b><b></b></span></p>
-      </td>
-      <td colspan="2" valign="middle" class="td30">
-        <p class="p7"><span class="s2"><b>0.0</b></span></p>
-      </td>
-      <td valign="middle" class="td31">
-        <p class="p6"><span class="s2"><b></b></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2" valign="middle" class="td32">
-        <p class="p9"><span class="s3"><b>上午總訂位人數</b><b></b></span></p>
-      </td>
-      <td valign="middle" class="td33">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td colspan="2" valign="middle" class="td34">
-        <p class="p10"><span class="s2"><b>上午</b></span><span class="s4"><b>FIT</b></span><span class="s2"><b>人數</b><b></b></span></p>
-      </td>
-      <td valign="middle" class="td35">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td valign="middle" class="td36">
-        <p class="p9"><span class="s3"><b>上午團體</b></span><span class="s4"><b>GRP</b></span></p>
-      </td>
-      <td valign="middle" class="td37">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td colspan="4" valign="middle" class="td38">
-        <p class="p9"><span class="s3"><b>上午加班</b><b></b></span></p>
-      </td>
-      <td colspan="2" valign="middle" class="td30">
-        <p class="p7"><span class="s2"><b>0.0</b></span></p>
-      </td>
-      <td valign="middle" class="td31">
-        <p class="p6"><span class="s2"><b></b></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2" valign="middle" class="td32">
-        <p class="p9"><span class="s3"><b>下午總訂位人數</b><b></b></span></p>
-      </td>
-      <td valign="middle" class="td33">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td colspan="2" valign="middle" class="td34">
-        <p class="p10"><span class="s2"><b>下午</b></span><span class="s4"><b>FIT</b></span><span class="s2"><b>人數</b><b></b></span></p>
-      </td>
-      <td valign="middle" class="td35">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td valign="middle" class="td36">
-        <p class="p9"><span class="s3"><b>下午團體</b></span><span class="s4"><b>GRP</b></span></p>
-      </td>
-      <td valign="middle" class="td37">
-        <p class="p7"><span class="s2"><b>0</b></span></p>
-      </td>
-      <td colspan="4" valign="middle" class="td38">
-        <p class="p9"><span class="s3"><b>下午加班</b><b></b></span></p>
-      </td>
-      <td colspan="2" valign="middle" class="td30">
-        <p class="p7"><span class="s2"><b>0.0</b></span></p>
-      </td>
-      <td valign="middle" class="td31">
-        <p class="p6"><span class="s2"><b></b></span><br></p>
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+    <h2>排班開台數計算 (S26 29MAR26 起)</h2>
+    <div class="subtitle">ETD-60MINS CTR CLOSED</div>
+
+    <table id="scheduleTable">
+        <thead>
+            <tr>
+                <th rowspan="2">ACFG</th>
+                <th rowspan="2">FLT / ETD</th>
+                <th rowspan="2">CTR OPEN TIME</th>
+                <th colspan="3">訂位人數分流</th>
+                <th rowspan="2">團體GRP</th>
+                <th rowspan="2">時間帶</th>
+                <th rowspan="2">至少台數需求<br>(固定)</th>
+                <th rowspan="2">現有台數</th>
+                <th rowspan="2">尚有台數</th>
+                <th rowspan="2">寰宇商務/<br>Q分流大使</th>
+                <th rowspan="2">缺少</th>
+                <th rowspan="2">加班時數需求</th>
+                <th rowspan="2">remark</th>
+            </tr>
+            <tr>
+                <th class="th-j">J</th>
+                <th class="th-pey">PEY</th>
+                <th class="th-y">Y</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="am-row">
+                <td><input type="text" value="333"></td>
+                <td><input type="text" value="CX407 08:00"></td>
+                <td><input type="text" value="05:00~07:00"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>05~06</td>
+                <td><input type="number" value="2" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="A32Q"></td>
+                <td><input type="text" value="CX477 09:55"></td>
+                <td><input type="text" value="06:55~08:55"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>06~07</td>
+                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td>07~08</td>
+                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="A32Q"></td>
+                <td><input type="text" value="CX489 10:50"></td>
+                <td><input type="text" value="07:50~09:50"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>08~09</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="773"></td>
+                <td><input type="text" value="CX564 11:05"></td>
+                <td><input type="text" value="08:05~10:05"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>09~10</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="773"></td>
+                <td><input type="text" value="CX530 11:30"></td>
+                <td><input type="text" value="08:30~10:30"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td></td>
+                <td><input type="number" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="A32Q"></td>
+                <td><input type="text" value="CX461 12:00"></td>
+                <td><input type="text" value="09:00~11:00"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td></td>
+                <td><input type="number" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="773"></td>
+                <td><input type="text" value="CX450 13:00"></td>
+                <td><input type="text" value="10:00~12:00"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>10~11</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="am-row">
+                <td><input type="text" value="333"></td>
+                <td><input type="text" value="CX495 13:20"></td>
+                <td><input type="text" value="10:20~12:20"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>11~12</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td>12~13</td>
+                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="333"></td>
+                <td><input type="text" value="CX443 16:10"></td>
+                <td><input type="text" value="13:10~15:10"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>13~14</td>
+                <td><input type="number" value="2" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="A32Q"></td>
+                <td><input type="text" value="CX421 16:30"></td>
+                <td><input type="text" value="13:30~15:30"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>14~15</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="333"></td>
+                <td><input type="text" value="CX473 18:40"></td>
+                <td><input type="text" value="15:40~17:40"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>15~16</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td>16~17</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="773"></td>
+                <td><input type="text" value="CX565 19:15"></td>
+                <td><input type="text" value="16:15~18:15"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>17~18</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="773"></td>
+                <td><input type="text" value="CX451 19:30"></td>
+                <td><input type="text" value="16:30~18:30"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>18~19</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="333"></td>
+                <td><input type="text" value="CX531 19:55"></td>
+                <td><input type="text" value="16:55~18:55"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td></td>
+                <td><input type="number" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="333"></td>
+                <td><input type="text" value="CX479 21:05"></td>
+                <td><input type="text" value="18:05~20:05"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>19~20</td>
+                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text" value="A32Q"></td>
+                <td><input type="text" value="CX469 22:20"></td>
+                <td><input type="text" value="19:20~21:20"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td>20~21</td>
+                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+            <tr class="pm-row">
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td>21~22</td>
+                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="surplus readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" class="shortage-col readonly-field" readonly></td>
+                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text"></td>
+            </tr>
+
+            <tr class="summary-row">
+                <td colspan="3" class="summary-title">TOTAL BKG =</td>
+                <td id="totalBkg" colspan="4">0</td>
+                <td colspan="5" class="summary-title">總加班時數需求</td>
+                <td id="totalOt" colspan="2">0.0</td>
+                <td></td>
+            </tr>
+            <tr class="summary-row">
+                <td colspan="2" class="summary-title">上午總訂位人數</td>
+                <td id="amBkg">0</td>
+                <td colspan="2" class="summary-title">上午FIT人數</td>
+                <td id="amFit">0</td>
+                <td class="summary-title">上午團體GRP</td>
+                <td id="amGrp">0</td>
+                <td colspan="4" class="summary-title">上午加班</td>
+                <td id="amOt" colspan="2">0.0</td>
+                <td></td>
+            </tr>
+            <tr class="summary-row">
+                <td colspan="2" class="summary-title">下午總訂位人數</td>
+                <td id="pmBkg">0</td>
+                <td colspan="2" class="summary-title">下午FIT人數</td>
+                <td id="pmFit">0</td>
+                <td class="summary-title">下午團體GRP</td>
+                <td id="pmGrp">0</td>
+                <td colspan="4" class="summary-title">下午加班</td>
+                <td id="pmOt" colspan="2">0.0</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function calculateAll() {
+            let amTotal = 0, amGrpTotal = 0, amOt = 0;
+            let pmTotal = 0, pmGrpTotal = 0, pmOt = 0;
+
+            const rows = document.querySelectorAll('#scheduleTable tbody tr:not(.summary-row)');
+            
+            rows.forEach(row => {
+                // 加總人數 (J + PEY + Y)
+                const j = parseInt(row.querySelector('.j-pax').value) || 0;
+                const pey = parseInt(row.querySelector('.pey-pax').value) || 0;
+                const y = parseInt(row.querySelector('.y-pax').value) || 0;
+                const rowTtl = j + pey + y;
+                
+                // 團體人數
+                const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
+
+                // 判斷上午下午
+                if (row.classList.contains('am-row')) {
+                    amTotal += rowTtl;
+                    amGrpTotal += grp;
+                } else if (row.classList.contains('pm-row')) {
+                    pmTotal += rowTtl;
+                    pmGrpTotal += grp;
+                }
+
+                // 計算台數差額
+                const reqInput = row.querySelector('.req-counter');
+                const curInput = row.querySelector('.cur-counter');
+                const surplusField = row.querySelector('.surplus');
+                const shortageField = row.querySelector('.shortage-col');
+                const otInput = row.querySelector('.ot-req');
+
+                // 檢查是否有台數需求設定
+                if (reqInput.value !== "" || curInput.value !== "") {
+                    const req = parseFloat(reqInput.value) || 0;
+                    const cur = parseFloat(curInput.value) || 0;
+                    const diff = cur - req;
+                    
+                    surplusField.value = diff.toFixed(1);
+
+                    if (diff < 0) {
+                        shortageField.value = Math.abs(diff).toFixed(1);
+                        surplusField.classList.add('shortage');
+                        shortageField.classList.add('shortage');
+                    } else {
+                        shortageField.value = "";
+                        surplusField.classList.remove('shortage');
+                        shortageField.classList.remove('shortage');
+                    }
+                }
+
+                // 加總加班時數
+                const otValue = parseFloat(otInput.value) || 0;
+                if (row.classList.contains('am-row')) amOt += otValue;
+                if (row.classList.contains('pm-row')) pmOt += otValue;
+            });
+
+            // 計算 FIT = 總訂位人數 - GRP
+            const amFit = Math.max(0, amTotal - amGrpTotal);
+            const pmFit = Math.max(0, pmTotal - pmGrpTotal);
+
+            // 更新總計面板 - 總計
+            document.getElementById('totalBkg').innerText = amTotal + pmTotal;
+            document.getElementById('totalOt').innerText = (amOt + pmOt).toFixed(1);
+
+            // 更新總計面板 - 上午
+            document.getElementById('amBkg').innerText = amTotal;
+            document.getElementById('amFit').innerText = amFit;
+            document.getElementById('amGrp').innerText = amGrpTotal;
+            document.getElementById('amOt').innerText = amOt.toFixed(1);
+
+            // 更新總計面板 - 下午
+            document.getElementById('pmBkg').innerText = pmTotal;
+            document.getElementById('pmFit').innerText = pmFit;
+            document.getElementById('pmGrp').innerText = pmGrpTotal;
+            document.getElementById('pmOt').innerText = pmOt.toFixed(1);
+        }
+    </script>
 </body>
 </html>
