@@ -511,16 +511,25 @@
             let amTotal = 0, amGrpTotal = 0, amOt = 0;
             let pmTotal = 0, pmGrpTotal = 0, pmOt = 0;
 
+            const gValues = {}; // 用來儲存每一列的 G (J+PEY+Y) 數值
             const rows = document.querySelectorAll('#scheduleTable tbody tr:not(.summary-row)');
             
-            rows.forEach(row => {
-                // 1. 取得人數
+            // 第一步：先掃描一次，把所有列的 G 值（總人數 J+PEY+Y）計算並記錄下來
+            rows.forEach((row, index) => {
+                const excelRowNum = index + 4; // 配合 Excel，第一列 05~06 視為 Row 4
+                row.setAttribute('data-excel-row', excelRowNum);
+                
                 const j = parseInt(row.querySelector('.j-pax').value) || 0;
                 const pey = parseInt(row.querySelector('.pey-pax').value) || 0;
                 const y = parseInt(row.querySelector('.y-pax').value) || 0;
                 
-                // 假設 G4 = j + pey + y
-                const rowTtl = j + pey + y;
+                gValues[excelRowNum] = j + pey + y;
+            });
+
+            // 第二步：正式計算台數、差額與上下午加總
+            rows.forEach((row) => {
+                const excelRowNum = parseInt(row.getAttribute('data-excel-row'));
+                const rowTtl = gValues[excelRowNum] || 0; // 這就是該列的 G 值
                 const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
 
                 // 加總上下午人數
@@ -532,32 +541,44 @@
                     pmGrpTotal += grp;
                 }
 
-                // 2. 自動計算「至少台數需求」
                 const reqInput = row.querySelector('.req-counter');
                 let req = 0;
                 
-                // 只有在填入總人數大於 0 時才進行計算
-                if (rowTtl > 0) {
-                    // 套用指定公式: =IF(AND(G4>199,G4<260),7,((G4/12*6)/24+2))
-                    if (rowTtl > 199 && rowTtl < 260) {
-                        req = 7;
+                // 針對尖峰時間帶 (08~09, 09~10, 10~11) 套用特殊連動公式
+                // Excel Row 7 = 08~09 / Row 8 = 09~10 / Row 11 = 10~11
+                if (excelRowNum === 7 || excelRowNum === 8 || excelRowNum === 11) {
+                    const g5 = gValues[5] || 0; // CX477
+                    const g7 = gValues[7] || 0; // CX489
+                    const g8 = gValues[8] || 0; // CX564
+                    const g9 = gValues[9] || 0; // CX530
+                    
+                    // 只要這幾班任何一班有人數，就進行計算
+                    if (g5 > 0 || g7 > 0 || g8 > 0 || g9 > 0) {
+                        // 公式: =(G5/12*6 + G7/12*6 + G8/12*6 + G9/12*3)/24
+                        req = ((g5 / 12 * 6) + (g7 / 12 * 6) + (g8 / 12 * 6) + (g9 / 12 * 3)) / 24;
+                        reqInput.value = parseFloat(req.toFixed(3)); // 顯示小數點後三位
                     } else {
-                        req = ((rowTtl / 12 * 6) / 24) + 2;
+                        reqInput.value = ""; 
                     }
-                    // 顯示小數點後位數
-                    reqInput.value = req.toFixed(3); // 可依需求調整保留位數，目前抓小數點後三位
-                } else {
-                    reqInput.value = ""; // 沒填人數則留空
+                } 
+                // 其他一般時間帶，恢復 V4 一般公式： Math.ceil(散客/30 + 團體/50)
+                else {
+                    if (rowTtl > 0 || grp > 0) {
+                        const fit = Math.max(0, rowTtl - grp);
+                        req = Math.ceil((fit / 30) + (grp / 50));
+                        reqInput.value = req;
+                    } else {
+                        reqInput.value = "";
+                    }
                 }
 
-                // 3. 計算台數差額 (現有 - 需求)
+                // 計算台數差額 (現有 - 需求)
                 const curInput = row.querySelector('.cur-counter');
                 const surplusField = row.querySelector('.surplus');
                 const shortageField = row.querySelector('.shortage-col');
                 const otInput = row.querySelector('.ot-req');
 
                 if (reqInput.value !== "" || curInput.value !== "") {
-                    // 若需求欄位為空值，則當作 0 計算
                     const currentReq = parseFloat(reqInput.value) || 0; 
                     const cur = parseFloat(curInput.value) || 0;
                     const diff = cur - currentReq;
