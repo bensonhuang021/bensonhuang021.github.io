@@ -534,15 +534,15 @@
                 const reqInput = row.querySelector('.req-counter');
                 let req = 0;
                 
-                if (rowTtl > 0 || grp > 0) {
-                    const fit = Math.max(0, rowTtl - grp);
-                    // ==========================================
-                    // 【公式設定區】: FIT / 30 + GRP / 50 並無條件進位
-                    // 若 Excel 內公式有變更常數，請修改下方的 30 與 50
-                    // 若有基本開台數量，可以在最後加上 (例如: + 1)
-                    // ==========================================
-                    req = Math.ceil((fit / 30) + (grp / 50));
-                    reqInput.value = req;
+                // 只有在填入總人數大於 0 時才進行計算
+                if (rowTtl > 0) {
+                    if (rowTtl > 199 && rowTtl < 260) {
+                        req = 7;
+                    } else {
+                        req = (rowTtl / 48) + 2;
+                    }
+                    // 顯示至小數點後兩位 (如果剛好是整數，parseFloat 可以自動去尾)
+                    reqInput.value = parseFloat(req.toFixed(2));
                 } else {
                     reqInput.value = ""; // 沒填人數則留空
                 }
@@ -554,8 +554,10 @@
                 const otInput = row.querySelector('.ot-req');
 
                 if (reqInput.value !== "" || curInput.value !== "") {
+                    // 若需求欄位為空值，則當作 0 計算
+                    const currentReq = parseFloat(reqInput.value) || 0; 
                     const cur = parseFloat(curInput.value) || 0;
-                    const diff = cur - req;
+                    const diff = cur - currentReq;
                     
                     surplusField.value = diff.toFixed(1);
 
