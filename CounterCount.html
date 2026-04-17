@@ -38,7 +38,7 @@
             border: 1px solid var(--border-color);
             padding: 4px 6px;
             text-align: center;
-            height: 24px;
+            height: 26px;
         }
         th {
             background-color: var(--cx-green);
@@ -52,14 +52,26 @@
         .th-pey { background-color: #5b9bd5; }
         .th-y { background-color: #70ad47; }
 
-        input[type="text"], input[type="number"] {
+        /* 針對 Safari 優化的 Input 設定 */
+        input[type="text"] {
             width: 100%;
+            min-width: 35px;  /* 避免 Safari 壓縮點擊範圍 */
+            min-height: 24px; /* 確保有足夠點擊高度 */
             box-sizing: border-box;
             border: 1px solid #ccc;
             padding: 2px;
             text-align: center;
             font-size: 12px;
+            -webkit-appearance: none; /* 清除 Safari 預設樣式 */
+            appearance: none;
+            border-radius: 0;
+            outline: none;
         }
+        input[type="text"]:focus {
+            border-color: var(--cx-green);
+            background-color: #f0f8f8;
+        }
+
         input.j-pax { background-color: var(--color-j); }
         input.pey-pax { background-color: var(--color-pey); }
         input.y-pax { background-color: var(--color-y); }
@@ -121,340 +133,340 @@
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX407 08:00"></td>
                 <td><input type="text" value="05:00~07:00"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>05~06</td>
-                <td><input type="number" value="2" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="2" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX477 09:55"></td>
                 <td><input type="text" value="06:55~08:55"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>06~07</td>
-                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>07~08</td>
-                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX489 10:50"></td>
                 <td><input type="text" value="07:50~09:50"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>08~09</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX564 11:05"></td>
                 <td><input type="text" value="08:05~10:05"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>09~10</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX530 11:30"></td>
                 <td><input type="text" value="08:30~10:30"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td></td>
-                <td><input type="number" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX461 12:00"></td>
                 <td><input type="text" value="09:00~11:00"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td></td>
-                <td><input type="number" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX450 13:00"></td>
                 <td><input type="text" value="10:00~12:00"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>10~11</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="am-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX495 13:20"></td>
                 <td><input type="text" value="10:20~12:20"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>11~12</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>12~13</td>
-                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX443 16:10"></td>
                 <td><input type="text" value="13:10~15:10"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>13~14</td>
-                <td><input type="number" value="2" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="2" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX421 16:30"></td>
                 <td><input type="text" value="13:30~15:30"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>14~15</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX473 18:40"></td>
                 <td><input type="text" value="15:40~17:40"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>15~16</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>16~17</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX565 19:15"></td>
                 <td><input type="text" value="16:15~18:15"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>17~18</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="773"></td>
                 <td><input type="text" value="CX451 19:30"></td>
                 <td><input type="text" value="16:30~18:30"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>18~19</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX531 19:55"></td>
                 <td><input type="text" value="16:55~18:55"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td></td>
-                <td><input type="number" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="333"></td>
                 <td><input type="text" value="CX479 21:05"></td>
                 <td><input type="text" value="18:05~20:05"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>19~20</td>
-                <td><input type="number" value="0" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="0" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text" value="A32Q"></td>
                 <td><input type="text" value="CX469 22:20"></td>
                 <td><input type="text" value="19:20~21:20"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>20~21</td>
-                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
             <tr class="pm-row">
                 <td><input type="text"></td>
                 <td><input type="text"></td>
                 <td><input type="text"></td>
-                <td><input type="number" class="j-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="pey-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="y-pax" oninput="calculateAll()" style="display:none;"></td>
-                <td><input type="number" class="grp-pax" oninput="calculateAll()" style="display:none;"></td>
+                <td><input type="text" inputmode="numeric" class="j-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="pey-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="y-pax" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="numeric" class="grp-pax" oninput="calculateAll()"></td>
                 <td>21~22</td>
-                <td><input type="number" value="1" class="readonly-field req-counter" readonly></td>
-                <td><input type="number" step="0.5" class="cur-counter calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" value="1" class="readonly-field req-counter" readonly></td>
+                <td><input type="text" inputmode="decimal" class="cur-counter calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text" class="surplus readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="q-amb calc-cell"></td>
+                <td><input type="text" inputmode="decimal" class="q-amb calc-cell"></td>
                 <td><input type="text" class="shortage-col readonly-field" readonly></td>
-                <td><input type="number" step="0.5" class="ot-req calc-cell" oninput="calculateAll()"></td>
+                <td><input type="text" inputmode="decimal" class="ot-req calc-cell" oninput="calculateAll()"></td>
                 <td><input type="text"></td>
             </tr>
 
@@ -498,16 +510,12 @@
             const rows = document.querySelectorAll('#scheduleTable tbody tr:not(.summary-row)');
             
             rows.forEach(row => {
-                // 加總人數 (J + PEY + Y)
                 const j = parseInt(row.querySelector('.j-pax').value) || 0;
                 const pey = parseInt(row.querySelector('.pey-pax').value) || 0;
                 const y = parseInt(row.querySelector('.y-pax').value) || 0;
                 const rowTtl = j + pey + y;
-                
-                // 團體人數
                 const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
 
-                // 判斷上午下午
                 if (row.classList.contains('am-row')) {
                     amTotal += rowTtl;
                     amGrpTotal += grp;
@@ -516,14 +524,12 @@
                     pmGrpTotal += grp;
                 }
 
-                // 計算台數差額
                 const reqInput = row.querySelector('.req-counter');
                 const curInput = row.querySelector('.cur-counter');
                 const surplusField = row.querySelector('.surplus');
                 const shortageField = row.querySelector('.shortage-col');
                 const otInput = row.querySelector('.ot-req');
 
-                // 檢查是否有台數需求設定
                 if (reqInput.value !== "" || curInput.value !== "") {
                     const req = parseFloat(reqInput.value) || 0;
                     const cur = parseFloat(curInput.value) || 0;
@@ -542,27 +548,22 @@
                     }
                 }
 
-                // 加總加班時數
                 const otValue = parseFloat(otInput.value) || 0;
                 if (row.classList.contains('am-row')) amOt += otValue;
                 if (row.classList.contains('pm-row')) pmOt += otValue;
             });
 
-            // 計算 FIT = 總訂位人數 - GRP
             const amFit = Math.max(0, amTotal - amGrpTotal);
             const pmFit = Math.max(0, pmTotal - pmGrpTotal);
 
-            // 更新總計面板 - 總計
             document.getElementById('totalBkg').innerText = amTotal + pmTotal;
             document.getElementById('totalOt').innerText = (amOt + pmOt).toFixed(1);
 
-            // 更新總計面板 - 上午
             document.getElementById('amBkg').innerText = amTotal;
             document.getElementById('amFit').innerText = amFit;
             document.getElementById('amGrp').innerText = amGrpTotal;
             document.getElementById('amOt').innerText = amOt.toFixed(1);
 
-            // 更新總計面板 - 下午
             document.getElementById('pmBkg').innerText = pmTotal;
             document.getElementById('pmFit').innerText = pmFit;
             document.getElementById('pmGrp').innerText = pmGrpTotal;
