@@ -52,7 +52,6 @@
         .th-pey { background-color: #5b9bd5; }
         .th-y { background-color: #70ad47; }
 
-        /* 針對 Safari 優化的 Input 設定 */
         input[type="text"] {
             width: 100%;
             min-width: 35px;  
@@ -511,12 +510,12 @@
             let amTotal = 0, amGrpTotal = 0, amOt = 0;
             let pmTotal = 0, pmGrpTotal = 0, pmOt = 0;
 
-            const gValues = {}; // 用來儲存每一列的 G (J+PEY+Y) 數值
+            const gValues = {}; // 儲存每一列的總人數 (G = J+PEY+Y)
             const rows = document.querySelectorAll('#scheduleTable tbody tr:not(.summary-row)');
             
-            // 第一步：先掃描一次，把所有列的 G 值（總人數 J+PEY+Y）計算並記錄下來
+            // 第一步：先掃描所有列，把所有航班的 G 值抓出來記錄
             rows.forEach((row, index) => {
-                const excelRowNum = index + 4; // 配合 Excel，第一列 05~06 視為 Row 4
+                const excelRowNum = index + 4; // 第一列從 Excel Row 4 (05~06) 開始算
                 row.setAttribute('data-excel-row', excelRowNum);
                 
                 const j = parseInt(row.querySelector('.j-pax').value) || 0;
@@ -526,13 +525,13 @@
                 gValues[excelRowNum] = j + pey + y;
             });
 
-            // 第二步：正式計算台數、差額與上下午加總
+            // 第二步：正式執行計算
             rows.forEach((row) => {
                 const excelRowNum = parseInt(row.getAttribute('data-excel-row'));
-                const rowTtl = gValues[excelRowNum] || 0; // 這就是該列的 G 值
+                const rowTtl = gValues[excelRowNum] || 0; 
                 const grp = parseInt(row.querySelector('.grp-pax').value) || 0;
 
-                // 加總上下午人數
+                // 上下午人數統計分流
                 if (row.classList.contains('am-row')) {
                     amTotal += rowTtl;
                     amGrpTotal += grp;
@@ -544,24 +543,55 @@
                 const reqInput = row.querySelector('.req-counter');
                 let req = 0;
                 
-                // 針對尖峰時間帶 (08~09, 09~10, 10~11) 套用特殊連動公式
-                // Excel Row 7 = 08~09 / Row 8 = 09~10 / Row 11 = 10~11
-                if (excelRowNum === 7 || excelRowNum === 8 || excelRowNum === 11) {
-                    const g5 = gValues[5] || 0; // CX477
-                    const g7 = gValues[7] || 0; // CX489
-                    const g8 = gValues[8] || 0; // CX564
-                    const g9 = gValues[9] || 0; // CX530
+                // ==========================================
+                // 尖峰時間帶特殊連動計算 (依據 Excel 行號判斷)
+                // ==========================================
+                
+                // 1. 【08~09 時間帶 (Row 7)】
+                if (excelRowNum === 7) { 
+                    const g5 = gValues[5] || 0; // CX477 (跨越至08:55) -> 算滿1小時(6個單位)
+                    const g7 = gValues[7] || 0; // CX489 -> 算滿1小時(6個單位)
+                    const g8 = gValues[8] || 0; // CX564 -> 算滿1小時(6個單位)
+                    const g9 = gValues[9] || 0; // CX530 (08:30開櫃) -> 算半小時(3個單位)
                     
-                    // 只要這幾班任何一班有人數，就進行計算
                     if (g5 > 0 || g7 > 0 || g8 > 0 || g9 > 0) {
-                        // 公式: =(G5/12*6 + G7/12*6 + G8/12*6 + G9/12*3)/24
-                        req = ((g5 / 12 * 6) + (g7 / 12 * 6) + (g8 / 12 * 6) + (g9 / 12 * 3)) / 24;
-                        reqInput.value = parseFloat(req.toFixed(3)); // 顯示小數點後三位
+                        req = ((g5/12*6) + (g7/12*6) + (g8/12*6) + (g9/12*3)) / 24;
+                        reqInput.value = parseFloat(req.toFixed(3));
                     } else {
-                        reqInput.value = ""; 
+                        reqInput.value = "";
                     }
                 } 
-                // 其他一般時間帶，恢復 V4 一般公式： Math.ceil(散客/30 + 團體/50)
+                // 2. 【09~10 時間帶 (Row 8)】
+                else if (excelRowNum === 8) { 
+                    const g7 = gValues[7] || 0;  // CX489 (至09:50) -> 算50分鐘(5個單位)
+                    const g8 = gValues[8] || 0;  // CX564 -> 算滿1小時(6個單位)
+                    const g9 = gValues[9] || 0;  // CX530 -> 算滿1小時(6個單位)
+                    const g10 = gValues[10] || 0; // CX461 -> 算滿1小時(6個單位)
+                    
+                    if (g7 > 0 || g8 > 0 || g9 > 0 || g10 > 0) {
+                        req = ((g7/12*5) + (g8/12*6) + (g9/12*6) + (g10/12*6)) / 24;
+                        reqInput.value = parseFloat(req.toFixed(3));
+                    } else {
+                        reqInput.value = "";
+                    }
+                } 
+                // 3. 【10~11 時間帶 (Row 11)】
+                else if (excelRowNum === 11) { 
+                    const g9 = gValues[9] || 0;   // CX530 (至10:30) -> 算30分鐘(3個單位)
+                    const g10 = gValues[10] || 0; // CX461 -> 算滿1小時(6個單位)
+                    const g11 = gValues[11] || 0; // CX450 -> 算滿1小時(6個單位)
+                    const g12 = gValues[12] || 0; // CX495 (10:20開櫃) -> 算40分鐘(4個單位)
+                    
+                    if (g9 > 0 || g10 > 0 || g11 > 0 || g12 > 0) {
+                        req = ((g9/12*3) + (g10/12*6) + (g11/12*6) + (g12/12*4)) / 24;
+                        reqInput.value = parseFloat(req.toFixed(3));
+                    } else {
+                        reqInput.value = "";
+                    }
+                } 
+                // ==========================================
+                // 其餘一般時間帶：恢復散客/30 + 團客/50 邏輯
+                // ==========================================
                 else {
                     if (rowTtl > 0 || grp > 0) {
                         const fit = Math.max(0, rowTtl - grp);
@@ -572,7 +602,7 @@
                     }
                 }
 
-                // 計算台數差額 (現有 - 需求)
+                // 3. 計算台數差額 (現有 - 需求)
                 const curInput = row.querySelector('.cur-counter');
                 const surplusField = row.querySelector('.surplus');
                 const shortageField = row.querySelector('.shortage-col');
