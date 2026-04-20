@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V20 (Complete Codes)</title>
+    <title>TCO & Shut Out Report V21 (Auto Summary)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -110,6 +110,26 @@
         .btn-clear:hover { border-color: var(--danger); color: var(--danger); }
         
         .btn-small { padding: 5px 8px; font-size: 0.8rem; border-radius: 4px;}
+
+        /* 💡 智慧標籤按鈕 (Tag Button) */
+        .btn-tag {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-tag:hover { background-color: #e2e8f0; }
+        .btn-tag.active {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
         
         pre { background: #2d3748; color: #f7fafc; padding: 25px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; overflow-x: hidden; font-family: 'Consolas', 'Courier New', monospace; font-size: 14.5px; line-height: 1.6; letter-spacing: 0.03em; min-height: 350px; border: 1px solid #1a202c; }
         
@@ -200,7 +220,19 @@
             </div>
 
             <div class="row">
-                <div class="col"><label>Delay Summary</label><textarea id="summary"></textarea></div>
+                <div class="col">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                        <label style="margin-bottom: 0;">Delay Summary (延遲總結自動造句)</label>
+                    </div>
+                    <div id="summary-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                        <button type="button" class="btn-tag" data-reason="flight late arrival" onclick="toggleSummaryReason(this)">Flight late arrival</button>
+                        <button type="button" class="btn-tag" data-reason="prolonged cabin cleaning" onclick="toggleSummaryReason(this)">Prolonged cabin cleaning</button>
+                        <button type="button" class="btn-tag" data-reason="prolonged offloading and loading process" onclick="toggleSummaryReason(this)">Prolonged offloading/loading</button>
+                        <button type="button" class="btn-tag" data-reason="searching for missing pax" onclick="toggleSummaryReason(this)">Searching for missing pax</button>
+                        <button type="button" class="btn-tag" data-reason="arrival airport ATC hold" onclick="toggleSummaryReason(this)">Arrival airport ATC hold</button>
+                    </div>
+                    <textarea id="summary" placeholder="點擊上方按鈕自動造句，或在此手動輸入..."></textarea>
+                </div>
             </div>
 
             <hr>
@@ -272,7 +304,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' }); 
     }
 
-    // V20 升級：100% 完整收錄的 DELAY CODE 資料庫
     const rawData = `
 ADC	Arrival Airport Restriction - Curfew/Night/Noise
 ADD	Arrival Airport Restriction - Runway/Taxiway
@@ -479,12 +510,10 @@ WTK	Weather - Arrival Airport
     let delayDB = {};
     let selectedDelayCodes = [];
 
-    // V20 升級：更強大的文字解析引擎，無視各種奇怪的空白或 Tab 格式
     function buildDelayDB() {
         const lines = rawData.trim().split('\n');
         lines.forEach(line => {
             if(!line.trim()) return;
-            // 使用正則表達式，精準抓取前三碼英文與後面的說明文字
             const match = line.trim().match(/^([A-Z0-9]{3})\s+(.+)$/i);
             if (match) {
                 const code = match[1].toUpperCase();
@@ -537,6 +566,61 @@ WTK	Weather - Arrival Airport
         });
     }
 
+    // ==========================================
+    // V21: 智慧 Delay Summary 造句功能
+    // ==========================================
+    function toggleSummaryReason(button) {
+        // 切換按鈕的 active 狀態
+        button.classList.toggle('active');
+        updateAutoSummary();
+    }
+
+    function updateAutoSummary() {
+        // 抓取目前處於 active 的按鈕
+        const activeBtns = document.querySelectorAll('#summary-buttons .btn-tag.active');
+        const textarea = document.getElementById('summary');
+
+        // 如果全部取消選取，則清空文字框
+        if (activeBtns.length === 0) {
+            textarea.value = '';
+            generateReport();
+            return;
+        }
+
+        // 取得航班與日期來組合前綴
+        const flight = document.getElementById('flight').value.toUpperCase() || 'CX___';
+        const rawDate = document.getElementById('date').value;
+        const date = formatAviationDate(rawDate) || 'date';
+
+        // 收集所有選取的原因
+        const reasons = Array.from(activeBtns).map(btn => btn.getAttribute('data-reason'));
+        
+        let reasonsText = '';
+        if (reasons.length === 1) {
+            reasonsText = reasons[0];
+        } else if (reasons.length === 2) {
+            reasonsText = reasons[0] + ' and ' + reasons[1];
+        } else {
+            // 三個以上：A, B, and C
+            const last = reasons.pop();
+            reasonsText = reasons.join(', ') + ', and ' + last;
+        }
+
+        // 組合最終句子
+        const finalSentence = `${flight}/${date} delay due to ${reasonsText}.`;
+        textarea.value = finalSentence;
+        
+        generateReport();
+    }
+
+    // 監聽航班跟日期的改變，若有使用自動造句，即時連動更新前綴
+    document.getElementById('flight').addEventListener('input', () => {
+        if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary();
+    });
+    document.getElementById('date').addEventListener('input', () => {
+        if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary();
+    });
+
     const defaultLogs = [
         "A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.",
         "Cleaning completed.", "Cabin security check started.", "Boarding signal released.",
@@ -575,6 +659,10 @@ WTK	Weather - Arrival Airport
         textInputs.forEach(id => document.getElementById(id).value = '');
         document.getElementById('pts').value = 'N'; document.getElementById('otp').value = 'N';
         document.getElementById('earlyCleaning').value = 'Y'; document.getElementById('inputDelayCode').value = '';
+        
+        // 解除所有造句按鈕的選取狀態
+        document.querySelectorAll('#summary-buttons .btn-tag').forEach(btn => btn.classList.remove('active'));
+
         selectedDelayCodes = []; renderDelayCodes(); initLogs(); generateReport();
     }
 
@@ -711,9 +799,6 @@ WTK	Weather - Arrival Airport
         }
     }
 
-    // ==========================================
-    // Shut Out Report 邏輯
-    // ==========================================
     let paxCountInternal = 0;
 
     function initPaxList() {
