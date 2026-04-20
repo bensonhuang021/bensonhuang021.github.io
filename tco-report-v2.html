@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V27 (Ready to Use)</title>
+    <title>TCO & Shut Out Report V28 (Final Fix)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -194,7 +194,6 @@
                 <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
             </div>
-            
             <div class="delay-code-builder">
                 <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: 600;">Delay Code</label>
                 <div class="row" style="margin-bottom: 0; align-items: center;">
@@ -209,7 +208,6 @@
                 </div>
                 <div id="addedCodesContainer"></div>
             </div>
-
             <div class="row">
                 <div class="col">
                     <div id="summary-buttons" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -222,9 +220,7 @@
                     <textarea id="summary" placeholder="Summary..."></textarea>
                 </div>
             </div>
-            
             <hr style="margin: 15px 0;">
-            
             <h3>時間軸紀錄 (Log)</h3>
             <div id="logContainer"></div>
             <button type="button" class="btn-outline" onclick="addCustomLog()">新增自訂時間</button>
@@ -256,12 +252,9 @@
                 <div class="col"><label>Date</label><input type="date" id="shut-date"></div>
                 <div class="col"><label>Reporter (系統鎖定)</label><input type="text" id="shut-reporter" readonly></div>
             </div>
-            
             <div id="paxListContainer"></div>
             <button type="button" class="btn-outline" onclick="addPaxCard()">新增拉下旅客</button>
-            
             <hr style="margin: 15px 0;">
-            
             <div class="row">
                 <div class="col"><label>Amended from</label><input type="number" id="shut-from" placeholder="310"></div>
                 <div class="col"><label>Amended to</label><input type="number" id="shut-to" placeholder="308"></div>
@@ -300,23 +293,19 @@
 
 <script>
     // =========================================================================
-    // 🚨 這裡已經幫您直接貼好專屬的 Google Apps Script 網址了！ 🚨
+    // 🚨 系統網址綁定區
     // =========================================================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
     // ==========================================
-    // 🔐 登入驗證與 Session 管理
+    // 🔐 V28 終極防呆登入機制
     // ==========================================
-    let currentUser = localStorage.getItem('tco_user_name');
-
-    // 清除可能卡住的錯誤記憶
-    if (currentUser === 'undefined' || currentUser === 'null' || currentUser === '') {
-        localStorage.removeItem('tco_user_name');
-        currentUser = null;
-    }
+    // 更換全新的記憶金鑰，徹底切斷舊版瀏覽器快取的糾纏
+    let memoryKey = 'tco_user_v28';
+    let currentUser = localStorage.getItem(memoryKey);
 
     window.onload = function() {
-        if (currentUser) {
+        if (currentUser && currentUser !== "undefined") {
             document.getElementById('loginOverlay').style.display = 'none';
             setReporterName(currentUser);
             initApp();
@@ -341,19 +330,26 @@
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                currentUser = data.name ? data.name : acc; 
-                localStorage.setItem('tco_user_name', currentUser); 
+                // 【終極防護網】確保絕對不可能產生 undefined
+                let finalName = data.name;
+                if (!finalName || String(finalName).trim().toLowerCase() === 'undefined') {
+                    finalName = acc; // 抓不到本名，就強制用打字輸入的帳號名
+                }
+                
+                currentUser = finalName;
+                localStorage.setItem(memoryKey, currentUser); 
+                
                 document.getElementById('loginOverlay').style.display = 'none';
                 setReporterName(currentUser);
                 initApp(); 
             } else {
                 msg.style.display = 'block';
-                msg.textContent = data.message || "登入失敗";
+                msg.textContent = data.message || "登入失敗，請確認帳號密碼";
             }
         })
         .catch(err => {
             msg.style.display = 'block';
-            msg.textContent = "連線發生錯誤，請確認網路狀態。";
+            msg.textContent = "網路連線發生錯誤！";
         })
         .finally(() => {
             btn.disabled = false; loader.style.display = 'none';
@@ -362,7 +358,7 @@
 
     function doLogout() {
         if(confirm("確定要登出嗎？")) {
-            localStorage.removeItem('tco_user_name');
+            localStorage.removeItem(memoryKey);
             location.reload(); 
         }
     }
