@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V29 (All Bugs Fixed)</title>
+    <title>TCO & Shut Out Report V30 (Ultimate Fix)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -194,7 +194,6 @@
                 <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
             </div>
-            
             <div class="delay-code-builder">
                 <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: 600;">Delay Code</label>
                 <div class="row" style="margin-bottom: 0; align-items: center;">
@@ -209,7 +208,6 @@
                 </div>
                 <div id="addedCodesContainer"></div>
             </div>
-
             <div class="row">
                 <div class="col">
                     <div id="summary-buttons" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -222,10 +220,10 @@
                     <textarea id="summary" placeholder="Summary..."></textarea>
                 </div>
             </div>
-            
             <hr style="margin: 15px 0;">
             
             <h3>時間軸紀錄 (Log)</h3>
+            <span class="helper-text" style="margin-bottom: 10px;">💡 提示：請在左側填寫時間，未填寫時間的項目將不會顯示在右側報告中。</span>
             <div id="logContainer"></div>
             <button type="button" class="btn-outline" onclick="addCustomLog()">新增自訂時間</button>
             <button type="button" class="btn-outline" style="border-color:var(--danger); color:var(--danger)" onclick="clearForm('TCO')">清除表單</button>
@@ -297,11 +295,12 @@
 
 <script>
     // =========================================================================
-    // 🚨 系統網址已經綁定
+    // 🚨 系統網址綁定
     // =========================================================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
-    let memoryKey = 'tco_user_v28';
+    // 重新設定記憶體金鑰
+    let memoryKey = 'tco_user_v30';
     let currentUser = localStorage.getItem(memoryKey);
 
     window.onload = function() {
@@ -369,10 +368,12 @@
     }
 
     function initApp() {
-        buildDelayDB(); populateDelayCodeSelect(); 
-        initLogs(); // 修正後的 initLogs
+        buildDelayDB(); 
+        populateDelayCodeSelect(); 
+        initLogs(); // 呼叫初始化時間軸
         initPaxList(); 
-        generateReport(); generateShutOutReport();
+        generateReport(); 
+        generateShutOutReport();
         fetchHistory(); 
     }
 
@@ -424,6 +425,7 @@
     }
 
     function removeDelayCode(i) { selectedDelayCodes.splice(i, 1); renderDelayCodes(); generateReport(); }
+    
     function renderDelayCodes() {
         const container = document.getElementById('addedCodesContainer'); container.innerHTML = '';
         selectedDelayCodes.forEach((item, i) => {
@@ -437,6 +439,7 @@
     // 💡 智慧造句
     // ==========================================
     function toggleSummaryReason(btn) { btn.classList.toggle('active'); updateAutoSummary(); }
+    
     function updateAutoSummary() {
         const activeBtns = document.querySelectorAll('#summary-buttons .btn-tag.active');
         const ta = document.getElementById('summary');
@@ -448,23 +451,23 @@
         ta.value = `${flight}/${date} delay due to ${rText}.`;
         generateReport();
     }
+    
     document.getElementById('flight').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
     document.getElementById('date').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
 
     // ==========================================
-    // 📝 TCO 產生邏輯 (修復變數當機問題)
+    // 🚨 完美修復：時間軸與生成邏輯
     // ==========================================
     const defaultLogs = ["A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.", "Cleaning completed.", "Cabin security check started.", "Boarding signal released.", "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."];
     
     function initLogs() {
         const c = document.getElementById('logContainer'); c.innerHTML = '';
-        // 將介面插入與畫面更新分開，確保不會中途當機
+        // 使用獨立的生成函數，避免在初始化時觸發 generateReport 造成當機
         defaultLogs.forEach(desc => { addLogItemDOM('', desc); });
     }
-
+    
     function addCustomLog() { addLogItemDOM('', ''); generateReport(); }
     
-    // 只負責畫出格子，不觸發 Report
     function addLogItemDOM(time, desc) {
         const c = document.getElementById('logContainer'); const d = document.createElement('div'); d.className = 'log-entry';
         d.innerHTML = `<input type="text" class="log-time" maxlength="4" value="${time}" placeholder="時間"><input type="text" class="log-desc" value="${desc}" placeholder="輸入說明..."><button type="button" class="btn-danger btn-small" onclick="removeLog(this)">✕</button>`;
@@ -487,13 +490,14 @@
     }
 
     function formatTime(val) { return val ? val + 'L' : '----L'; }
+    
     function formatAviationDate(dateStr) {
         if (!dateStr) return ''; const p = dateStr.split('-'); if (p.length !== 3) return dateStr.toUpperCase();
         const m = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']; return p[2] + m[parseInt(p[1],10)-1];
     }
-    function timeStrToIntMins(ts) { if(!ts||ts.length!==4||isNaN(ts)) return null; return parseInt(ts.substring(0,2),10)*60 + parseInt(ts.substring(2,4),10); }
     
-    // 安全抓取時間軸內容
+    function timeStrToIntMins(ts) { if(!ts||ts.length!==4||isNaN(ts)) return null; return parseInt(ts.substring(0,2),10)*60 + parseInt(ts.substring(2,4),10); }
+
     function getLogTimeStr(logs, descSnippet) {
         const log = logs.find(l => l.descStr && l.descStr.toLowerCase().includes(descSnippet.toLowerCase()));
         return log ? log.timeStr : null;
@@ -518,7 +522,7 @@
         document.querySelectorAll('#tab-tco .log-entry').forEach(e => {
             const t = e.querySelector('.log-time').value.trim(); 
             const text = e.querySelector('.log-desc').value.trim();
-            // 【修復核心】使用正確的變數名稱 timeStr 和 descStr
+            // 精準綁定變數，修復之前的 undefined 當機
             if (t) logs.push({timeStr: t, descStr: text});
         });
         
@@ -535,7 +539,7 @@
         
         document.getElementById('outputReport').textContent = res;
 
-        // 驗證邏輯
+        // 🚨 自動檢核系統 🚨
         const validationBox = document.getElementById('delayValidation');
         let staMins = timeStrToIntMins(document.getElementById('sta').value); let ataMins = timeStrToIntMins(document.getElementById('ata').value);
         let stdMins = timeStrToIntMins(document.getElementById('std').value); let atdMins = timeStrToIntMins(document.getElementById('atd').value);
