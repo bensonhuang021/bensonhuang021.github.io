@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V28 (Final Fix)</title>
+    <title>TCO & Shut Out Report V29 (All Bugs Fixed)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -194,6 +194,7 @@
                 <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
             </div>
+            
             <div class="delay-code-builder">
                 <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: 600;">Delay Code</label>
                 <div class="row" style="margin-bottom: 0; align-items: center;">
@@ -208,6 +209,7 @@
                 </div>
                 <div id="addedCodesContainer"></div>
             </div>
+
             <div class="row">
                 <div class="col">
                     <div id="summary-buttons" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -220,7 +222,9 @@
                     <textarea id="summary" placeholder="Summary..."></textarea>
                 </div>
             </div>
+            
             <hr style="margin: 15px 0;">
+            
             <h3>時間軸紀錄 (Log)</h3>
             <div id="logContainer"></div>
             <button type="button" class="btn-outline" onclick="addCustomLog()">新增自訂時間</button>
@@ -293,14 +297,10 @@
 
 <script>
     // =========================================================================
-    // 🚨 系統網址綁定區
+    // 🚨 系統網址已經綁定
     // =========================================================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
-    // ==========================================
-    // 🔐 V28 終極防呆登入機制
-    // ==========================================
-    // 更換全新的記憶金鑰，徹底切斷舊版瀏覽器快取的糾纏
     let memoryKey = 'tco_user_v28';
     let currentUser = localStorage.getItem(memoryKey);
 
@@ -330,10 +330,9 @@
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                // 【終極防護網】確保絕對不可能產生 undefined
                 let finalName = data.name;
                 if (!finalName || String(finalName).trim().toLowerCase() === 'undefined') {
-                    finalName = acc; // 抓不到本名，就強制用打字輸入的帳號名
+                    finalName = acc; 
                 }
                 
                 currentUser = finalName;
@@ -370,7 +369,9 @@
     }
 
     function initApp() {
-        buildDelayDB(); populateDelayCodeSelect(); initLogs(); initPaxList(); 
+        buildDelayDB(); populateDelayCodeSelect(); 
+        initLogs(); // 修正後的 initLogs
+        initPaxList(); 
         generateReport(); generateShutOutReport();
         fetchHistory(); 
     }
@@ -451,19 +452,25 @@
     document.getElementById('date').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
 
     // ==========================================
-    // 📝 TCO 產生邏輯
+    // 📝 TCO 產生邏輯 (修復變數當機問題)
     // ==========================================
     const defaultLogs = ["A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.", "Cleaning completed.", "Cabin security check started.", "Boarding signal released.", "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."];
+    
     function initLogs() {
         const c = document.getElementById('logContainer'); c.innerHTML = '';
-        defaultLogs.forEach(desc => { addLogItem('', desc); });
+        // 將介面插入與畫面更新分開，確保不會中途當機
+        defaultLogs.forEach(desc => { addLogItemDOM('', desc); });
     }
-    function addCustomLog() { addLogItem('', ''); generateReport(); }
-    function addLogItem(time, desc) {
+
+    function addCustomLog() { addLogItemDOM('', ''); generateReport(); }
+    
+    // 只負責畫出格子，不觸發 Report
+    function addLogItemDOM(time, desc) {
         const c = document.getElementById('logContainer'); const d = document.createElement('div'); d.className = 'log-entry';
         d.innerHTML = `<input type="text" class="log-time" maxlength="4" value="${time}" placeholder="時間"><input type="text" class="log-desc" value="${desc}" placeholder="輸入說明..."><button type="button" class="btn-danger btn-small" onclick="removeLog(this)">✕</button>`;
-        c.appendChild(d); generateReport();
+        c.appendChild(d);
     }
+    
     function removeLog(b) { b.parentElement.remove(); generateReport(); }
 
     function clearForm(type) {
@@ -485,6 +492,12 @@
         const m = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']; return p[2] + m[parseInt(p[1],10)-1];
     }
     function timeStrToIntMins(ts) { if(!ts||ts.length!==4||isNaN(ts)) return null; return parseInt(ts.substring(0,2),10)*60 + parseInt(ts.substring(2,4),10); }
+    
+    // 安全抓取時間軸內容
+    function getLogTimeStr(logs, descSnippet) {
+        const log = logs.find(l => l.descStr && l.descStr.toLowerCase().includes(descSnippet.toLowerCase()));
+        return log ? log.timeStr : null;
+    }
 
     function generateReport() {
         const f = document.getElementById('flight').value.toUpperCase() || "----";
@@ -501,20 +514,25 @@
             selectedDelayCodes.forEach(i => dDesc += `//${i.code}// ${i.desc}\n`);
         }
         
-        let logs = []; document.querySelectorAll('#tab-tco .log-entry').forEach(e => {
-            const t = e.querySelector('.log-time').value.trim(); const text = e.querySelector('.log-desc').value.trim();
-            if (t) logs.push({t, text});
+        let logs = []; 
+        document.querySelectorAll('#tab-tco .log-entry').forEach(e => {
+            const t = e.querySelector('.log-time').value.trim(); 
+            const text = e.querySelector('.log-desc').value.trim();
+            // 【修復核心】使用正確的變數名稱 timeStr 和 descStr
+            if (t) logs.push({timeStr: t, descStr: text});
         });
+        
         logs.sort((a,b) => {
-            let nA = parseInt(a.t,10)||9999; let nB = parseInt(b.t,10)||9999;
+            let nA = parseInt(a.timeStr,10)||9999; let nB = parseInt(b.timeStr,10)||9999;
             if(Math.abs(nA-nB)>1200) { if(nA<nB) nA+=2400; else nB+=2400; } return nA-nB;
         });
         
         let res = `--${f}/${d} TCO report--\nSTA/${sta} , STD/${std}\nETA/${eta} , ETD/${etd}\nATA/${ata} , ATD/${atd}${dct}\nPTS: ${document.getElementById('pts').value}\nOTP: ${document.getElementById('otp').value}\nEarly cleaning: ${document.getElementById('earlyCleaning').value}\n`;
         if(dCode) res += dCode + dDesc;
         if(document.getElementById('summary').value) res += document.getElementById('summary').value + "\n";
-        res += `--\n` + logs.map(l => `${l.t}L ${l.text}\n`).join('');
+        res += `--\n` + logs.map(l => `${l.timeStr}L ${l.descStr}\n`).join('');
         res += rep ? `End of report/${rep}` : `End of report`;
+        
         document.getElementById('outputReport').textContent = res;
 
         // 驗證邏輯
@@ -612,8 +630,6 @@
     // ☁️ 雲端儲存與讀取 API
     // =========================================================================
     function saveToCloud(type) {
-        if (!SCRIPT_URL) return alert("網址設定異常！");
-
         const btn = document.getElementById(type === 'TCO' ? 'btn-save-tco' : 'btn-save-shutout');
         const loader = document.getElementById(type === 'TCO' ? 'loader-tco' : 'loader-shutout');
         
@@ -638,7 +654,7 @@
     }
 
     function fetchHistory() {
-        if (!SCRIPT_URL || !currentUser) return;
+        if (!currentUser) return;
         
         const lists = [document.getElementById('history-list'), document.getElementById('history-list-shutout')];
         lists.forEach(l => l.innerHTML = '<div style="text-align:center; color:#9ca3af; margin-top:30px;">🔄 抓取專屬資料中...</div>');
