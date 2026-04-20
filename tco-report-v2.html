@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V25 (Login System)</title>
+    <title>TCO & Shut Out Report V27 (Ready to Use)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -36,7 +36,6 @@
 
         .main-container { width: 100%; max-width: 1500px; display: flex; flex-direction: column; }
         
-        /* 導覽列與登出按鈕佈局 */
         .header-nav { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--secondary); padding-bottom: 2px;}
         .tab-nav { display: flex; gap: 15px; }
         .user-panel { display: flex; align-items: center; gap: 15px; padding-bottom: 8px; font-size: 0.9rem; color: var(--primary); font-weight: bold;}
@@ -115,7 +114,7 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-blue); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 10px; display: none;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 🚪 登入畫面毛玻璃覆蓋層設計 */
+        /* 🚪 登入畫面 */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);
@@ -195,6 +194,7 @@
                 <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
             </div>
+            
             <div class="delay-code-builder">
                 <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: 600;">Delay Code</label>
                 <div class="row" style="margin-bottom: 0; align-items: center;">
@@ -209,6 +209,7 @@
                 </div>
                 <div id="addedCodesContainer"></div>
             </div>
+
             <div class="row">
                 <div class="col">
                     <div id="summary-buttons" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -221,7 +222,9 @@
                     <textarea id="summary" placeholder="Summary..."></textarea>
                 </div>
             </div>
+            
             <hr style="margin: 15px 0;">
+            
             <h3>時間軸紀錄 (Log)</h3>
             <div id="logContainer"></div>
             <button type="button" class="btn-outline" onclick="addCustomLog()">新增自訂時間</button>
@@ -253,9 +256,12 @@
                 <div class="col"><label>Date</label><input type="date" id="shut-date"></div>
                 <div class="col"><label>Reporter (系統鎖定)</label><input type="text" id="shut-reporter" readonly></div>
             </div>
+            
             <div id="paxListContainer"></div>
             <button type="button" class="btn-outline" onclick="addPaxCard()">新增拉下旅客</button>
+            
             <hr style="margin: 15px 0;">
+            
             <div class="row">
                 <div class="col"><label>Amended from</label><input type="number" id="shut-from" placeholder="310"></div>
                 <div class="col"><label>Amended to</label><input type="number" id="shut-to" placeholder="308"></div>
@@ -294,18 +300,23 @@
 
 <script>
     // =========================================================================
-    // 🚨 雲端資料庫 API：您的專屬 GAS 網址已套用
+    // 🚨 這裡已經幫您直接貼好專屬的 Google Apps Script 網址了！ 🚨
     // =========================================================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
     // ==========================================
     // 🔐 登入驗證與 Session 管理
     // ==========================================
-    let currentUser = localStorage.getItem('tco_user_name'); // 從瀏覽器記憶中抓取
+    let currentUser = localStorage.getItem('tco_user_name');
+
+    // 清除可能卡住的錯誤記憶
+    if (currentUser === 'undefined' || currentUser === 'null' || currentUser === '') {
+        localStorage.removeItem('tco_user_name');
+        currentUser = null;
+    }
 
     window.onload = function() {
         if (currentUser) {
-            // 如果已經登入過，隱藏登入層，寫入名字，開始抓資料
             document.getElementById('loginOverlay').style.display = 'none';
             setReporterName(currentUser);
             initApp();
@@ -313,24 +324,16 @@
     };
 
     function doLogin() {
-        if (!SCRIPT_URL || SCRIPT_URL === "在此貼上您的_Google_Apps_Script_網址") {
-            alert("系統尚未綁定資料庫，請檢查 SCRIPT_URL 設定！");
-            return;
-        }
-
         const acc = document.getElementById('login-account').value.trim();
         const pwd = document.getElementById('login-password').value.trim();
         const msg = document.getElementById('login-msg');
         const btn = document.getElementById('btn-login');
         const loader = document.getElementById('loader-login');
 
-        if(!acc || !pwd) {
-            msg.style.display = 'block'; msg.textContent = "請輸入帳號與密碼"; return;
-        }
+        if(!acc || !pwd) { msg.style.display = 'block'; msg.textContent = "請輸入帳號與密碼"; return; }
 
         btn.disabled = true; loader.style.display = 'inline-block'; msg.style.display = 'none';
 
-        // 傳送驗證請求給 Google 試算表後台
         fetch(SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify({ action: 'login', account: acc, password: pwd })
@@ -338,21 +341,19 @@
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                // 登入成功
-                currentUser = data.name;
-                localStorage.setItem('tco_user_name', currentUser); // 記住登入狀態
+                currentUser = data.name ? data.name : acc; 
+                localStorage.setItem('tco_user_name', currentUser); 
                 document.getElementById('loginOverlay').style.display = 'none';
                 setReporterName(currentUser);
-                initApp(); // 啟動畫面與抓資料
+                initApp(); 
             } else {
-                // 登入失敗
                 msg.style.display = 'block';
                 msg.textContent = data.message || "登入失敗";
             }
         })
         .catch(err => {
             msg.style.display = 'block';
-            msg.textContent = "連線發生錯誤，請檢查網路或網址設定。";
+            msg.textContent = "連線發生錯誤，請確認網路狀態。";
         })
         .finally(() => {
             btn.disabled = false; loader.style.display = 'none';
@@ -362,7 +363,7 @@
     function doLogout() {
         if(confirm("確定要登出嗎？")) {
             localStorage.removeItem('tco_user_name');
-            location.reload(); // 重新整理網頁就會回到登入畫面
+            location.reload(); 
         }
     }
 
@@ -375,11 +376,11 @@
     function initApp() {
         buildDelayDB(); populateDelayCodeSelect(); initLogs(); initPaxList(); 
         generateReport(); generateShutOutReport();
-        fetchHistory(); // 登入後抓取「專屬」歷史紀錄
+        fetchHistory(); 
     }
 
     // ==========================================
-    // Delay Code 資料庫與一般邏輯
+    // 🗂️ Delay Code 資料庫
     // ==========================================
     const rawData = `ADC	Arrival Airport Restriction - Curfew/Night/Noise\nADD	Arrival Airport Restriction - Runway/Taxiway\nADG	Arrival Airport Restriction - Operational Concern\nADO	Arrival Airport Restriction - Other\nAEK	Air Traffic Control due to Non-Weather - Arrival Airport\nAFC	Airport Facility - Ground Traffic\nAFH	Airport Facility - Cargo Terminal\nAFJ	Airport Facility - Jet Bridge\nAFL	Airport Facility - Baggage\nAFN	Airport Facility - Passenger Terminal\nAFO	Airport Facility - Apron\nAFP	Airport Facility - Parking Bay Availability\nAGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance\nAGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff\nAGD	Customs/Immigration/Quarantine - Passenger\nAGO	Customs/Immigration/Quarantine - Other\nAMA	Air Traffic Control due to Non-Weather - Departure Airport\nAMC	Departure Airport Restriction - Curfew/Night/Noise\nAMD	Departure Airport Restriction - Runway/Taxiway\nAMO	Departure Airport Restriction - Other\nAMR	Ground Traffic - Aircraft Towing\nAMS	Ground Traffic - Aircraft Pushback\nAMW	Air Traffic Control due to Weather - Departure Airport\nASC	Mandatory Security - Cargo/Mail\nASE	Mandatory Security - Additional Requirement\nASF	Mandatory Security - Facility\nASI	Mandatory Security - Aircraft\nASL	Mandatory Security - Staff Lateness / Lack of\nASN	Mandatory Security - Aerobridge / Boarding Gate\nASS	Mandatory Security - Staff Error\nASU	Mandatory Security - Baggage Offload\nASX	Mandatory Security - Major Security Incident\nATK	Air Traffic Control due to Non-Weather - En Route\nATW	Air Traffic Control due to Weather - En Route\nAWK	Air Traffic Control due to Weather - Arrival Airport\nCCK	Cargo/Mail Acceptance\nCDI	Cargo/Mail Documentation - Error/Missing\nCDL	Cargo/Mail Documentation - Lateness\nCIC	Cargo/Mail Packing - Unit Load Device (ULD)\nCIL	Cargo/Mail Packing - Collapse/Shift\nCIO	Cargo/Mail Packing - Other\nCIP	Cargo/Mail Packing - Damage/Inadequate/Leakage\nCIS	Cargo/Mail Packing - Odorous\nCPD	Cargo/Mail Positioning - Drop Off\nCPO	Cargo/Mail Positioning - Other\nCPP	Cargo/Mail Positioning - Pick Up\nCUC	Cargo/Mail Preparation - Warehouse Congestion\nCUS	Cargo/Mail Preparation - Staff\nDFK	Aircraft Damage - During Flying/Taxiing\nDGK	Aircraft Damage - During Parking/Towing\nECD	IT-CX Group Cargo Documentation/Preparation System\nECE	IT-CTO/GHA Cargo Documentation/Preparation System\nEDA	IT-Departure Control System (DCS)\nEFK	IT-Computer Flight Planning System\nEOA	IT-Aircraft Communications Addressing and Reporting System (ACARS)\nEOB	IT-Baggage Handling System (BHS)\nEON	IT-Network\nEOO	IT-Other\nEOS	IT-Airport Self-Service\nFAA	Cabin Crew Handling - After Landing Procedure\nFAC	Cabin Crew Handling - Cabin Management\nFAE	Cabin Crew Handling - Cabin Crew Error\nFAF	Cabin Crew Handling - Passenger Health Clarification\nFAH	Cabin Crew Handling - Passenger Headcount\nFAL	Cabin Crew Handling - Pre-Flight Procedure\nFAM	Cabin Crew Handling - Catering\nFAO	Cabin Crew Handling - Other\nFAP	Cabin Crew Handling - Passenger Requirement\nFAT	Cabin Crew Handling - Technical\nFAW	Cabin Crew Handling - Cabin Cleaning\nFBS	Flight Deck Crew Handling - Extraordinary Security Check\nFCL	Cabin Crew Availability - Flight Time Limitation\nFCO	Cabin Crew Availability - Other\nFCS	Cabin Crew Availability - Sickness\nFFC	Operational Requirement - Computer Flight Plan (CFP) Change\nFFF	Operational Requirement - Refuelling\nFFL	Operational Requirement - Loadsheet/Payload Change\nFFM	Operational Requirement - Maintenance Request\nFFO	Operational Requirement - Other\nFFT	Operational Requirement - Technical Clarification\nFLI	Cabin Crew Boarding - Late Arrival to Reporting Point\nFLM	Cabin Crew Boarding - Other\nFLW	Cabin Crew Boarding - Late Arrival to Aircraft\nFPD	Flight Operational Documentation - Error/Lateness\nFPE	Flight Operational Documentation - EFB Device / Accessory\nFRN	Flight Deck Crew Handling - Non-Operational Requirement\nFSF	Flight Deck Crew Availability - Fatigue\nFSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point\nFSL	Flight Deck Crew Availability - Flight Time Limitation\nFSM	Flight Deck Crew Boarding - Other\nFSO	Flight Deck Crew Availability - Other\nFSS	Flight Deck Crew Availability - Sickness\nFTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point\nFTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation\nFTM	Flight Deck and Cabin Crew Boarding - Other\nFTO	Flight Deck and Cabin Crew Availability - Other\nFTS	Flight Deck and Cabin Crew Availability - Sickness\nFTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft\nGBD	Catering - Delivery/Loading/Unloading\nGBO	Catering - Other\nGBS	Catering - Aircraft Switch\nGCL	Cabin Cleaning - Service Provider\nGCO	Cabin Cleaning - Other\nGDC	Aircraft Documentation - Centralized Load Control (CLC)\nGDO	Aircraft Documentation - Other\nGDS	Aircraft Documentation - Departure Station\nGET	Loading/Unloading - Equipment\nGFA	Fuelling - Fuel Supplier / Intoplane Operator\nGFE	Fuelling - Engineering Documentation\nGFO	Fuelling - Other\nGLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time\nGLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time\nGLC	Loading/Unloading - Cabin\nGLD	Loading/Unloading - Difficulty\nGLE	Loading/Unloading - Staff Error\nGLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time\nGLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only)\nGLR	Loading/Unloading - Rearrangement\nGLS	Loading/Unloading - Staff Availability\nGLV	Loading/Unloading - Space/Volumetric\nGLX	Loading/Unloading - Other\nGSL	Servicing Equipment - Equipment\nGSS	Servicing Equipment - Staff\nGTL	Technical Equipment - Equipment\nGTS	Technical Equipment - Staff\nGUK	Loading/Unloading - Unit Load Device (ULD)\nIAK	Air Traffic Control - Unknown Reason\nICK	Commercial (Cargo Service only)\nIGK	Aircraft Door Operation\nIPK	Disembarkation\nIWH	Weather - High Cabin Temperature\nMIK	Industrial Action - With CX Group\nMOK	Industrial Action - Outside CX Group\nMXX	No Matched Reason\nPBK	Baggage Handling\nPCO	Catering Order\nPDO	Passenger Acceptance - Other\nPDP	Passenger Acceptance - Transfer due to Irregular Operation\nPEK	Check-In Error\nPHB	Boarding - Cabin Baggage\nPHH	Boarding - Staff\nPHM	Boarding - Missing Passenger\nPHO	Boarding - Other\nPHS	Boarding - Passenger Seating\nPLK	Check-In Area\nPOK	Overbooking\nPSI	Passenger Special Handling - Intoxicated/Sick Passenger\nPSO	Passenger Special Handling - Other\nPSP	Passenger Special Handling - Item Missing\nPSU	Passenger Special Handling - Unruly Passenger\nPWK	Reduced Mobility\nRAA	Aircraft Rotation - Air Traffic Control\nRAC	Aircraft Rotation - Crewing\nRAD	Aircraft Rotation - Aircraft Damage\nRAE	Aircraft Rotation - Information Technology\nRAF	Aircraft Rotation - Flight Operation\nRAG	Aircraft Rotation - Aircraft Servicing\nRAH	Aircraft Rotation - Cargo/Mail\nRAM	Aircraft Rotation - Ground Traffic\nRAN	Aircraft Rotation - En Route\nRAO	Aircraft Rotation - Other\nRAP	Aircraft Rotation - Passenger\nRAQ	Aircraft Rotation - Security\nRAR	Aircraft Rotation - Reactionary\nRAS	Aircraft Rotation - Schedule\nRAT	Aircraft Rotation - Technical\nRAU	Aircraft Rotation - Authority\nRAW	Aircraft Rotation - Weather\nRCA	Crew Rotation - Flight Deck / Entire Crew\nRLO	Load Connection - Non- CX Group\nRLX	Load Connection - CX Group\nROB	Operation Control - Crewing\nROC	Operation Control - Flight Consolidation\nROH	Operation Control - Aircraft Change\nROR	Operation Control - Diversion/Reroute\nROV	Operation Control - Await First Available Aircraft\nRSA	Crew Rotation - Cabin Crew\nRTK	Through Check-In\nSGK	Scheduled Ground Time\nTAA	Technical - AOG Spare from other Aircraft/Station\nTAE	Technical - AOG Spare for other Aircraft/Station\nTCT	Technical - Aircraft Change\nTDA	Technical - Without Aircraft Change\nTDD	Technical - Engineering Documentation\nTDL	Technical - Cargo Loading System (CLS)\nTDT	Technical - High Cabin Temperature\nTDU	Technical - Extra Start-Up Time\nTLT	Technical - Await First Available Aircraft\nTML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance\nTMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance\nTMT	Technical - Scheduled Maintenance\nTNA	Technical - Non-Scheduled Maintenance\nTSS	Technical - Lack of Spare\nTST	Technical - Await Spare from Technical Store\nWGI	Weather - Ground Handling Impaired\nWIK	Weather - Aircraft Frost/Ice/Snow Handling\nWOK	Weather - Departure Airport\nWRK	Weather - Alternate / En Route\nWSR	Weather - Airport Ice/Sand/Snow/Water Handling\nWTK	Weather - Arrival Airport`;
 
@@ -435,7 +436,9 @@
         });
     }
 
-    // 智慧造句
+    // ==========================================
+    // 💡 智慧造句
+    // ==========================================
     function toggleSummaryReason(btn) { btn.classList.toggle('active'); updateAutoSummary(); }
     function updateAutoSummary() {
         const activeBtns = document.querySelectorAll('#summary-buttons .btn-tag.active');
@@ -451,6 +454,9 @@
     document.getElementById('flight').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
     document.getElementById('date').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
 
+    // ==========================================
+    // 📝 TCO 產生邏輯
+    // ==========================================
     const defaultLogs = ["A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.", "Cleaning completed.", "Cabin security check started.", "Boarding signal released.", "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."];
     function initLogs() {
         const c = document.getElementById('logContainer'); c.innerHTML = '';
@@ -514,8 +520,68 @@
         res += `--\n` + logs.map(l => `${l.t}L ${l.text}\n`).join('');
         res += rep ? `End of report/${rep}` : `End of report`;
         document.getElementById('outputReport').textContent = res;
+
+        // 驗證邏輯
+        const validationBox = document.getElementById('delayValidation');
+        let staMins = timeStrToIntMins(document.getElementById('sta').value); let ataMins = timeStrToIntMins(document.getElementById('ata').value);
+        let stdMins = timeStrToIntMins(document.getElementById('std').value); let atdMins = timeStrToIntMins(document.getElementById('atd').value);
+        let hasDelayWarning = false; let warningHTML = ""; let taskHTML = "";
+        let totalExplainedMins = selectedDelayCodes.reduce((sum, item) => sum + (timeStrToIntMins(item.time)||0), 0);
+
+        if (staMins !== null && ataMins !== null) {
+            let arrDiff = ataMins - staMins; if (arrDiff < -720) arrDiff += 24 * 60; 
+            if (arrDiff > 0) {
+                hasDelayWarning = true;
+                taskHTML += `<div class="task-alert">👉 建議 Code 判斷：飛機晚到 <span class="text-red">${arrDiff}</span> 分鐘</div>`;
+                validationBox.className = 'validation-box validation-warning';
+            }
+        }
+
+        if (stdMins !== null && atdMins !== null) {
+            let actualDelayMins = atdMins - stdMins; if (actualDelayMins < -720) actualDelayMins += 24 * 60; 
+            if (actualDelayMins > 0) {
+                hasDelayWarning = true; let diffMins = actualDelayMins - totalExplainedMins;
+                if (diffMins > 0) {
+                    warningHTML = `<strong>⚠️ 實際起飛 Delay 時間為 ${actualDelayMins} 分鐘。</strong><br>已解釋 ${totalExplainedMins} 分鐘，還需 <strong>${minsToDurationStr(diffMins)}</strong> 補充說明！`;
+                    validationBox.className = 'validation-box validation-warning';
+                } else if (diffMins < 0) {
+                    warningHTML = `<strong>⚠️ 警告：解釋時間 (${totalExplainedMins} 分) 超過總 Delay (${actualDelayMins} 分)！</strong>`;
+                    validationBox.className = 'validation-box validation-warning';
+                } else {
+                    warningHTML = `<strong>✅ 時間與 DELAY CODE 完全吻合 (${actualDelayMins} 分鐘)</strong>`;
+                    validationBox.className = 'validation-box validation-match';
+                }
+            }
+        }
+
+        let taskChecks = [
+            { start: "Pax off started", end: "Pax off completed", std: 8, name: "PAX OFF" },
+            { start: "Cleaning started", end: "Cleaning completed", std: 20, name: "CABIN CLEANING" },
+            { start: "Boarding signal released", end: "All pax onboard", std: 20, name: "BOARDING" }
+        ];
+
+        taskChecks.forEach(task => {
+            let sStr = getLogTimeStr(logs, task.start); let eStr = getLogTimeStr(logs, task.end);
+            if (sStr && eStr) {
+                let s = timeStrToIntMins(sStr); let e = timeStrToIntMins(eStr);
+                if (s !== null && e !== null) {
+                    let actual = e - s; if (actual < 0) actual += 24 * 60;
+                    if (actual > task.std) {
+                        hasDelayWarning = true;
+                        taskHTML += `<div class="task-alert">👉 建議 Code 判斷：${task.name} 超時 <span class="text-red">${actual - task.std}</span> 分鐘 (實際 ${actual} 分)</div>`;
+                        if(validationBox.className !== 'validation-box validation-warning') validationBox.className = 'validation-box validation-warning';
+                    }
+                }
+            }
+        });
+
+        if (hasDelayWarning) { validationBox.style.display = 'block'; validationBox.innerHTML = warningHTML + taskHTML; } 
+        else { validationBox.style.display = 'none'; }
     }
 
+    // ==========================================
+    // 📝 減人報告產生邏輯
+    // ==========================================
     let paxCountInternal = 0;
     function initPaxList() { document.getElementById('paxListContainer').innerHTML=''; paxCountInternal=0; addPaxCard(); }
     function addPaxCard() {
@@ -547,13 +613,10 @@
     function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert("已複製！")); }
 
     // =========================================================================
-    // ☁️ 雲端資料庫 API：儲存與讀取 (帶有 action 參數)
+    // ☁️ 雲端儲存與讀取 API
     // =========================================================================
-    
     function saveToCloud(type) {
-        if (!SCRIPT_URL || SCRIPT_URL === "在此貼上您的_Google_Apps_Script_網址") {
-            alert("請先將 Google Apps Script 的網址貼入原始碼中！"); return;
-        }
+        if (!SCRIPT_URL) return alert("網址設定異常！");
 
         const btn = document.getElementById(type === 'TCO' ? 'btn-save-tco' : 'btn-save-shutout');
         const loader = document.getElementById(type === 'TCO' ? 'loader-tco' : 'loader-shutout');
@@ -579,12 +642,11 @@
     }
 
     function fetchHistory() {
-        if (!SCRIPT_URL || SCRIPT_URL === "在此貼上您的_Google_Apps_Script_網址" || !currentUser) return;
+        if (!SCRIPT_URL || !currentUser) return;
         
         const lists = [document.getElementById('history-list'), document.getElementById('history-list-shutout')];
         lists.forEach(l => l.innerHTML = '<div style="text-align:center; color:#9ca3af; margin-top:30px;">🔄 抓取專屬資料中...</div>');
 
-        // GET 請求，並帶上 user 參數
         fetch(SCRIPT_URL + "?user=" + encodeURIComponent(currentUser))
         .then(res => res.json())
         .then(data => {
