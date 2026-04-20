@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V23 (Smart Summary Fixed)</title>
+    <title>TCO & Shut Out Report V25 (Login System)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -28,22 +28,21 @@
             background-color: var(--bg-color);
             color: var(--text-dark);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             justify-content: center;
             letter-spacing: 0.03em;
         }
 
-        .main-container {
-            width: 100%;
-            max-width: 1350px; 
-            display: flex;
-            flex-direction: column;
-        }
+        .main-container { width: 100%; max-width: 1500px; display: flex; flex-direction: column; }
         
-        .tab-nav {
-            display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--secondary); padding-bottom: 2px;
-        }
+        /* 導覽列與登出按鈕佈局 */
+        .header-nav { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--secondary); padding-bottom: 2px;}
+        .tab-nav { display: flex; gap: 15px; }
+        .user-panel { display: flex; align-items: center; gap: 15px; padding-bottom: 8px; font-size: 0.9rem; color: var(--primary); font-weight: bold;}
+        .btn-logout { background: transparent; border: 1px solid var(--text-muted); color: var(--text-dark); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s;}
+        .btn-logout:hover { background: var(--secondary); }
+
         .tab-btn {
             background-color: transparent; color: var(--text-muted); border: none; padding: 10px 20px;
             font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; position: relative;
@@ -56,849 +55,565 @@
         .tab-btn.active { color: var(--text-dark); }
         .tab-btn.active::after { transform: scaleX(1); }
 
-        .tab-content { display: none; width: 100%; align-items: flex-start; justify-content: space-between;}
+        .tab-content { display: none; width: 100%; align-items: flex-start; justify-content: space-between; gap: 15px;}
         .tab-content.active { display: flex; }
         
-        .form-section { width: 58%; background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
-        .output-section { width: calc(42% - 20px); background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0; position: sticky; top: 20px; }
+        .form-section { width: 50%; background: var(--surface); padding: 25px 20px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
+        .output-section { width: 28%; background: var(--surface); padding: 25px 20px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0; position: sticky; top: 15px; }
+        .history-section { width: 22%; background: var(--surface); padding: 25px 20px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0; position: sticky; top: 15px; height: 90vh; display: flex; flex-direction: column;}
 
-        h2 {
-            margin-top: 0; color: var(--text-dark); font-size: 1.2rem; font-weight: 600;
-            display: flex; align-items: center; margin-bottom: 20px;
-            border-left: 4px solid var(--accent-blue); padding-left: 10px; line-height: 1;
-        }
-        
+        h2 { margin-top: 0; color: var(--text-dark); font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; margin-bottom: 20px; border-left: 4px solid var(--accent-blue); padding-left: 10px; line-height: 1; }
         h3 { color: var(--primary-light); font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; }
-
-        .row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .row { display: flex; gap: 10px; margin-bottom: 12px; }
         .col { flex: 1; display: flex; flex-direction: column; }
         label { font-weight: 500; margin-bottom: 6px; font-size: 0.85rem; color: var(--primary-light); }
         
-        input[type="text"], input[type="date"], input[type="number"], select, textarea {
-            padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 4px;
+        input[type="text"], input[type="password"], input[type="date"], input[type="number"], select, textarea {
+            padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 4px;
             font-size: 0.95rem; transition: all 0.2s; background-color: #fdfdfd; width: 100%; color: var(--text-dark);
         }
-        input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+        input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
             outline: none; border-color: var(--accent-blue); background-color: var(--surface); box-shadow: 0 0 0 1px var(--accent-blue);
         }
-        input[type="date"] { cursor: pointer; }
-        select {
-            cursor: pointer; appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: right 10px top 50%; background-size: 10px auto; padding-right: 30px;
-        }
-        textarea { resize: vertical; min-height: 70px; }
+        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; } 
+
+        .delay-code-builder { background-color: #f9fafb; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid var(--secondary); }
+        .delay-code-item { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--secondary); margin-top: 10px; font-size: 0.85rem; }
+        .delay-desc { flex: 1; color: var(--primary-light); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .delay-code-builder { background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 20px; border: 1px solid var(--secondary); }
-        .delay-code-item { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 8px 12px; border-radius: 4px; border: 1px solid var(--secondary); margin-top: 10px; font-size: 0.9rem; }
-        .delay-desc { flex: 1; color: var(--primary-light); font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .log-entry { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; width: 100%; }
-        input[type="text"].log-time { width: 85px !important; flex: 0 0 85px !important; text-align: center; background-color: #f1f5f9; font-weight: bold; }
+        .log-entry { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; width: 100%; }
+        input[type="text"].log-time { width: 75px !important; flex: 0 0 75px !important; text-align: center; background-color: #f1f5f9; font-weight: bold; }
         input[type="text"].log-desc { flex: 1 !important; }
         
-        button { background-color: var(--primary); color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        button { background-color: var(--primary); color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         button:hover { background-color: #374151; }
         
         .btn-outline { background-color: transparent; color: var(--primary); border: 1px dashed var(--primary); width: 100%; margin-top: 10px;}
         .btn-outline:hover { background-color: #f3f4f6; border-style: solid; }
-        
-        .btn-danger { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; }
+        .btn-danger { background-color: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 4px 8px; font-size: 0.75rem;}
         .btn-danger:hover { background-color: #fff1f2; }
         
-        .btn-clear { background-color: transparent; color: var(--text-muted); border: 1px dashed var(--text-muted); width: 100%; margin-top: 25px; padding: 12px; font-size: 1rem; }
-        .btn-clear:hover { border-color: var(--danger); color: var(--danger); }
+        .btn-tag { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 5px;}
+        .btn-tag.active { background-color: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
         
-        .btn-small { padding: 5px 8px; font-size: 0.8rem; border-radius: 4px;}
-
-        /* 💡 智慧標籤按鈕樣式 */
-        .btn-tag {
-            background-color: #f1f5f9;
-            color: var(--text-dark);
-            border: 1px solid #cbd5e1;
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            margin-bottom: 5px;
-        }
-        .btn-tag:hover { background-color: #e2e8f0; }
-        .btn-tag.active {
-            background-color: var(--accent-blue);
-            color: #ffffff;
-            border-color: var(--accent-blue);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
+        pre { background: #2d3748; color: #f7fafc; padding: 15px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; font-size: 13.5px; line-height: 1.5; min-height: 300px; border: 1px solid #1a202c; }
         
-        pre { background: #2d3748; color: #f7fafc; padding: 25px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; overflow-x: hidden; font-family: 'Consolas', 'Courier New', monospace; font-size: 14.5px; line-height: 1.6; letter-spacing: 0.03em; min-height: 350px; border: 1px solid #1a202c; }
-        
-        .validation-box { margin-top: 20px; padding: 14px 18px; border-radius: 4px; font-size: 0.9rem; display: none; line-height: 1.6; }
+        .validation-box { margin-top: 15px; padding: 12px; border-radius: 4px; font-size: 0.85rem; display: none; line-height: 1.5; }
         .validation-warning { background-color: var(--warning-bg); color: var(--warning-text); border-left: 4px solid #f59e0b; }
         .validation-match { background-color: var(--success-bg); color: var(--success-text); border-left: 4px solid #10b981; }
-        .task-alert { font-size: 0.85rem; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.1); }
         .text-red { color: var(--danger); font-weight: 600; }
 
-        .copy-btn { width: 100%; padding: 14px; font-size: 1rem; font-weight: 600; background-color: var(--accent-blue); margin-top: 15px; border-radius: 4px; }
-        .copy-btn:hover { background-color: #4b636e; }
+        .btn-save { width: 100%; padding: 12px; font-size: 1rem; font-weight: 600; background-color: #10b981; margin-top: 15px; border-radius: 4px; color: white; display: flex; justify-content: center; align-items: center;}
+        .btn-save:hover { background-color: #059669; }
         
-        .helper-text { font-size: 0.8rem; color: var(--text-muted); margin-top: -5px; margin-bottom: 15px; display: block;}
-        
-        .pax-card { background-color: #f9fafb; border: 1px solid var(--secondary); padding: 20px; border-radius: 6px; margin-bottom: 15px; position: relative; }
-        .pax-card-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 15px; }
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; margin-top: 10px; }
+        .history-card { background: #f8fafc; border: 1px solid var(--secondary); border-radius: 6px; padding: 12px; cursor: pointer; transition: all 0.2s;}
+        .history-card:hover { border-color: var(--accent-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .history-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .history-title { font-size: 0.95rem; font-weight: 600; color: var(--primary); }
 
-        .time-input-group { display: flex; flex-direction: row; align-items: center; gap: 5px; }
-        .time-input-group input[type="text"] { flex: 1; text-align: center; }
-        
-        hr { border: 0; height: 1px; background-color: var(--secondary); margin: 25px 0; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-blue); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 10px; display: none;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        @media screen and (max-width: 800px) {
-            body { padding: 10px; } 
-            .tab-content { flex-direction: column; gap: 15px; }
-            .form-section { width: 100%; padding: 20px 15px; }
-            .output-section { width: 100%; padding: 20px 15px; position: static; margin-top: 0; }
-            .row { flex-direction: column; gap: 10px; margin-bottom: 10px; }
-            .tab-nav { flex-wrap: wrap; gap: 0; border-bottom: none; }
-            .tab-btn { flex: 1; padding: 12px 5px; font-size: 1rem; text-align: center; border-bottom: 1px solid var(--secondary); border-radius: 0; }
-            .delay-code-builder .row { flex-direction: column; }
+        /* 🚪 登入畫面毛玻璃覆蓋層設計 */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: var(--surface); padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px;
+            border: 1px solid var(--secondary); text-align: center;
+        }
+        .login-box h2 { border-left: none; padding-left: 0; justify-content: center; margin-bottom: 30px; font-size: 1.5rem;}
+        .login-input { margin-bottom: 20px; text-align: left; }
+        .login-btn { width: 100%; padding: 12px; font-size: 1rem; margin-top: 10px; display: flex; justify-content: center; align-items: center;}
+
+        @media screen and (max-width: 1024px) {
+            .tab-content { flex-direction: column; }
+            .form-section, .output-section, .history-section { width: 100%; height: auto; }
+            .output-section, .history-section { position: static; }
         }
     </style>
 </head>
 <body>
 
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2>✈️ TCO System Login</h2>
+        <div class="login-input">
+            <label>帳號 (Account)</label>
+            <input type="text" id="login-account" placeholder="輸入帳號">
+        </div>
+        <div class="login-input">
+            <label>密碼 (Password)</label>
+            <input type="password" id="login-password" placeholder="輸入密碼" onkeypress="if(event.key === 'Enter') doLogin()">
+        </div>
+        <button class="login-btn" id="btn-login" onclick="doLogin()">
+            <div class="loader" id="loader-login"></div> 登入系統
+        </button>
+        <p id="login-msg" style="color: var(--danger); font-size: 0.85rem; display: none; margin-top: 15px;"></p>
+    </div>
+</div>
+
 <div class="main-container">
     
-    <div class="tab-nav">
-        <button class="tab-btn active" id="btn-tco" onclick="switchTab('tco')">TCO 報告</button>
-        <button class="tab-btn" id="btn-shutout" onclick="switchTab('shutout')">減人報告 (Shut Out)</button>
+    <div class="header-nav">
+        <div class="tab-nav">
+            <button class="tab-btn active" id="btn-tco" onclick="switchTab('tco')">TCO 報告</button>
+            <button class="tab-btn" id="btn-shutout" onclick="switchTab('shutout')">減人報告</button>
+        </div>
+        <div class="user-panel">
+            <span id="display-username">Hi, Guest</span>
+            <button class="btn-logout" onclick="doLogout()">登出</button>
+        </div>
     </div>
 
     <div id="tab-tco" class="tab-content active">
         <div class="form-section">
             <h2>TCO 報告填寫</h2>
-            
             <div class="row">
                 <div class="col"><label>Flight</label><input type="text" id="flight"></div>
                 <div class="col"><label>Date</label><input type="date" id="date"></div>
-                <div class="col"><label>Reporter</label><input type="text" id="reporter"></div>
+                <div class="col"><label>Reporter (系統鎖定)</label><input type="text" id="reporter" readonly></div>
             </div>
-
             <div class="row">
-                <div class="col"><label>STA (計算用)</label><input type="text" id="sta" maxlength="4"></div>
-                <div class="col"><label>STD (計算用)</label><input type="text" id="std" maxlength="4"></div>
+                <div class="col"><label>STA</label><input type="text" id="sta" maxlength="4"></div>
+                <div class="col"><label>STD</label><input type="text" id="std" maxlength="4"></div>
                 <div class="col"><label>ETA</label><input type="text" id="eta" maxlength="4"></div>
                 <div class="col"><label>ETD</label><input type="text" id="etd" maxlength="4"></div>
             </div>
             <div class="row">
-                <div class="col"><label>ATA (計算用)</label><input type="text" id="ata" maxlength="4"></div>
-                <div class="col"><label>ATD (計算用)</label><input type="text" id="atd" maxlength="4"></div>
-                <div class="col"><label>DCT (Optional)</label><input type="text" id="dct" maxlength="4"></div>
+                <div class="col"><label>ATA</label><input type="text" id="ata" maxlength="4"></div>
+                <div class="col"><label>ATD</label><input type="text" id="atd" maxlength="4"></div>
+                <div class="col"><label>DCT</label><input type="text" id="dct" maxlength="4"></div>
             </div>
-
             <div class="row">
                 <div class="col"><label>PTS</label><select id="pts"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
             </div>
-
             <div class="delay-code-builder">
-                <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 12px; font-weight: 600;">Delay Code 自動計算</label>
+                <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: 600;">Delay Code</label>
                 <div class="row" style="margin-bottom: 0; align-items: center;">
                     <div class="col" style="flex: 2;">
-                        <select id="inputDelayCode">
-                            <option value="">-- 請選擇 Delay Code --</option>
-                        </select>
+                        <select id="inputDelayCode"><option value="">-- 選擇 Delay Code --</option></select>
                     </div>
-                    <div class="col time-input-group" style="flex: 1;">
-                        <input type="text" id="inputDelayHH" maxlength="2" placeholder="時">
-                        <span style="font-weight: 400; color: var(--text-muted);">:</span>
-                        <input type="text" id="inputDelayMM" maxlength="2" placeholder="分">
+                    <div class="col" style="flex: 1; flex-direction: row; align-items: center; gap: 5px;">
+                        <input type="text" id="inputDelayHH" maxlength="2" placeholder="時" style="text-align:center;"> : 
+                        <input type="text" id="inputDelayMM" maxlength="2" placeholder="分" style="text-align:center;">
                     </div>
                     <div><button type="button" onclick="addDelayCode()">新增</button></div>
                 </div>
                 <div id="addedCodesContainer"></div>
             </div>
-
             <div class="row">
                 <div class="col">
-                    <label style="margin-bottom: 10px; display: block;">Delay Summary (延遲總結自動造句)</label>
-                    <div id="summary-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-                        <button type="button" class="btn-tag" data-reason="flight late arrival" onclick="toggleSummaryReason(this)">1. Flight late arrival</button>
-                        <button type="button" class="btn-tag" data-reason="prolonged cabin cleaning" onclick="toggleSummaryReason(this)">2. Prolonged cabin cleaning</button>
-                        <button type="button" class="btn-tag" data-reason="prolonged offloading and loading process" onclick="toggleSummaryReason(this)">3. Prolonged offloading/loading</button>
-                        <button type="button" class="btn-tag" data-reason="searching for missing pax" onclick="toggleSummaryReason(this)">4. Searching for missing pax</button>
-                        <button type="button" class="btn-tag" data-reason="arrival airport ATC hold" onclick="toggleSummaryReason(this)">5. Arrival airport ATC hold</button>
+                    <div id="summary-buttons" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
+                        <button type="button" class="btn-tag" data-reason="flight late arrival" onclick="toggleSummaryReason(this)">1. Late arrival</button>
+                        <button type="button" class="btn-tag" data-reason="prolonged cabin cleaning" onclick="toggleSummaryReason(this)">2. Cleaning</button>
+                        <button type="button" class="btn-tag" data-reason="prolonged offloading and loading process" onclick="toggleSummaryReason(this)">3. Load/Offload</button>
+                        <button type="button" class="btn-tag" data-reason="searching for missing pax" onclick="toggleSummaryReason(this)">4. Missing pax</button>
+                        <button type="button" class="btn-tag" data-reason="arrival airport ATC hold" onclick="toggleSummaryReason(this)">5. ATC hold</button>
                     </div>
-                    <textarea id="summary" placeholder="點擊上方按鈕自動造句，或在此手動輸入..."></textarea>
+                    <textarea id="summary" placeholder="Summary..."></textarea>
                 </div>
             </div>
-            <hr>
-
-            <h3>時間軸紀錄 (Chronological Log)</h3>
-            <span class="helper-text">💡 提示：請在左側填寫時間，未填寫時間的項目將不會顯示在右側報告中。</span>
-            
+            <hr style="margin: 15px 0;">
+            <h3>時間軸紀錄 (Log)</h3>
             <div id="logContainer"></div>
-            <button type="button" class="btn-outline" onclick="addCustomLog()">新增自訂時間紀錄</button>
-            <button type="button" class="btn-clear" onclick="clearTCOForm()">清除 TCO 表格內容</button>
+            <button type="button" class="btn-outline" onclick="addCustomLog()">新增自訂時間</button>
+            <button type="button" class="btn-outline" style="border-color:var(--danger); color:var(--danger)" onclick="clearForm('TCO')">清除表單</button>
         </div>
 
         <div class="output-section">
-            <h2>TCO 預覽</h2>
-            <pre id="outputReport">您的報告將會顯示在這裡...</pre>
+            <h2>報告預覽</h2>
+            <pre id="outputReport">報告產生中...</pre>
             <div id="delayValidation" class="validation-box"></div>
-            <button class="copy-btn" onclick="copyText('outputReport')">複製 TCO 報告</button>
+            <button class="btn-save" id="btn-save-tco" onclick="saveToCloud('TCO')">
+                <div class="loader" id="loader-tco"></div>💾 儲存並發佈至雲端
+            </button>
+            <button class="btn-outline" onclick="copyText('outputReport')">📋 僅複製報告</button>
+        </div>
+
+        <div class="history-section">
+            <h2 style="border-left-color: #10b981;">📂 您的歷史紀錄</h2>
+            <button type="button" style="width:100%; background-color:#f1f5f9; color:#4b5563; border: 1px solid #cbd5e1;" onclick="fetchHistory()">🔄 重新整理</button>
+            <div class="history-list" id="history-list"></div>
         </div>
     </div>
-    
+
     <div id="tab-shutout" class="tab-content">
         <div class="form-section">
             <h2>減人報告 (Shut Out)</h2>
-            
             <div class="row">
-                <div class="col">
-                    <label>Reporter (通報人)</label>
-                    <input type="text" id="shut-reporter" placeholder="e.g. Benson">
-                </div>
+                <div class="col"><label>Flight</label><input type="text" id="shut-flight" placeholder="e.g. CX565 (雲端紀錄用)"></div>
+                <div class="col"><label>Date</label><input type="date" id="shut-date"></div>
+                <div class="col"><label>Reporter (系統鎖定)</label><input type="text" id="shut-reporter" readonly></div>
             </div>
-
             <div id="paxListContainer"></div>
             <button type="button" class="btn-outline" onclick="addPaxCard()">新增拉下旅客</button>
-
-            <hr>
-
+            <hr style="margin: 15px 0;">
             <div class="row">
-                <div class="col">
-                    <label>原本總人數 (Amended from)</label>
-                    <input type="number" id="shut-from" placeholder="e.g. 310">
-                </div>
-                <div class="col">
-                    <label>最終總人數 (Amended to)</label>
-                    <input type="number" id="shut-to" placeholder="e.g. 308">
-                </div>
+                <div class="col"><label>Amended from</label><input type="number" id="shut-from" placeholder="310"></div>
+                <div class="col"><label>Amended to</label><input type="number" id="shut-to" placeholder="308"></div>
             </div>
-
-            <button type="button" class="btn-clear" onclick="clearShutOutForm()">清除減人表格內容</button>
+            <button type="button" class="btn-outline" style="border-color:var(--danger); color:var(--danger); margin-top: 30px;" onclick="clearForm('ShutOut')">清除表單</button>
         </div>
 
         <div class="output-section">
             <h2>減人預覽</h2>
-            <pre id="outputShutOutReport">您的減人報告將會顯示在這裡...</pre>
-            <button class="copy-btn" onclick="copyText('outputShutOutReport')">複製減人報告</button>
+            <pre id="outputShutOutReport">報告產生中...</pre>
+            <button class="btn-save" id="btn-save-shutout" onclick="saveToCloud('ShutOut')">
+                <div class="loader" id="loader-shutout"></div>💾 儲存並發佈至雲端
+            </button>
+            <button class="btn-outline" onclick="copyText('outputShutOutReport')">📋 僅複製報告</button>
+        </div>
+
+        <div class="history-section">
+            <h2 style="border-left-color: #10b981;">📂 您的歷史紀錄</h2>
+            <button type="button" style="width:100%; background-color:#f1f5f9; color:#4b5563; border: 1px solid #cbd5e1;" onclick="fetchHistory()">🔄 重新整理</button>
+            <div class="history-list" id="history-list-shutout"></div>
         </div>
     </div>
 
 </div>
 
+<div id="historyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+    <div style="background:#fff; width:90%; max-width:500px; padding:25px; border-radius:8px;">
+        <h3 id="modalTitle" style="margin-top:0;">歷史報告</h3>
+        <pre id="modalContent" style="min-height:200px; padding:15px; margin-bottom:15px;"></pre>
+        <div style="display:flex; gap:10px;">
+            <button style="flex:1;" onclick="copyText('modalContent')">📋 複製內容</button>
+            <button style="flex:1; background-color:#e5e7eb; color:#374151;" onclick="document.getElementById('historyModal').style.display='none'">關閉</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    // =========================================================================
+    // 🚨 雲端資料庫 API：您的專屬 GAS 網址已套用
+    // =========================================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
+
+    // ==========================================
+    // 🔐 登入驗證與 Session 管理
+    // ==========================================
+    let currentUser = localStorage.getItem('tco_user_name'); // 從瀏覽器記憶中抓取
+
+    window.onload = function() {
+        if (currentUser) {
+            // 如果已經登入過，隱藏登入層，寫入名字，開始抓資料
+            document.getElementById('loginOverlay').style.display = 'none';
+            setReporterName(currentUser);
+            initApp();
+        }
+    };
+
+    function doLogin() {
+        if (!SCRIPT_URL || SCRIPT_URL === "在此貼上您的_Google_Apps_Script_網址") {
+            alert("系統尚未綁定資料庫，請檢查 SCRIPT_URL 設定！");
+            return;
+        }
+
+        const acc = document.getElementById('login-account').value.trim();
+        const pwd = document.getElementById('login-password').value.trim();
+        const msg = document.getElementById('login-msg');
+        const btn = document.getElementById('btn-login');
+        const loader = document.getElementById('loader-login');
+
+        if(!acc || !pwd) {
+            msg.style.display = 'block'; msg.textContent = "請輸入帳號與密碼"; return;
+        }
+
+        btn.disabled = true; loader.style.display = 'inline-block'; msg.style.display = 'none';
+
+        // 傳送驗證請求給 Google 試算表後台
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: 'login', account: acc, password: pwd })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 登入成功
+                currentUser = data.name;
+                localStorage.setItem('tco_user_name', currentUser); // 記住登入狀態
+                document.getElementById('loginOverlay').style.display = 'none';
+                setReporterName(currentUser);
+                initApp(); // 啟動畫面與抓資料
+            } else {
+                // 登入失敗
+                msg.style.display = 'block';
+                msg.textContent = data.message || "登入失敗";
+            }
+        })
+        .catch(err => {
+            msg.style.display = 'block';
+            msg.textContent = "連線發生錯誤，請檢查網路或網址設定。";
+        })
+        .finally(() => {
+            btn.disabled = false; loader.style.display = 'none';
+        });
+    }
+
+    function doLogout() {
+        if(confirm("確定要登出嗎？")) {
+            localStorage.removeItem('tco_user_name');
+            location.reload(); // 重新整理網頁就會回到登入畫面
+        }
+    }
+
+    function setReporterName(name) {
+        document.getElementById('display-username').textContent = `Hi, ${name}`;
+        document.getElementById('reporter').value = name;
+        document.getElementById('shut-reporter').value = name;
+    }
+
+    function initApp() {
+        buildDelayDB(); populateDelayCodeSelect(); initLogs(); initPaxList(); 
+        generateReport(); generateShutOutReport();
+        fetchHistory(); // 登入後抓取「專屬」歷史紀錄
+    }
+
+    // ==========================================
+    // Delay Code 資料庫與一般邏輯
+    // ==========================================
+    const rawData = `ADC	Arrival Airport Restriction - Curfew/Night/Noise\nADD	Arrival Airport Restriction - Runway/Taxiway\nADG	Arrival Airport Restriction - Operational Concern\nADO	Arrival Airport Restriction - Other\nAEK	Air Traffic Control due to Non-Weather - Arrival Airport\nAFC	Airport Facility - Ground Traffic\nAFH	Airport Facility - Cargo Terminal\nAFJ	Airport Facility - Jet Bridge\nAFL	Airport Facility - Baggage\nAFN	Airport Facility - Passenger Terminal\nAFO	Airport Facility - Apron\nAFP	Airport Facility - Parking Bay Availability\nAGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance\nAGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff\nAGD	Customs/Immigration/Quarantine - Passenger\nAGO	Customs/Immigration/Quarantine - Other\nAMA	Air Traffic Control due to Non-Weather - Departure Airport\nAMC	Departure Airport Restriction - Curfew/Night/Noise\nAMD	Departure Airport Restriction - Runway/Taxiway\nAMO	Departure Airport Restriction - Other\nAMR	Ground Traffic - Aircraft Towing\nAMS	Ground Traffic - Aircraft Pushback\nAMW	Air Traffic Control due to Weather - Departure Airport\nASC	Mandatory Security - Cargo/Mail\nASE	Mandatory Security - Additional Requirement\nASF	Mandatory Security - Facility\nASI	Mandatory Security - Aircraft\nASL	Mandatory Security - Staff Lateness / Lack of\nASN	Mandatory Security - Aerobridge / Boarding Gate\nASS	Mandatory Security - Staff Error\nASU	Mandatory Security - Baggage Offload\nASX	Mandatory Security - Major Security Incident\nATK	Air Traffic Control due to Non-Weather - En Route\nATW	Air Traffic Control due to Weather - En Route\nAWK	Air Traffic Control due to Weather - Arrival Airport\nCCK	Cargo/Mail Acceptance\nCDI	Cargo/Mail Documentation - Error/Missing\nCDL	Cargo/Mail Documentation - Lateness\nCIC	Cargo/Mail Packing - Unit Load Device (ULD)\nCIL	Cargo/Mail Packing - Collapse/Shift\nCIO	Cargo/Mail Packing - Other\nCIP	Cargo/Mail Packing - Damage/Inadequate/Leakage\nCIS	Cargo/Mail Packing - Odorous\nCPD	Cargo/Mail Positioning - Drop Off\nCPO	Cargo/Mail Positioning - Other\nCPP	Cargo/Mail Positioning - Pick Up\nCUC	Cargo/Mail Preparation - Warehouse Congestion\nCUS	Cargo/Mail Preparation - Staff\nDFK	Aircraft Damage - During Flying/Taxiing\nDGK	Aircraft Damage - During Parking/Towing\nECD	IT-CX Group Cargo Documentation/Preparation System\nECE	IT-CTO/GHA Cargo Documentation/Preparation System\nEDA	IT-Departure Control System (DCS)\nEFK	IT-Computer Flight Planning System\nEOA	IT-Aircraft Communications Addressing and Reporting System (ACARS)\nEOB	IT-Baggage Handling System (BHS)\nEON	IT-Network\nEOO	IT-Other\nEOS	IT-Airport Self-Service\nFAA	Cabin Crew Handling - After Landing Procedure\nFAC	Cabin Crew Handling - Cabin Management\nFAE	Cabin Crew Handling - Cabin Crew Error\nFAF	Cabin Crew Handling - Passenger Health Clarification\nFAH	Cabin Crew Handling - Passenger Headcount\nFAL	Cabin Crew Handling - Pre-Flight Procedure\nFAM	Cabin Crew Handling - Catering\nFAO	Cabin Crew Handling - Other\nFAP	Cabin Crew Handling - Passenger Requirement\nFAT	Cabin Crew Handling - Technical\nFAW	Cabin Crew Handling - Cabin Cleaning\nFBS	Flight Deck Crew Handling - Extraordinary Security Check\nFCL	Cabin Crew Availability - Flight Time Limitation\nFCO	Cabin Crew Availability - Other\nFCS	Cabin Crew Availability - Sickness\nFFC	Operational Requirement - Computer Flight Plan (CFP) Change\nFFF	Operational Requirement - Refuelling\nFFL	Operational Requirement - Loadsheet/Payload Change\nFFM	Operational Requirement - Maintenance Request\nFFO	Operational Requirement - Other\nFFT	Operational Requirement - Technical Clarification\nFLI	Cabin Crew Boarding - Late Arrival to Reporting Point\nFLM	Cabin Crew Boarding - Other\nFLW	Cabin Crew Boarding - Late Arrival to Aircraft\nFPD	Flight Operational Documentation - Error/Lateness\nFPE	Flight Operational Documentation - EFB Device / Accessory\nFRN	Flight Deck Crew Handling - Non-Operational Requirement\nFSF	Flight Deck Crew Availability - Fatigue\nFSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point\nFSL	Flight Deck Crew Availability - Flight Time Limitation\nFSM	Flight Deck Crew Boarding - Other\nFSO	Flight Deck Crew Availability - Other\nFSS	Flight Deck Crew Availability - Sickness\nFTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point\nFTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation\nFTM	Flight Deck and Cabin Crew Boarding - Other\nFTO	Flight Deck and Cabin Crew Availability - Other\nFTS	Flight Deck and Cabin Crew Availability - Sickness\nFTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft\nGBD	Catering - Delivery/Loading/Unloading\nGBO	Catering - Other\nGBS	Catering - Aircraft Switch\nGCL	Cabin Cleaning - Service Provider\nGCO	Cabin Cleaning - Other\nGDC	Aircraft Documentation - Centralized Load Control (CLC)\nGDO	Aircraft Documentation - Other\nGDS	Aircraft Documentation - Departure Station\nGET	Loading/Unloading - Equipment\nGFA	Fuelling - Fuel Supplier / Intoplane Operator\nGFE	Fuelling - Engineering Documentation\nGFO	Fuelling - Other\nGLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time\nGLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time\nGLC	Loading/Unloading - Cabin\nGLD	Loading/Unloading - Difficulty\nGLE	Loading/Unloading - Staff Error\nGLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time\nGLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only)\nGLR	Loading/Unloading - Rearrangement\nGLS	Loading/Unloading - Staff Availability\nGLV	Loading/Unloading - Space/Volumetric\nGLX	Loading/Unloading - Other\nGSL	Servicing Equipment - Equipment\nGSS	Servicing Equipment - Staff\nGTL	Technical Equipment - Equipment\nGTS	Technical Equipment - Staff\nGUK	Loading/Unloading - Unit Load Device (ULD)\nIAK	Air Traffic Control - Unknown Reason\nICK	Commercial (Cargo Service only)\nIGK	Aircraft Door Operation\nIPK	Disembarkation\nIWH	Weather - High Cabin Temperature\nMIK	Industrial Action - With CX Group\nMOK	Industrial Action - Outside CX Group\nMXX	No Matched Reason\nPBK	Baggage Handling\nPCO	Catering Order\nPDO	Passenger Acceptance - Other\nPDP	Passenger Acceptance - Transfer due to Irregular Operation\nPEK	Check-In Error\nPHB	Boarding - Cabin Baggage\nPHH	Boarding - Staff\nPHM	Boarding - Missing Passenger\nPHO	Boarding - Other\nPHS	Boarding - Passenger Seating\nPLK	Check-In Area\nPOK	Overbooking\nPSI	Passenger Special Handling - Intoxicated/Sick Passenger\nPSO	Passenger Special Handling - Other\nPSP	Passenger Special Handling - Item Missing\nPSU	Passenger Special Handling - Unruly Passenger\nPWK	Reduced Mobility\nRAA	Aircraft Rotation - Air Traffic Control\nRAC	Aircraft Rotation - Crewing\nRAD	Aircraft Rotation - Aircraft Damage\nRAE	Aircraft Rotation - Information Technology\nRAF	Aircraft Rotation - Flight Operation\nRAG	Aircraft Rotation - Aircraft Servicing\nRAH	Aircraft Rotation - Cargo/Mail\nRAM	Aircraft Rotation - Ground Traffic\nRAN	Aircraft Rotation - En Route\nRAO	Aircraft Rotation - Other\nRAP	Aircraft Rotation - Passenger\nRAQ	Aircraft Rotation - Security\nRAR	Aircraft Rotation - Reactionary\nRAS	Aircraft Rotation - Schedule\nRAT	Aircraft Rotation - Technical\nRAU	Aircraft Rotation - Authority\nRAW	Aircraft Rotation - Weather\nRCA	Crew Rotation - Flight Deck / Entire Crew\nRLO	Load Connection - Non- CX Group\nRLX	Load Connection - CX Group\nROB	Operation Control - Crewing\nROC	Operation Control - Flight Consolidation\nROH	Operation Control - Aircraft Change\nROR	Operation Control - Diversion/Reroute\nROV	Operation Control - Await First Available Aircraft\nRSA	Crew Rotation - Cabin Crew\nRTK	Through Check-In\nSGK	Scheduled Ground Time\nTAA	Technical - AOG Spare from other Aircraft/Station\nTAE	Technical - AOG Spare for other Aircraft/Station\nTCT	Technical - Aircraft Change\nTDA	Technical - Without Aircraft Change\nTDD	Technical - Engineering Documentation\nTDL	Technical - Cargo Loading System (CLS)\nTDT	Technical - High Cabin Temperature\nTDU	Technical - Extra Start-Up Time\nTLT	Technical - Await First Available Aircraft\nTML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance\nTMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance\nTMT	Technical - Scheduled Maintenance\nTNA	Technical - Non-Scheduled Maintenance\nTSS	Technical - Lack of Spare\nTST	Technical - Await Spare from Technical Store\nWGI	Weather - Ground Handling Impaired\nWIK	Weather - Aircraft Frost/Ice/Snow Handling\nWOK	Weather - Departure Airport\nWRK	Weather - Alternate / En Route\nWSR	Weather - Airport Ice/Sand/Snow/Water Handling\nWTK	Weather - Arrival Airport`;
+
+    let delayDB = {}; let selectedDelayCodes = [];
+
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
         document.getElementById('btn-' + tabId).classList.add('active');
-        
-        if(tabId === 'tco') generateReport();
-        if(tabId === 'shutout') generateShutOutReport();
-        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        if(tabId === 'tco') generateReport(); if(tabId === 'shutout') generateShutOutReport();
     }
-
-    const rawData = `
-ADC	Arrival Airport Restriction - Curfew/Night/Noise
-ADD	Arrival Airport Restriction - Runway/Taxiway
-ADG	Arrival Airport Restriction - Operational Concern
-ADO	Arrival Airport Restriction - Other
-AEK	Air Traffic Control due to Non-Weather - Arrival Airport
-AFC	Airport Facility - Ground Traffic
-AFH	Airport Facility - Cargo Terminal
-AFJ	Airport Facility - Jet Bridge
-AFL	Airport Facility - Baggage
-AFN	Airport Facility - Passenger Terminal
-AFO	Airport Facility - Apron
-AFP	Airport Facility - Parking Bay Availability
-AGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance
-AGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff
-AGD	Customs/Immigration/Quarantine - Passenger
-AGO	Customs/Immigration/Quarantine - Other
-AMA	Air Traffic Control due to Non-Weather - Departure Airport
-AMC	Departure Airport Restriction - Curfew/Night/Noise
-AMD	Departure Airport Restriction - Runway/Taxiway
-AMO	Departure Airport Restriction - Other
-AMR	Ground Traffic - Aircraft Towing
-AMS	Ground Traffic - Aircraft Pushback
-AMW	Air Traffic Control due to Weather - Departure Airport
-ASC	Mandatory Security - Cargo/Mail
-ASE	Mandatory Security - Additional Requirement
-ASF	Mandatory Security - Facility
-ASI	Mandatory Security - Aircraft
-ASL	Mandatory Security - Staff Lateness / Lack of
-ASN	Mandatory Security - Aerobridge / Boarding Gate
-ASS	Mandatory Security - Staff Error
-ASU	Mandatory Security - Baggage Offload
-ASX	Mandatory Security - Major Security Incident
-ATK	Air Traffic Control due to Non-Weather - En Route
-ATW	Air Traffic Control due to Weather - En Route
-AWK	Air Traffic Control due to Weather - Arrival Airport
-CCK	Cargo/Mail Acceptance
-CDI	Cargo/Mail Documentation - Error/Missing
-CDL	Cargo/Mail Documentation - Lateness
-CIC	Cargo/Mail Packing - Unit Load Device (ULD)
-CIL	Cargo/Mail Packing - Collapse/Shift
-CIO	Cargo/Mail Packing - Other
-CIP	Cargo/Mail Packing - Damage/Inadequate/Leakage
-CIS	Cargo/Mail Packing - Odorous
-CPD	Cargo/Mail Positioning - Drop Off
-CPO	Cargo/Mail Positioning - Other
-CPP	Cargo/Mail Positioning - Pick Up
-CUC	Cargo/Mail Preparation - Warehouse Congestion
-CUS	Cargo/Mail Preparation - Staff
-DFK	Aircraft Damage - During Flying/Taxiing
-DGK	Aircraft Damage - During Parking/Towing
-ECD	IT-CX Group Cargo Documentation/Preparation System
-ECE	IT-CTO/GHA Cargo Documentation/Preparation System
-EDA	IT-Departure Control System (DCS)
-EFK	IT-Computer Flight Planning System
-EOA	IT-Aircraft Communications Addressing and Reporting System (ACARS)
-EOB	IT-Baggage Handling System (BHS)
-EON	IT-Network
-EOO	IT-Other
-EOS	IT-Airport Self-Service
-FAA	Cabin Crew Handling - After Landing Procedure
-FAC	Cabin Crew Handling - Cabin Management
-FAE	Cabin Crew Handling - Cabin Crew Error
-FAF	Cabin Crew Handling - Passenger Health Clarification
-FAH	Cabin Crew Handling - Passenger Headcount
-FAL	Cabin Crew Handling - Pre-Flight Procedure
-FAM	Cabin Crew Handling - Catering
-FAO	Cabin Crew Handling - Other
-FAP	Cabin Crew Handling - Passenger Requirement
-FAT	Cabin Crew Handling - Technical
-FAW	Cabin Crew Handling - Cabin Cleaning
-FBS	Flight Deck Crew Handling - Extraordinary Security Check
-FCL	Cabin Crew Availability - Flight Time Limitation
-FCO	Cabin Crew Availability - Other
-FCS	Cabin Crew Availability - Sickness
-FFC	Operational Requirement - Computer Flight Plan (CFP) Change
-FFF	Operational Requirement - Refuelling
-FFL	Operational Requirement - Loadsheet/Payload Change
-FFM	Operational Requirement - Maintenance Request
-FFO	Operational Requirement - Other
-FFT	Operational Requirement - Technical Clarification
-FLI	Cabin Crew Boarding - Late Arrival to Reporting Point
-FLM	Cabin Crew Boarding - Other
-FLW	Cabin Crew Boarding - Late Arrival to Aircraft
-FPD	Flight Operational Documentation - Error/Lateness
-FPE	Flight Operational Documentation - EFB Device / Accessory
-FRN	Flight Deck Crew Handling - Non-Operational Requirement
-FSF	Flight Deck Crew Availability - Fatigue
-FSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point
-FSL	Flight Deck Crew Availability - Flight Time Limitation
-FSM	Flight Deck Crew Boarding - Other
-FSO	Flight Deck Crew Availability - Other
-FSS	Flight Deck Crew Availability - Sickness
-FTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point
-FTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation
-FTM	Flight Deck and Cabin Crew Boarding - Other
-FTO	Flight Deck and Cabin Crew Availability - Other
-FTS	Flight Deck and Cabin Crew Availability - Sickness
-FTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft
-GBD	Catering - Delivery/Loading/Unloading
-GBO	Catering - Other
-GBS	Catering - Aircraft Switch
-GCL	Cabin Cleaning - Service Provider
-GCO	Cabin Cleaning - Other
-GDC	Aircraft Documentation - Centralized Load Control (CLC)
-GDO	Aircraft Documentation - Other
-GDS	Aircraft Documentation - Departure Station
-GET	Loading/Unloading - Equipment
-GFA	Fuelling - Fuel Supplier / Intoplane Operator
-GFE	Fuelling - Engineering Documentation
-GFO	Fuelling - Other
-GLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time
-GLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time
-GLC	Loading/Unloading - Cabin
-GLD	Loading/Unloading - Difficulty
-GLE	Loading/Unloading - Staff Error
-GLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time
-GLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only)
-GLR	Loading/Unloading - Rearrangement
-GLS	Loading/Unloading - Staff Availability
-GLV	Loading/Unloading - Space/Volumetric
-GLX	Loading/Unloading - Other
-GSL	Servicing Equipment - Equipment
-GSS	Servicing Equipment - Staff
-GTL	Technical Equipment - Equipment
-GTS	Technical Equipment - Staff
-GUK	Loading/Unloading - Unit Load Device (ULD)
-IAK	Air Traffic Control - Unknown Reason
-ICK	Commercial (Cargo Service only)
-IGK	Aircraft Door Operation
-IPK	Disembarkation
-IWH	Weather - High Cabin Temperature
-MIK	Industrial Action - With CX Group
-MOK	Industrial Action - Outside CX Group
-MXX	No Matched Reason
-PBK	Baggage Handling
-PCO	Catering Order
-PDO	Passenger Acceptance - Other
-PDP	Passenger Acceptance - Transfer due to Irregular Operation
-PEK	Check-In Error
-PHB	Boarding - Cabin Baggage
-PHH	Boarding - Staff
-PHM	Boarding - Missing Passenger
-PHO	Boarding - Other
-PHS	Boarding - Passenger Seating
-PLK	Check-In Area
-POK	Overbooking
-PSI	Passenger Special Handling - Intoxicated/Sick Passenger
-PSO	Passenger Special Handling - Other
-PSP	Passenger Special Handling - Item Missing
-PSU	Passenger Special Handling - Unruly Passenger
-PWK	Reduced Mobility
-RAA	Aircraft Rotation - Air Traffic Control
-RAC	Aircraft Rotation - Crewing
-RAD	Aircraft Rotation - Aircraft Damage
-RAE	Aircraft Rotation - Information Technology
-RAF	Aircraft Rotation - Flight Operation
-RAG	Aircraft Rotation - Aircraft Servicing
-RAH	Aircraft Rotation - Cargo/Mail
-RAM	Aircraft Rotation - Ground Traffic
-RAN	Aircraft Rotation - En Route
-RAO	Aircraft Rotation - Other
-RAP	Aircraft Rotation - Passenger
-RAQ	Aircraft Rotation - Security
-RAR	Aircraft Rotation - Reactionary
-RAS	Aircraft Rotation - Schedule
-RAT	Aircraft Rotation - Technical
-RAU	Aircraft Rotation - Authority
-RAW	Aircraft Rotation - Weather
-RCA	Crew Rotation - Flight Deck / Entire Crew
-RLO	Load Connection - Non- CX Group
-RLX	Load Connection - CX Group
-ROB	Operation Control - Crewing
-ROC	Operation Control - Flight Consolidation
-ROH	Operation Control - Aircraft Change
-ROR	Operation Control - Diversion/Reroute
-ROV	Operation Control - Await First Available Aircraft
-RSA	Crew Rotation - Cabin Crew
-RTK	Through Check-In
-SGK	Scheduled Ground Time
-TAA	Technical - AOG Spare from other Aircraft/Station
-TAE	Technical - AOG Spare for other Aircraft/Station
-TCT	Technical - Aircraft Change
-TDA	Technical - Without Aircraft Change
-TDD	Technical - Engineering Documentation
-TDL	Technical - Cargo Loading System (CLS)
-TDT	Technical - High Cabin Temperature
-TDU	Technical - Extra Start-Up Time
-TLT	Technical - Await First Available Aircraft
-TML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance
-TMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance
-TMT	Technical - Scheduled Maintenance
-TNA	Technical - Non-Scheduled Maintenance
-TSS	Technical - Lack of Spare
-TST	Technical - Await Spare from Technical Store
-WGI	Weather - Ground Handling Impaired
-WIK	Weather - Aircraft Frost/Ice/Snow Handling
-WOK	Weather - Departure Airport
-WRK	Weather - Alternate / En Route
-WSR	Weather - Airport Ice/Sand/Snow/Water Handling
-WTK	Weather - Arrival Airport
-    `;
-
-    let delayDB = {};
-    let selectedDelayCodes = [];
 
     function buildDelayDB() {
         const lines = rawData.trim().split('\n');
         lines.forEach(line => {
             if(!line.trim()) return;
             const match = line.trim().match(/^([A-Z0-9]{3})\s+(.+)$/i);
-            if (match) {
-                const code = match[1].toUpperCase();
-                const desc = match[2].replace(/^"|"$/g, '').trim(); 
-                delayDB[code] = desc;
-            }
+            if (match) delayDB[match[1].toUpperCase()] = match[2].replace(/^"|"$/g, '').trim();
         });
     }
 
     function populateDelayCodeSelect() {
         const select = document.getElementById('inputDelayCode');
-        select.innerHTML = '<option value="">-- 請選擇 Delay Code --</option>';
         const sortedKeys = Object.keys(delayDB).sort();
         for (const code of sortedKeys) {
-            const option = document.createElement('option');
-            option.value = code; option.textContent = `${code} - ${delayDB[code]}`; select.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = code; opt.textContent = `${code} - ${delayDB[code]}`; select.appendChild(opt);
         }
     }
 
     function addDelayCode() {
-        const codeInput = document.getElementById('inputDelayCode');
-        const hhInput = document.getElementById('inputDelayHH');
-        const mmInput = document.getElementById('inputDelayMM');
-        
-        const code = codeInput.value;
-        if (!code) return alert("請從下拉選單選擇 Delay Code！");
-        
-        let hh = hhInput.value.trim(); let mm = mmInput.value.trim();
-        if (!hh && !mm) return alert("請輸入時間（小時或分鐘）！");
-        
-        hh = hh ? hh.padStart(2, '0') : '00';
-        mm = mm ? mm.padStart(2, '0') : '00';
-        let time = hh + mm;
-        
-        selectedDelayCodes.push({ code, time, desc: delayDB[code] || "Custom Code" });
-        
-        codeInput.value = ''; hhInput.value = ''; mmInput.value = '';
+        const code = document.getElementById('inputDelayCode').value;
+        if (!code) return alert("請選擇 Delay Code！");
+        let hh = document.getElementById('inputDelayHH').value.trim(); 
+        let mm = document.getElementById('inputDelayMM').value.trim();
+        if (!hh && !mm) return alert("請輸入時間！");
+        let time = (hh ? hh.padStart(2, '0') : '00') + (mm ? mm.padStart(2, '0') : '00');
+        selectedDelayCodes.push({ code, time, desc: delayDB[code] || "" });
+        document.getElementById('inputDelayCode').value = ''; 
+        document.getElementById('inputDelayHH').value = ''; 
+        document.getElementById('inputDelayMM').value = '';
         renderDelayCodes(); generateReport();
     }
 
-    function removeDelayCode(index) { selectedDelayCodes.splice(index, 1); renderDelayCodes(); generateReport(); }
-
+    function removeDelayCode(i) { selectedDelayCodes.splice(i, 1); renderDelayCodes(); generateReport(); }
     function renderDelayCodes() {
-        const container = document.getElementById('addedCodesContainer');
-        container.innerHTML = '';
-        selectedDelayCodes.forEach((item, index) => {
+        const container = document.getElementById('addedCodesContainer'); container.innerHTML = '';
+        selectedDelayCodes.forEach((item, i) => {
             const div = document.createElement('div'); div.className = 'delay-code-item';
-            div.innerHTML = `<strong>${item.code}</strong> (${item.time}) <span class="delay-desc">${item.desc}</span> <button class="btn-danger btn-small" onclick="removeDelayCode(${index})">✕</button>`;
+            div.innerHTML = `<strong>${item.code}</strong> (${item.time}) <span class="delay-desc">${item.desc}</span> <button class="btn-danger btn-small" onclick="removeDelayCode(${i})">✕</button>`;
             container.appendChild(div);
         });
     }
 
-    // ==========================================
-    // 💡 智慧 Delay Summary 造句邏輯
-    // ==========================================
-    function toggleSummaryReason(button) {
-        button.classList.toggle('active');
-        updateAutoSummary();
-    }
-
+    // 智慧造句
+    function toggleSummaryReason(btn) { btn.classList.toggle('active'); updateAutoSummary(); }
     function updateAutoSummary() {
         const activeBtns = document.querySelectorAll('#summary-buttons .btn-tag.active');
-        const textarea = document.getElementById('summary');
-
-        if (activeBtns.length === 0) {
-            textarea.value = '';
-            generateReport();
-            return;
-        }
-
-        let flight = document.getElementById('flight').value.toUpperCase();
-        if (!flight) flight = 'CX___';
-        
-        const rawDate = document.getElementById('date').value;
-        const date = formatAviationDate(rawDate) || 'date';
-
-        const reasons = Array.from(activeBtns).map(btn => btn.getAttribute('data-reason'));
-        
-        let reasonsText = '';
-        if (reasons.length === 1) {
-            reasonsText = reasons[0];
-        } else if (reasons.length === 2) {
-            reasonsText = reasons[0] + ' and ' + reasons[1];
-        } else {
-            const last = reasons.pop();
-            reasonsText = reasons.join(', ') + ', and ' + last;
-        }
-
-        textarea.value = `${flight}/${date} delay due to ${reasonsText}.`;
+        const ta = document.getElementById('summary');
+        if (activeBtns.length === 0) { ta.value = ''; return generateReport(); }
+        let flight = document.getElementById('flight').value.toUpperCase() || 'CX___';
+        const date = formatAviationDate(document.getElementById('date').value) || 'date';
+        const reasons = Array.from(activeBtns).map(b => b.getAttribute('data-reason'));
+        let rText = reasons.length === 1 ? reasons[0] : (reasons.length === 2 ? `${reasons[0]} and ${reasons[1]}` : `${reasons.slice(0,-1).join(', ')}, and ${reasons[reasons.length-1]}`);
+        ta.value = `${flight}/${date} delay due to ${rText}.`;
         generateReport();
     }
+    document.getElementById('flight').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
+    document.getElementById('date').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
 
-    // 監聽航班跟日期的改變，即時更新造句
-    document.getElementById('flight').addEventListener('input', () => {
-        if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary();
-    });
-    document.getElementById('date').addEventListener('input', () => {
-        if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary();
-    });
-
-    const defaultLogs = [
-        "A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.",
-        "Cleaning completed.", "Cabin security check started.", "Boarding signal released.",
-        "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."
-    ];
-
+    const defaultLogs = ["A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.", "Cleaning completed.", "Cabin security check started.", "Boarding signal released.", "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."];
     function initLogs() {
-        const container = document.getElementById('logContainer');
-        container.innerHTML = ''; 
+        const c = document.getElementById('logContainer'); c.innerHTML = '';
         defaultLogs.forEach(desc => { addLogItem('', desc); });
     }
-
-    function addCustomLog() {
-        addLogItem('', '');
-        generateReport();
+    function addCustomLog() { addLogItem('', ''); generateReport(); }
+    function addLogItem(time, desc) {
+        const c = document.getElementById('logContainer'); const d = document.createElement('div'); d.className = 'log-entry';
+        d.innerHTML = `<input type="text" class="log-time" maxlength="4" value="${time}" placeholder="時間"><input type="text" class="log-desc" value="${desc}" placeholder="輸入說明..."><button type="button" class="btn-danger btn-small" onclick="removeLog(this)">✕</button>`;
+        c.appendChild(d); generateReport();
     }
+    function removeLog(b) { b.parentElement.remove(); generateReport(); }
 
-    function addLogItem(time = '', desc = '') {
-        const container = document.getElementById('logContainer');
-        const logEntry = document.createElement('div');
-        logEntry.className = 'log-entry';
-        logEntry.innerHTML = `
-            <input type="text" class="log-time" maxlength="4" value="${time}" placeholder="時間">
-            <input type="text" class="log-desc" value="${desc}" placeholder="請輸入項目說明...">
-            <button tabindex="-1" type="button" class="btn-danger btn-small" onclick="removeLog(this)">✕</button>
-        `;
-        container.appendChild(logEntry);
-        generateReport();
-    }
-
-    function removeLog(button) { button.parentElement.remove(); generateReport(); }
-
-    function clearTCOForm() {
-        if (!confirm("確定要清除 TCO 報告內容嗎？")) return;
-        const textInputs = ['flight', 'date', 'reporter', 'sta', 'std', 'eta', 'etd', 'ata', 'atd', 'dct', 'summary', 'inputDelayHH', 'inputDelayMM'];
-        textInputs.forEach(id => document.getElementById(id).value = '');
-        document.getElementById('pts').value = 'N'; document.getElementById('otp').value = 'N';
-        document.getElementById('earlyCleaning').value = 'Y'; document.getElementById('inputDelayCode').value = '';
-        
-        document.querySelectorAll('#summary-buttons .btn-tag').forEach(btn => btn.classList.remove('active'));
-
-        selectedDelayCodes = []; renderDelayCodes(); initLogs(); generateReport();
+    function clearForm(type) {
+        if (!confirm(`確定要清除 ${type} 報告內容嗎？`)) return;
+        if(type==='TCO') {
+            ['flight','date','sta','std','eta','etd','ata','atd','dct','summary','inputDelayHH','inputDelayMM'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('pts').value = 'N'; document.getElementById('otp').value = 'N'; document.getElementById('earlyCleaning').value = 'Y';
+            document.querySelectorAll('#summary-buttons .btn-tag').forEach(b => b.classList.remove('active'));
+            selectedDelayCodes = []; renderDelayCodes(); initLogs(); generateReport();
+        } else {
+            ['shut-flight','shut-date','shut-from','shut-to'].forEach(id => document.getElementById(id).value = '');
+            initPaxList();
+        }
     }
 
     function formatTime(val) { return val ? val + 'L' : '----L'; }
     function formatAviationDate(dateStr) {
-        if (!dateStr) return '';
-        const parts = dateStr.split('-');
-        if (parts.length !== 3) return dateStr.toUpperCase();
-        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-        return parts[2] + months[parseInt(parts[1], 10) - 1];
+        if (!dateStr) return ''; const p = dateStr.split('-'); if (p.length !== 3) return dateStr.toUpperCase();
+        const m = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']; return p[2] + m[parseInt(p[1],10)-1];
     }
-    function timeStrToIntMins(timeStr) {
-        if (!timeStr || timeStr.length !== 4 || isNaN(timeStr)) return null;
-        let h = parseInt(timeStr.substring(0,2), 10); let m = parseInt(timeStr.substring(2,4), 10);
-        return h * 60 + m;
-    }
-    function minsToDurationStr(mins) {
-        let h = Math.floor(mins / 60); let m = mins % 60;
-        return String(h).padStart(2, '0') + String(m).padStart(2, '0');
-    }
-    function getLogTimeStr(logs, descSnippet) {
-        const log = logs.find(l => l.descStr.toLowerCase().includes(descSnippet.toLowerCase()));
-        return log ? log.timeStr : null;
-    }
+    function timeStrToIntMins(ts) { if(!ts||ts.length!==4||isNaN(ts)) return null; return parseInt(ts.substring(0,2),10)*60 + parseInt(ts.substring(2,4),10); }
 
     function generateReport() {
-        const flight = document.getElementById('flight').value.toUpperCase();
-        const rawDate = document.getElementById('date').value;
-        const date = formatAviationDate(rawDate);
-        const reporter = document.getElementById('reporter').value;
-        const staVal = document.getElementById('sta').value; const ataVal = document.getElementById('ata').value;
-        const stdVal = document.getElementById('std').value; const atdVal = document.getElementById('atd').value;
-        const sta = formatTime(staVal); const std = formatTime(stdVal);
+        const f = document.getElementById('flight').value.toUpperCase() || "----";
+        const d = formatAviationDate(document.getElementById('date').value) || "----";
+        const rep = document.getElementById('reporter').value;
+        const sta = formatTime(document.getElementById('sta').value); const std = formatTime(document.getElementById('std').value);
         const eta = formatTime(document.getElementById('eta').value); const etd = formatTime(document.getElementById('etd').value);
-        const ata = formatTime(ataVal); const atd = formatTime(atdVal);
-        const dctVal = document.getElementById('dct').value; const dctStr = dctVal ? `(DCT/${formatTime(dctVal)})` : '';
-        const pts = document.getElementById('pts').value; const otp = document.getElementById('otp').value;
-        const earlyCleaning = document.getElementById('earlyCleaning').value;
-
-        let delayCodeString = ''; let delayDescString = ''; let totalExplainedMins = 0; 
-        if (selectedDelayCodes.length > 0) {
-            const codes = selectedDelayCodes.map(item => item.code).join('/');
-            const times = selectedDelayCodes.map(item => item.time).join('/');
-            delayCodeString = `DL${codes}/${times}\n`;
-            selectedDelayCodes.forEach(item => { 
-                delayDescString += `//${item.code}// ${item.desc}\n`; 
-                totalExplainedMins += timeStrToIntMins(item.time) || 0;
-            });
-        }
-        const summary = document.getElementById('summary').value.trim();
-
-        let logText = ''; let validLogs = [];
-        document.querySelectorAll('#tab-tco .log-entry').forEach(entry => {
-            const time = entry.querySelector('.log-time').value.trim();
-            const desc = entry.querySelector('.log-desc').value.trim();
-            if (time) validLogs.push({ timeStr: time, descStr: desc });
-        });
-
-        validLogs.sort((a, b) => {
-            let tA = parseInt(a.timeStr, 10); let tB = parseInt(b.timeStr, 10);
-            if (isNaN(tA)) tA = 9999; if (isNaN(tB)) tB = 9999;
-            if (Math.abs(tA - tB) > 1200) { if (tA < tB) tA += 2400; else tB += 2400; }
-            return tA - tB;
-        });
-
-        validLogs.forEach(log => { logText += `${log.timeStr}L ${log.descStr}\n`; });
-
-        let report = `--${flight || "----"}/${date || "----"} TCO report--\n`;
-        report += `STA/${sta} , STD/${std}\nETA/${eta} , ETD/${etd}\nATA/${ata} , ATD/${atd}${dctStr}\nPTS: ${pts}\nOTP: ${otp}\nEarly cleaning: ${earlyCleaning}\n`;
-        if (delayCodeString) { report += delayCodeString; report += delayDescString; }
-        if (summary) report += `${summary}\n`;
-        report += `--\n`;
-        if (logText) report += `${logText}`;
-        report += reporter ? `End of report/${reporter}` : `End of report`;
-
-        document.getElementById('outputReport').textContent = report;
-
-        const validationBox = document.getElementById('delayValidation');
-        let staMins = timeStrToIntMins(staVal); let ataMins = timeStrToIntMins(ataVal);
-        let stdMins = timeStrToIntMins(stdVal); let atdMins = timeStrToIntMins(atdVal);
-        let hasDelayWarning = false; let warningHTML = ""; let taskHTML = "";
-
-        if (staMins !== null && ataMins !== null) {
-            let arrDiff = ataMins - staMins; if (arrDiff < -720) arrDiff += 24 * 60; 
-            if (arrDiff > 0) {
-                hasDelayWarning = true;
-                taskHTML += `<div class="task-alert">👉 建議 Code 判斷：飛機晚到 <span class="text-red">${arrDiff}</span> 分鐘</div>`;
-                validationBox.className = 'validation-box validation-warning';
-            }
-        }
-
-        if (stdMins !== null && atdMins !== null) {
-            let actualDelayMins = atdMins - stdMins; if (actualDelayMins < -720) actualDelayMins += 24 * 60; 
-            if (actualDelayMins > 0) {
-                hasDelayWarning = true; let diffMins = actualDelayMins - totalExplainedMins;
-                if (diffMins > 0) {
-                    warningHTML = `<strong>⚠️ 實際起飛 Delay 時間為 ${actualDelayMins} 分鐘。</strong><br>已解釋 ${totalExplainedMins} 分鐘，還需 <strong>${minsToDurationStr(diffMins)}</strong> 補充說明！`;
-                    validationBox.className = 'validation-box validation-warning';
-                } else if (diffMins < 0) {
-                    warningHTML = `<strong>⚠️ 警告：解釋時間 (${totalExplainedMins} 分) 超過總 Delay (${actualDelayMins} 分)！</strong>`;
-                    validationBox.className = 'validation-box validation-warning';
-                } else {
-                    warningHTML = `<strong>✅ 時間與 DELAY CODE 完全吻合 (${actualDelayMins} 分鐘)</strong>`;
-                    validationBox.className = 'validation-box validation-match';
-                }
-            }
-        }
-
-        let taskChecks = [
-            { start: "Pax off started", end: "Pax off completed", std: 8, name: "PAX OFF" },
-            { start: "Cleaning started", end: "Cleaning completed", std: 20, name: "CABIN CLEANING" },
-            { start: "Boarding signal released", end: "All pax onboard", std: 20, name: "BOARDING" }
-        ];
-
-        taskChecks.forEach(task => {
-            let sStr = getLogTimeStr(validLogs, task.start); let eStr = getLogTimeStr(validLogs, task.end);
-            if (sStr && eStr) {
-                let s = timeStrToIntMins(sStr); let e = timeStrToIntMins(eStr);
-                if (s !== null && e !== null) {
-                    let actual = e - s; if (actual < 0) actual += 24 * 60;
-                    if (actual > task.std) {
-                        hasDelayWarning = true;
-                        taskHTML += `<div class="task-alert">👉 建議 Code 判斷：${task.name} 超時 <span class="text-red">${actual - task.std}</span> 分鐘 (實際 ${actual} 分)</div>`;
-                        if(validationBox.className !== 'validation-box validation-warning') validationBox.className = 'validation-box validation-warning';
-                    }
-                }
-            }
-        });
-
-        if (hasDelayWarning) {
-            validationBox.style.display = 'block'; validationBox.innerHTML = warningHTML + taskHTML;
-        } else {
-            validationBox.style.display = 'none';
-        }
-    }
-
-    // ==========================================
-    // Shut Out Report 邏輯
-    // ==========================================
-    let paxCountInternal = 0;
-
-    function initPaxList() {
-        const container = document.getElementById('paxListContainer');
-        container.innerHTML = '';
-        paxCountInternal = 0;
-        addPaxCard(); 
-    }
-
-    function addPaxCard() {
-        paxCountInternal++;
-        const container = document.getElementById('paxListContainer');
-        const div = document.createElement('div');
-        div.className = 'pax-card';
-        div.innerHTML = `
-            <div class="pax-card-title">Passenger #${paxCountInternal}</div>
-            <button tabindex="-1" type="button" class="btn-danger btn-small" style="position: absolute; top: 15px; right: 20px;" onclick="removePaxCard(this)">✕</button>
-            <div class="row" style="margin-bottom: 12px;">
-                <div class="col">
-                    <label>旅客姓名 (Pax Name)</label>
-                    <input type="text" class="pax-name" placeholder="e.g. CHEN/DAMING MR">
-                </div>
-            </div>
-            <div class="row" style="margin-bottom: 0;">
-                <div class="col">
-                    <label>SEC 號碼</label>
-                    <input type="text" class="pax-sec" placeholder="e.g. 204">
-                </div>
-                <div class="col">
-                    <label>座位號碼 (SNB)</label>
-                    <input type="text" class="pax-seat" placeholder="e.g. 41A">
-                </div>
-            </div>
-        `;
-        container.appendChild(div);
-        generateShutOutReport();
-    }
-
-    function removePaxCard(btn) {
-        const container = document.getElementById('paxListContainer');
-        if (container.children.length <= 1) {
-            alert("至少需要保留一位旅客資料！");
-            return;
-        }
-        btn.parentElement.remove();
-        generateShutOutReport();
-    }
-
-    function clearShutOutForm() {
-        if (!confirm("確定要清除減人報告內容嗎？")) return;
-        document.getElementById('shut-reporter').value = '';
-        document.getElementById('shut-from').value = '';
-        document.getElementById('shut-to').value = '';
-        initPaxList(); 
-    }
-
-    function generateShutOutReport() {
-        const reporter = document.getElementById('shut-reporter').value.trim() || "----";
-        const fromPax = document.getElementById('shut-from').value || "---";
-        const toPax = document.getElementById('shut-to').value || "---";
-
-        let paxDetailsList = [];
-        const paxCards = document.querySelectorAll('.pax-card');
+        const ata = formatTime(document.getElementById('ata').value); const atd = formatTime(document.getElementById('atd').value);
+        const dctVal = document.getElementById('dct').value; const dct = dctVal ? `(DCT/${formatTime(dctVal)})` : '';
         
-        paxCards.forEach(card => {
-            const name = card.querySelector('.pax-name').value.toUpperCase().trim() || "----";
-            
-            let sec = card.querySelector('.pax-sec').value.toUpperCase().trim();
-            if (sec && !sec.startsWith("SEC")) sec = "SEC " + sec;
-            if (!sec) sec = "----";
-
-            let seat = card.querySelector('.pax-seat').value.toUpperCase().trim();
-            if (seat && !seat.startsWith("SNB")) seat = "SNB" + seat;
-            if (!seat) seat = "----";
-
-            paxDetailsList.push(`${name} ${sec} ${seat}`);
+        let dCode = ''; let dDesc = ''; 
+        if (selectedDelayCodes.length > 0) {
+            dCode = `DL${selectedDelayCodes.map(i=>i.code).join('/')}/${selectedDelayCodes.map(i=>i.time).join('/')}\n`;
+            selectedDelayCodes.forEach(i => dDesc += `//${i.code}// ${i.desc}\n`);
+        }
+        
+        let logs = []; document.querySelectorAll('#tab-tco .log-entry').forEach(e => {
+            const t = e.querySelector('.log-time').value.trim(); const text = e.querySelector('.log-desc').value.trim();
+            if (t) logs.push({t, text});
         });
+        logs.sort((a,b) => {
+            let nA = parseInt(a.t,10)||9999; let nB = parseInt(b.t,10)||9999;
+            if(Math.abs(nA-nB)>1200) { if(nA<nB) nA+=2400; else nB+=2400; } return nA-nB;
+        });
+        
+        let res = `--${f}/${d} TCO report--\nSTA/${sta} , STD/${std}\nETA/${eta} , ETD/${etd}\nATA/${ata} , ATD/${atd}${dct}\nPTS: ${document.getElementById('pts').value}\nOTP: ${document.getElementById('otp').value}\nEarly cleaning: ${document.getElementById('earlyCleaning').value}\n`;
+        if(dCode) res += dCode + dDesc;
+        if(document.getElementById('summary').value) res += document.getElementById('summary').value + "\n";
+        res += `--\n` + logs.map(l => `${l.t}L ${l.text}\n`).join('');
+        res += rep ? `End of report/${rep}` : `End of report`;
+        document.getElementById('outputReport').textContent = res;
+    }
 
-        let totalOffload = paxDetailsList.length;
-        let formattedCount = String(totalOffload).padStart(2, '0');
-        let joinedPaxString = paxDetailsList.join(', ');
-
-        let report = `Shut out ${formattedCount} online check-in pax ${joinedPaxString}.\n`;
-        report += `Nil any check-in bag, inflight PA and vacant seat check completed.\n`;
-        report += `Nor any passed security check point record found.\n`;
-        report += `Final figure amended from ${fromPax} to ${toPax}.\n`;
-        report += `End of report/${reporter}`;
-
+    let paxCountInternal = 0;
+    function initPaxList() { document.getElementById('paxListContainer').innerHTML=''; paxCountInternal=0; addPaxCard(); }
+    function addPaxCard() {
+        paxCountInternal++; const c = document.getElementById('paxListContainer'); const d = document.createElement('div'); d.className='pax-card';
+        d.innerHTML = `<div class="pax-card-title">Pax #${paxCountInternal}</div><button type="button" class="btn-danger btn-small" style="position:absolute;top:15px;right:15px;" onclick="removePaxCard(this)">✕</button>
+        <div class="row" style="margin-bottom:8px;"><div class="col"><input type="text" class="pax-name" placeholder="Name (e.g. CHEN/DAMING MR)"></div></div>
+        <div class="row" style="margin-bottom:0;"><div class="col"><input type="text" class="pax-sec" placeholder="SEC (e.g. 204)"></div><div class="col"><input type="text" class="pax-seat" placeholder="Seat (e.g. 41A)"></div></div>`;
+        c.appendChild(d); generateShutOutReport();
+    }
+    function removePaxCard(b) { if(document.getElementById('paxListContainer').children.length<=1) return alert("至少留一位"); b.parentElement.remove(); generateShutOutReport(); }
+    
+    function generateShutOutReport() {
+        const rep = document.getElementById('shut-reporter').value.trim() || "----";
+        let paxList = [];
+        document.querySelectorAll('.pax-card').forEach(c => {
+            let n = c.querySelector('.pax-name').value.toUpperCase().trim() || "----";
+            let sec = c.querySelector('.pax-sec').value.toUpperCase().trim(); if(sec && !sec.startsWith("SEC")) sec = "SEC "+sec;
+            let seat = c.querySelector('.pax-seat').value.toUpperCase().trim(); if(seat && !seat.startsWith("SNB")) seat = "SNB"+seat;
+            paxList.push(`${n} ${sec||"----"} ${seat||"----"}`);
+        });
+        
+        let report = `Shut out ${String(paxList.length).padStart(2,'0')} online check-in pax ${paxList.join(', ')}.\nNil any check-in bag, inflight PA and vacant seat check completed.\nNor any passed security check point record found.\nFinal figure amended from ${document.getElementById('shut-from').value||"---"} to ${document.getElementById('shut-to').value||"---"}.\nEnd of report/${rep}`;
         document.getElementById('outputShutOutReport').textContent = report;
     }
 
     document.getElementById('tab-tco').addEventListener('input', generateReport);
     document.getElementById('tab-shutout').addEventListener('input', generateShutOutReport);
 
-    function copyText(elementId) {
-        const text = document.getElementById(elementId).textContent;
-        navigator.clipboard.writeText(text).then(() => {
-            alert("報告已成功複製！");
-        }).catch(err => { alert("複製失敗，請手動全選複製。"); });
+    function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert("已複製！")); }
+
+    // =========================================================================
+    // ☁️ 雲端資料庫 API：儲存與讀取 (帶有 action 參數)
+    // =========================================================================
+    
+    function saveToCloud(type) {
+        if (!SCRIPT_URL || SCRIPT_URL === "在此貼上您的_Google_Apps_Script_網址") {
+            alert("請先將 Google Apps Script 的網址貼入原始碼中！"); return;
+        }
+
+        const btn = document.getElementById(type === 'TCO' ? 'btn-save-tco' : 'btn-save-shutout');
+        const loader = document.getElementById(type === 'TCO' ? 'loader-tco' : 'loader-shutout');
+        
+        let flight = type === 'TCO' ? document.getElementById('flight').value : document.getElementById('shut-flight').value;
+        let date = type === 'TCO' ? document.getElementById('date').value : document.getElementById('shut-date').value;
+        let reporter = currentUser || "未登入";
+        let content = document.getElementById(type === 'TCO' ? 'outputReport' : 'outputShutOutReport').textContent;
+
+        if (!flight) flight = "未填寫";
+        if (date) date = formatAviationDate(date); else date = "未填寫";
+        if (content.includes('報告產生中')) return alert("沒有內容可以儲存！");
+
+        const payload = { action: 'save', type: type, flight: flight.toUpperCase(), date: date, reporter: reporter, content: content };
+
+        btn.disabled = true; loader.style.display = 'inline-block';
+
+        fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+        .then(res => res.json())
+        .then(data => { alert("🎉 報告已成功儲存至雲端！"); fetchHistory(); })
+        .catch(err => { alert("儲存成功！(或發生跨網域錯誤，請重整確認)"); fetchHistory(); })
+        .finally(() => { btn.disabled = false; loader.style.display = 'none'; });
     }
 
-    buildDelayDB();
-    populateDelayCodeSelect();
-    initLogs();
-    initPaxList(); 
-    generateReport();
-    generateShutOutReport();
+    function fetchHistory() {
+        if (!SCRIPT_URL || SCRIPT_URL === "在此貼上您的_Google_Apps_Script_網址" || !currentUser) return;
+        
+        const lists = [document.getElementById('history-list'), document.getElementById('history-list-shutout')];
+        lists.forEach(l => l.innerHTML = '<div style="text-align:center; color:#9ca3af; margin-top:30px;">🔄 抓取專屬資料中...</div>');
+
+        // GET 請求，並帶上 user 參數
+        fetch(SCRIPT_URL + "?user=" + encodeURIComponent(currentUser))
+        .then(res => res.json())
+        .then(data => {
+            lists.forEach(l => l.innerHTML = '');
+            if (data.length === 0) {
+                lists.forEach(l => l.innerHTML = '<div style="text-align:center; color:#9ca3af;">您目前沒有歷史紀錄</div>'); return;
+            }
+            
+            data.forEach(item => {
+                const card = document.createElement('div'); card.className = 'history-card';
+                const d = new Date(item.timestamp);
+                const timeStr = d.getMonth()+1 + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+                const tagColor = item.type === 'TCO' ? '#0f4c81' : '#be123c';
+
+                card.innerHTML = `<div class="history-meta"><span style="color: ${tagColor}; font-weight:bold;">[${item.type}]</span><span>${timeStr}</span></div><div class="history-title">${item.flight} (${item.date})</div>`;
+                card.onclick = () => showModal(item);
+                document.getElementById('history-list').appendChild(card.cloneNode(true));
+                document.getElementById('history-list-shutout').appendChild(card);
+                document.getElementById('history-list').lastChild.onclick = () => showModal(item);
+            });
+        })
+        .catch(err => { lists.forEach(l => l.innerHTML = '<div style="text-align:center; color:var(--danger);">連線失敗</div>'); });
+    }
+
+    function showModal(item) {
+        document.getElementById('modalTitle').textContent = `${item.flight} (${item.date}) - ${item.type} 報告`;
+        document.getElementById('modalContent').textContent = item.content;
+        document.getElementById('historyModal').style.display = 'flex';
+    }
 </script>
 
 </body>
