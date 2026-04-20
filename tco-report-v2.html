@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V22 (Smart Summary)</title>
+    <title>TCO & Shut Out Report V23 (Smart Summary Fixed)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -222,8 +222,8 @@
 
             <div class="row">
                 <div class="col">
-                    <label>Delay Summary (延遲總結自動造句)</label>
-                    <div id="summary-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <label style="margin-bottom: 10px; display: block;">Delay Summary (延遲總結自動造句)</label>
+                    <div id="summary-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
                         <button type="button" class="btn-tag" data-reason="flight late arrival" onclick="toggleSummaryReason(this)">1. Flight late arrival</button>
                         <button type="button" class="btn-tag" data-reason="prolonged cabin cleaning" onclick="toggleSummaryReason(this)">2. Prolonged cabin cleaning</button>
                         <button type="button" class="btn-tag" data-reason="prolonged offloading and loading process" onclick="toggleSummaryReason(this)">3. Prolonged offloading/loading</button>
@@ -233,7 +233,6 @@
                     <textarea id="summary" placeholder="點擊上方按鈕自動造句，或在此手動輸入..."></textarea>
                 </div>
             </div>
-
             <hr>
 
             <h3>時間軸紀錄 (Chronological Log)</h3>
