@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V30 (Ultimate Fix)</title>
+    <title>TCO & Shut Out Report V31 (Dashboard Layout)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -28,18 +28,18 @@
             background-color: var(--bg-color);
             color: var(--text-dark);
             margin: 0;
-            padding: 15px;
+            padding: 15px 20px;
             display: flex;
             justify-content: center;
             letter-spacing: 0.03em;
         }
 
-        .main-container { width: 100%; max-width: 1500px; display: flex; flex-direction: column; }
+        .main-container { width: 100%; max-width: 1400px; display: flex; flex-direction: column; }
         
         .header-nav { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--secondary); padding-bottom: 2px;}
         .tab-nav { display: flex; gap: 15px; }
-        .user-panel { display: flex; align-items: center; gap: 15px; padding-bottom: 8px; font-size: 0.9rem; color: var(--primary); font-weight: bold;}
-        .btn-logout { background: transparent; border: 1px solid var(--text-muted); color: var(--text-dark); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s;}
+        .user-panel { display: flex; align-items: center; gap: 15px; padding-bottom: 8px; font-size: 0.95rem; color: var(--primary); font-weight: bold;}
+        .btn-logout { background: transparent; border: 1px solid var(--text-muted); color: var(--text-dark); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s;}
         .btn-logout:hover { background: var(--secondary); }
 
         .tab-btn {
@@ -54,16 +54,22 @@
         .tab-btn.active { color: var(--text-dark); }
         .tab-btn.active::after { transform: scaleX(1); }
 
-        .tab-content { display: none; width: 100%; align-items: flex-start; justify-content: space-between; gap: 15px;}
+        /* 💡 V31: 全新雙欄式版面配置 */
+        .tab-content { display: none; width: 100%; align-items: flex-start; justify-content: space-between; gap: 20px;}
         .tab-content.active { display: flex; }
         
-        .form-section { width: 50%; background: var(--surface); padding: 25px 20px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
-        .output-section { width: 28%; background: var(--surface); padding: 25px 20px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0; position: sticky; top: 15px; }
-        .history-section { width: 22%; background: var(--surface); padding: 25px 20px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0; position: sticky; top: 15px; height: 90vh; display: flex; flex-direction: column;}
+        /* 左半部：填表區 */
+        .form-section { width: 55%; background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
+        
+        /* 右半部：預覽區與歷史區上下疊加 */
+        .right-column { width: calc(45% - 20px); display: flex; flex-direction: column; gap: 20px; position: sticky; top: 15px; height: calc(100vh - 30px); }
+        
+        .output-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; }
+        .history-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 
         h2 { margin-top: 0; color: var(--text-dark); font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; margin-bottom: 20px; border-left: 4px solid var(--accent-blue); padding-left: 10px; line-height: 1; }
         h3 { color: var(--primary-light); font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; }
-        .row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .row { display: flex; gap: 15px; margin-bottom: 15px; }
         .col { flex: 1; display: flex; flex-direction: column; }
         label { font-weight: 500; margin-bottom: 6px; font-size: 0.85rem; color: var(--primary-light); }
         
@@ -74,9 +80,8 @@
         input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
             outline: none; border-color: var(--accent-blue); background-color: var(--surface); box-shadow: 0 0 0 1px var(--accent-blue);
         }
-        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; } 
-
-        .delay-code-builder { background-color: #f9fafb; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid var(--secondary); }
+        
+        .delay-code-builder { background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 15px; border: 1px solid var(--secondary); }
         .delay-code-item { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--secondary); margin-top: 10px; font-size: 0.85rem; }
         .delay-desc { flex: 1; color: var(--primary-light); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
@@ -95,7 +100,7 @@
         .btn-tag { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 5px;}
         .btn-tag.active { background-color: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
         
-        pre { background: #2d3748; color: #f7fafc; padding: 15px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; font-size: 13.5px; line-height: 1.5; min-height: 300px; border: 1px solid #1a202c; }
+        pre { background: #2d3748; color: #f7fafc; padding: 20px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; line-height: 1.6; min-height: 250px; border: 1px solid #1a202c; margin: 0; }
         
         .validation-box { margin-top: 15px; padding: 12px; border-radius: 4px; font-size: 0.85rem; display: none; line-height: 1.5; }
         .validation-warning { background-color: var(--warning-bg); color: var(--warning-text); border-left: 4px solid #f59e0b; }
@@ -130,10 +135,15 @@
         .login-input { margin-bottom: 20px; text-align: left; }
         .login-btn { width: 100%; padding: 12px; font-size: 1rem; margin-top: 10px; display: flex; justify-content: center; align-items: center;}
 
+        .pax-card { background-color: #f9fafb; border: 1px solid var(--secondary); padding: 20px; border-radius: 6px; margin-bottom: 15px; position: relative; }
+        .pax-card-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 15px; }
+
+        hr { border: 0; height: 1px; background-color: var(--secondary); margin: 25px 0; }
+
         @media screen and (max-width: 1024px) {
             .tab-content { flex-direction: column; }
-            .form-section, .output-section, .history-section { width: 100%; height: auto; }
-            .output-section, .history-section { position: static; }
+            .form-section, .right-column { width: 100%; height: auto; }
+            .right-column { position: static; }
         }
     </style>
 </head>
@@ -165,7 +175,7 @@
             <button class="tab-btn" id="btn-shutout" onclick="switchTab('shutout')">減人報告</button>
         </div>
         <div class="user-panel">
-            <span id="display-username">Hi, Guest</span>
+            <span id="display-username">Loading...</span>
             <button class="btn-logout" onclick="doLogout()">登出</button>
         </div>
     </div>
@@ -176,7 +186,6 @@
             <div class="row">
                 <div class="col"><label>Flight</label><input type="text" id="flight"></div>
                 <div class="col"><label>Date</label><input type="date" id="date"></div>
-                <div class="col"><label>Reporter (系統鎖定)</label><input type="text" id="reporter" readonly></div>
             </div>
             <div class="row">
                 <div class="col"><label>STA</label><input type="text" id="sta" maxlength="4"></div>
@@ -194,6 +203,7 @@
                 <div class="col"><label>OTP</label><select id="otp"><option value="N">N</option><option value="Y">Y</option></select></div>
                 <div class="col"><label>Early cleaning</label><select id="earlyCleaning"><option value="Y">Y</option><option value="N">N</option></select></div>
             </div>
+            
             <div class="delay-code-builder">
                 <label style="margin: 0; color: var(--text-dark); display: block; margin-bottom: 8px; font-weight: 600;">Delay Code</label>
                 <div class="row" style="margin-bottom: 0; align-items: center;">
@@ -208,6 +218,7 @@
                 </div>
                 <div id="addedCodesContainer"></div>
             </div>
+
             <div class="row">
                 <div class="col">
                     <div id="summary-buttons" style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
@@ -220,6 +231,7 @@
                     <textarea id="summary" placeholder="Summary..."></textarea>
                 </div>
             </div>
+            
             <hr style="margin: 15px 0;">
             
             <h3>時間軸紀錄 (Log)</h3>
@@ -229,20 +241,26 @@
             <button type="button" class="btn-outline" style="border-color:var(--danger); color:var(--danger)" onclick="clearForm('TCO')">清除表單</button>
         </div>
 
-        <div class="output-section">
-            <h2>報告預覽</h2>
-            <pre id="outputReport">報告產生中...</pre>
-            <div id="delayValidation" class="validation-box"></div>
-            <button class="btn-save" id="btn-save-tco" onclick="saveToCloud('TCO')">
-                <div class="loader" id="loader-tco"></div>💾 儲存並發佈至雲端
-            </button>
-            <button class="btn-outline" onclick="copyText('outputReport')">📋 僅複製報告</button>
-        </div>
+        <div class="right-column">
+            <div class="output-section">
+                <h2>報告預覽</h2>
+                <pre id="outputReport">報告產生中...</pre>
+                <div id="delayValidation" class="validation-box"></div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-save" style="flex: 2; margin-top: 0;" id="btn-save-tco" onclick="saveToCloud('TCO')">
+                        <div class="loader" id="loader-tco"></div>💾 儲存至雲端
+                    </button>
+                    <button class="btn-outline" style="flex: 1; margin-top: 0;" onclick="copyText('outputReport')">📋 複製</button>
+                </div>
+            </div>
 
-        <div class="history-section">
-            <h2 style="border-left-color: #10b981;">📂 您的歷史紀錄</h2>
-            <button type="button" style="width:100%; background-color:#f1f5f9; color:#4b5563; border: 1px solid #cbd5e1;" onclick="fetchHistory()">🔄 重新整理</button>
-            <div class="history-list" id="history-list"></div>
+            <div class="history-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="margin: 0; border-left-color: #10b981;">📂 您的歷史紀錄</h2>
+                    <button type="button" class="btn-small" style="background-color:#f1f5f9; color:#4b5563; border: 1px solid #cbd5e1;" onclick="fetchHistory()">🔄 重新整理</button>
+                </div>
+                <div class="history-list" id="history-list"></div>
+            </div>
         </div>
     </div>
 
@@ -250,13 +268,15 @@
         <div class="form-section">
             <h2>減人報告 (Shut Out)</h2>
             <div class="row">
-                <div class="col"><label>Flight</label><input type="text" id="shut-flight" placeholder="e.g. CX565 (雲端紀錄用)"></div>
+                <div class="col"><label>Flight</label><input type="text" id="shut-flight" placeholder="e.g. CX565"></div>
                 <div class="col"><label>Date</label><input type="date" id="shut-date"></div>
-                <div class="col"><label>Reporter (系統鎖定)</label><input type="text" id="shut-reporter" readonly></div>
             </div>
+            
             <div id="paxListContainer"></div>
             <button type="button" class="btn-outline" onclick="addPaxCard()">新增拉下旅客</button>
+            
             <hr style="margin: 15px 0;">
+            
             <div class="row">
                 <div class="col"><label>Amended from</label><input type="number" id="shut-from" placeholder="310"></div>
                 <div class="col"><label>Amended to</label><input type="number" id="shut-to" placeholder="308"></div>
@@ -264,19 +284,25 @@
             <button type="button" class="btn-outline" style="border-color:var(--danger); color:var(--danger); margin-top: 30px;" onclick="clearForm('ShutOut')">清除表單</button>
         </div>
 
-        <div class="output-section">
-            <h2>減人預覽</h2>
-            <pre id="outputShutOutReport">報告產生中...</pre>
-            <button class="btn-save" id="btn-save-shutout" onclick="saveToCloud('ShutOut')">
-                <div class="loader" id="loader-shutout"></div>💾 儲存並發佈至雲端
-            </button>
-            <button class="btn-outline" onclick="copyText('outputShutOutReport')">📋 僅複製報告</button>
-        </div>
+        <div class="right-column">
+            <div class="output-section">
+                <h2>減人預覽</h2>
+                <pre id="outputShutOutReport">報告產生中...</pre>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-save" style="flex: 2; margin-top: 0;" id="btn-save-shutout" onclick="saveToCloud('ShutOut')">
+                        <div class="loader" id="loader-shutout"></div>💾 儲存至雲端
+                    </button>
+                    <button class="btn-outline" style="flex: 1; margin-top: 0;" onclick="copyText('outputShutOutReport')">📋 複製</button>
+                </div>
+            </div>
 
-        <div class="history-section">
-            <h2 style="border-left-color: #10b981;">📂 您的歷史紀錄</h2>
-            <button type="button" style="width:100%; background-color:#f1f5f9; color:#4b5563; border: 1px solid #cbd5e1;" onclick="fetchHistory()">🔄 重新整理</button>
-            <div class="history-list" id="history-list-shutout"></div>
+            <div class="history-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="margin: 0; border-left-color: #10b981;">📂 您的歷史紀錄</h2>
+                    <button type="button" class="btn-small" style="background-color:#f1f5f9; color:#4b5563; border: 1px solid #cbd5e1;" onclick="fetchHistory()">🔄 重新整理</button>
+                </div>
+                <div class="history-list" id="history-list-shutout"></div>
+            </div>
         </div>
     </div>
 
@@ -294,19 +320,16 @@
 </div>
 
 <script>
-    // =========================================================================
-    // 🚨 系統網址綁定
-    // =========================================================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
-    // 重新設定記憶體金鑰
-    let memoryKey = 'tco_user_v30';
+    // 更換記憶體金鑰以刷新狀態
+    let memoryKey = 'tco_user_v31';
     let currentUser = localStorage.getItem(memoryKey);
 
     window.onload = function() {
         if (currentUser && currentUser !== "undefined") {
             document.getElementById('loginOverlay').style.display = 'none';
-            setReporterName(currentUser);
+            updateGreeting(currentUser);
             initApp();
         }
     };
@@ -338,7 +361,7 @@
                 localStorage.setItem(memoryKey, currentUser); 
                 
                 document.getElementById('loginOverlay').style.display = 'none';
-                setReporterName(currentUser);
+                updateGreeting(currentUser);
                 initApp(); 
             } else {
                 msg.style.display = 'block';
@@ -361,25 +384,39 @@
         }
     }
 
-    function setReporterName(name) {
-        document.getElementById('display-username').textContent = `Hi, ${name}`;
-        document.getElementById('reporter').value = name;
-        document.getElementById('shut-reporter').value = name;
+    // 💡 智慧時間問候引擎
+    function updateGreeting(name) {
+        const now = new Date();
+        const hour = now.getHours();
+        const min = now.getMinutes();
+        const timeVal = hour + (min / 60);
+        
+        let greeting = "Good evening";
+        
+        // 04:00 到 11:00
+        if (timeVal >= 4 && timeVal <= 11) {
+            greeting = "Good morning";
+        } 
+        // 11:01 到 17:00
+        else if (timeVal > 11 && timeVal <= 17) {
+            greeting = "Good afternoon";
+        } 
+        // 17:01 到 03:59 預設為 Good evening
+
+        document.getElementById('display-username').textContent = `${greeting}, ${name}`;
     }
 
     function initApp() {
         buildDelayDB(); 
         populateDelayCodeSelect(); 
-        initLogs(); // 呼叫初始化時間軸
+        initLogs(); 
         initPaxList(); 
         generateReport(); 
         generateShutOutReport();
         fetchHistory(); 
     }
 
-    // ==========================================
-    // 🗂️ Delay Code 資料庫
-    // ==========================================
+    // 🗂️ Delay Code 資料庫 (100% 完整收錄)
     const rawData = `ADC	Arrival Airport Restriction - Curfew/Night/Noise\nADD	Arrival Airport Restriction - Runway/Taxiway\nADG	Arrival Airport Restriction - Operational Concern\nADO	Arrival Airport Restriction - Other\nAEK	Air Traffic Control due to Non-Weather - Arrival Airport\nAFC	Airport Facility - Ground Traffic\nAFH	Airport Facility - Cargo Terminal\nAFJ	Airport Facility - Jet Bridge\nAFL	Airport Facility - Baggage\nAFN	Airport Facility - Passenger Terminal\nAFO	Airport Facility - Apron\nAFP	Airport Facility - Parking Bay Availability\nAGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance\nAGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff\nAGD	Customs/Immigration/Quarantine - Passenger\nAGO	Customs/Immigration/Quarantine - Other\nAMA	Air Traffic Control due to Non-Weather - Departure Airport\nAMC	Departure Airport Restriction - Curfew/Night/Noise\nAMD	Departure Airport Restriction - Runway/Taxiway\nAMO	Departure Airport Restriction - Other\nAMR	Ground Traffic - Aircraft Towing\nAMS	Ground Traffic - Aircraft Pushback\nAMW	Air Traffic Control due to Weather - Departure Airport\nASC	Mandatory Security - Cargo/Mail\nASE	Mandatory Security - Additional Requirement\nASF	Mandatory Security - Facility\nASI	Mandatory Security - Aircraft\nASL	Mandatory Security - Staff Lateness / Lack of\nASN	Mandatory Security - Aerobridge / Boarding Gate\nASS	Mandatory Security - Staff Error\nASU	Mandatory Security - Baggage Offload\nASX	Mandatory Security - Major Security Incident\nATK	Air Traffic Control due to Non-Weather - En Route\nATW	Air Traffic Control due to Weather - En Route\nAWK	Air Traffic Control due to Weather - Arrival Airport\nCCK	Cargo/Mail Acceptance\nCDI	Cargo/Mail Documentation - Error/Missing\nCDL	Cargo/Mail Documentation - Lateness\nCIC	Cargo/Mail Packing - Unit Load Device (ULD)\nCIL	Cargo/Mail Packing - Collapse/Shift\nCIO	Cargo/Mail Packing - Other\nCIP	Cargo/Mail Packing - Damage/Inadequate/Leakage\nCIS	Cargo/Mail Packing - Odorous\nCPD	Cargo/Mail Positioning - Drop Off\nCPO	Cargo/Mail Positioning - Other\nCPP	Cargo/Mail Positioning - Pick Up\nCUC	Cargo/Mail Preparation - Warehouse Congestion\nCUS	Cargo/Mail Preparation - Staff\nDFK	Aircraft Damage - During Flying/Taxiing\nDGK	Aircraft Damage - During Parking/Towing\nECD	IT-CX Group Cargo Documentation/Preparation System\nECE	IT-CTO/GHA Cargo Documentation/Preparation System\nEDA	IT-Departure Control System (DCS)\nEFK	IT-Computer Flight Planning System\nEOA	IT-Aircraft Communications Addressing and Reporting System (ACARS)\nEOB	IT-Baggage Handling System (BHS)\nEON	IT-Network\nEOO	IT-Other\nEOS	IT-Airport Self-Service\nFAA	Cabin Crew Handling - After Landing Procedure\nFAC	Cabin Crew Handling - Cabin Management\nFAE	Cabin Crew Handling - Cabin Crew Error\nFAF	Cabin Crew Handling - Passenger Health Clarification\nFAH	Cabin Crew Handling - Passenger Headcount\nFAL	Cabin Crew Handling - Pre-Flight Procedure\nFAM	Cabin Crew Handling - Catering\nFAO	Cabin Crew Handling - Other\nFAP	Cabin Crew Handling - Passenger Requirement\nFAT	Cabin Crew Handling - Technical\nFAW	Cabin Crew Handling - Cabin Cleaning\nFBS	Flight Deck Crew Handling - Extraordinary Security Check\nFCL	Cabin Crew Availability - Flight Time Limitation\nFCO	Cabin Crew Availability - Other\nFCS	Cabin Crew Availability - Sickness\nFFC	Operational Requirement - Computer Flight Plan (CFP) Change\nFFF	Operational Requirement - Refuelling\nFFL	Operational Requirement - Loadsheet/Payload Change\nFFM	Operational Requirement - Maintenance Request\nFFO	Operational Requirement - Other\nFFT	Operational Requirement - Technical Clarification\nFLI	Cabin Crew Boarding - Late Arrival to Reporting Point\nFLM	Cabin Crew Boarding - Other\nFLW	Cabin Crew Boarding - Late Arrival to Aircraft\nFPD	Flight Operational Documentation - Error/Lateness\nFPE	Flight Operational Documentation - EFB Device / Accessory\nFRN	Flight Deck Crew Handling - Non-Operational Requirement\nFSF	Flight Deck Crew Availability - Fatigue\nFSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point\nFSL	Flight Deck Crew Availability - Flight Time Limitation\nFSM	Flight Deck Crew Boarding - Other\nFSO	Flight Deck Crew Availability - Other\nFSS	Flight Deck Crew Availability - Sickness\nFTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point\nFTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation\nFTM	Flight Deck and Cabin Crew Boarding - Other\nFTO	Flight Deck and Cabin Crew Availability - Other\nFTS	Flight Deck and Cabin Crew Availability - Sickness\nFTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft\nGBD	Catering - Delivery/Loading/Unloading\nGBO	Catering - Other\nGBS	Catering - Aircraft Switch\nGCL	Cabin Cleaning - Service Provider\nGCO	Cabin Cleaning - Other\nGDC	Aircraft Documentation - Centralized Load Control (CLC)\nGDO	Aircraft Documentation - Other\nGDS	Aircraft Documentation - Departure Station\nGET	Loading/Unloading - Equipment\nGFA	Fuelling - Fuel Supplier / Intoplane Operator\nGFE	Fuelling - Engineering Documentation\nGFO	Fuelling - Other\nGLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time\nGLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time\nGLC	Loading/Unloading - Cabin\nGLD	Loading/Unloading - Difficulty\nGLE	Loading/Unloading - Staff Error\nGLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time\nGLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only)\nGLR	Loading/Unloading - Rearrangement\nGLS	Loading/Unloading - Staff Availability\nGLV	Loading/Unloading - Space/Volumetric\nGLX	Loading/Unloading - Other\nGSL	Servicing Equipment - Equipment\nGSS	Servicing Equipment - Staff\nGTL	Technical Equipment - Equipment\nGTS	Technical Equipment - Staff\nGUK	Loading/Unloading - Unit Load Device (ULD)\nIAK	Air Traffic Control - Unknown Reason\nICK	Commercial (Cargo Service only)\nIGK	Aircraft Door Operation\nIPK	Disembarkation\nIWH	Weather - High Cabin Temperature\nMIK	Industrial Action - With CX Group\nMOK	Industrial Action - Outside CX Group\nMXX	No Matched Reason\nPBK	Baggage Handling\nPCO	Catering Order\nPDO	Passenger Acceptance - Other\nPDP	Passenger Acceptance - Transfer due to Irregular Operation\nPEK	Check-In Error\nPHB	Boarding - Cabin Baggage\nPHH	Boarding - Staff\nPHM	Boarding - Missing Passenger\nPHO	Boarding - Other\nPHS	Boarding - Passenger Seating\nPLK	Check-In Area\nPOK	Overbooking\nPSI	Passenger Special Handling - Intoxicated/Sick Passenger\nPSO	Passenger Special Handling - Other\nPSP	Passenger Special Handling - Item Missing\nPSU	Passenger Special Handling - Unruly Passenger\nPWK	Reduced Mobility\nRAA	Aircraft Rotation - Air Traffic Control\nRAC	Aircraft Rotation - Crewing\nRAD	Aircraft Rotation - Aircraft Damage\nRAE	Aircraft Rotation - Information Technology\nRAF	Aircraft Rotation - Flight Operation\nRAG	Aircraft Rotation - Aircraft Servicing\nRAH	Aircraft Rotation - Cargo/Mail\nRAM	Aircraft Rotation - Ground Traffic\nRAN	Aircraft Rotation - En Route\nRAO	Aircraft Rotation - Other\nRAP	Aircraft Rotation - Passenger\nRAQ	Aircraft Rotation - Security\nRAR	Aircraft Rotation - Reactionary\nRAS	Aircraft Rotation - Schedule\nRAT	Aircraft Rotation - Technical\nRAU	Aircraft Rotation - Authority\nRAW	Aircraft Rotation - Weather\nRCA	Crew Rotation - Flight Deck / Entire Crew\nRLO	Load Connection - Non- CX Group\nRLX	Load Connection - CX Group\nROB	Operation Control - Crewing\nROC	Operation Control - Flight Consolidation\nROH	Operation Control - Aircraft Change\nROR	Operation Control - Diversion/Reroute\nROV	Operation Control - Await First Available Aircraft\nRSA	Crew Rotation - Cabin Crew\nRTK	Through Check-In\nSGK	Scheduled Ground Time\nTAA	Technical - AOG Spare from other Aircraft/Station\nTAE	Technical - AOG Spare for other Aircraft/Station\nTCT	Technical - Aircraft Change\nTDA	Technical - Without Aircraft Change\nTDD	Technical - Engineering Documentation\nTDL	Technical - Cargo Loading System (CLS)\nTDT	Technical - High Cabin Temperature\nTDU	Technical - Extra Start-Up Time\nTLT	Technical - Await First Available Aircraft\nTML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance\nTMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance\nTMT	Technical - Scheduled Maintenance\nTNA	Technical - Non-Scheduled Maintenance\nTSS	Technical - Lack of Spare\nTST	Technical - Await Spare from Technical Store\nWGI	Weather - Ground Handling Impaired\nWIK	Weather - Aircraft Frost/Ice/Snow Handling\nWOK	Weather - Departure Airport\nWRK	Weather - Alternate / En Route\nWSR	Weather - Airport Ice/Sand/Snow/Water Handling\nWTK	Weather - Arrival Airport`;
 
     let delayDB = {}; let selectedDelayCodes = [];
@@ -435,11 +472,8 @@
         });
     }
 
-    // ==========================================
-    // 💡 智慧造句
-    // ==========================================
+    // 智慧造句
     function toggleSummaryReason(btn) { btn.classList.toggle('active'); updateAutoSummary(); }
-    
     function updateAutoSummary() {
         const activeBtns = document.querySelectorAll('#summary-buttons .btn-tag.active');
         const ta = document.getElementById('summary');
@@ -455,14 +489,11 @@
     document.getElementById('flight').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
     document.getElementById('date').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
 
-    // ==========================================
-    // 🚨 完美修復：時間軸與生成邏輯
-    // ==========================================
+    // 📝 產生邏輯與時間軸
     const defaultLogs = ["A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.", "Cleaning completed.", "Cabin security check started.", "Boarding signal released.", "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."];
     
     function initLogs() {
         const c = document.getElementById('logContainer'); c.innerHTML = '';
-        // 使用獨立的生成函數，避免在初始化時觸發 generateReport 造成當機
         defaultLogs.forEach(desc => { addLogItemDOM('', desc); });
     }
     
@@ -490,12 +521,10 @@
     }
 
     function formatTime(val) { return val ? val + 'L' : '----L'; }
-    
     function formatAviationDate(dateStr) {
         if (!dateStr) return ''; const p = dateStr.split('-'); if (p.length !== 3) return dateStr.toUpperCase();
         const m = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']; return p[2] + m[parseInt(p[1],10)-1];
     }
-    
     function timeStrToIntMins(ts) { if(!ts||ts.length!==4||isNaN(ts)) return null; return parseInt(ts.substring(0,2),10)*60 + parseInt(ts.substring(2,4),10); }
 
     function getLogTimeStr(logs, descSnippet) {
@@ -506,7 +535,10 @@
     function generateReport() {
         const f = document.getElementById('flight').value.toUpperCase() || "----";
         const d = formatAviationDate(document.getElementById('date').value) || "----";
-        const rep = document.getElementById('reporter').value;
+        
+        // 💡 登入者就是通報人
+        const rep = currentUser || "----"; 
+        
         const sta = formatTime(document.getElementById('sta').value); const std = formatTime(document.getElementById('std').value);
         const eta = formatTime(document.getElementById('eta').value); const etd = formatTime(document.getElementById('etd').value);
         const ata = formatTime(document.getElementById('ata').value); const atd = formatTime(document.getElementById('atd').value);
@@ -522,7 +554,6 @@
         document.querySelectorAll('#tab-tco .log-entry').forEach(e => {
             const t = e.querySelector('.log-time').value.trim(); 
             const text = e.querySelector('.log-desc').value.trim();
-            // 精準綁定變數，修復之前的 undefined 當機
             if (t) logs.push({timeStr: t, descStr: text});
         });
         
@@ -539,7 +570,7 @@
         
         document.getElementById('outputReport').textContent = res;
 
-        // 🚨 自動檢核系統 🚨
+        // 自動檢核系統
         const validationBox = document.getElementById('delayValidation');
         let staMins = timeStrToIntMins(document.getElementById('sta').value); let ataMins = timeStrToIntMins(document.getElementById('ata').value);
         let stdMins = timeStrToIntMins(document.getElementById('std').value); let atdMins = timeStrToIntMins(document.getElementById('atd').value);
@@ -597,9 +628,7 @@
         else { validationBox.style.display = 'none'; }
     }
 
-    // ==========================================
     // 📝 減人報告產生邏輯
-    // ==========================================
     let paxCountInternal = 0;
     function initPaxList() { document.getElementById('paxListContainer').innerHTML=''; paxCountInternal=0; addPaxCard(); }
     function addPaxCard() {
@@ -612,7 +641,9 @@
     function removePaxCard(b) { if(document.getElementById('paxListContainer').children.length<=1) return alert("至少留一位"); b.parentElement.remove(); generateShutOutReport(); }
     
     function generateShutOutReport() {
-        const rep = document.getElementById('shut-reporter').value.trim() || "----";
+        // 💡 登入者就是通報人
+        const rep = currentUser || "----"; 
+        
         let paxList = [];
         document.querySelectorAll('.pax-card').forEach(c => {
             let n = c.querySelector('.pax-name').value.toUpperCase().trim() || "----";
@@ -630,9 +661,7 @@
 
     function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert("已複製！")); }
 
-    // =========================================================================
     // ☁️ 雲端儲存與讀取 API
-    // =========================================================================
     function saveToCloud(type) {
         const btn = document.getElementById(type === 'TCO' ? 'btn-save-tco' : 'btn-save-shutout');
         const loader = document.getElementById(type === 'TCO' ? 'loader-tco' : 'loader-shutout');
