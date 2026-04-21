@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V33 (Scroll Fix)</title>
+    <title>TCO & Shut Out Report V34 (Auto Expand Preview)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -59,15 +59,15 @@
         
         .form-section { width: 55%; background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
         
-        /* 🚨 V33 修復：加入 overflow-y: auto 讓整個右側區塊可以獨立滑動 */
+        /* 🚨 V34：整個右側欄位可以獨立滑動 */
         .right-column { 
             width: calc(45% - 20px); display: flex; flex-direction: column; gap: 20px; 
             position: sticky; top: 15px; height: calc(100vh - 30px); 
             overflow-y: auto; padding-right: 5px;
         }
         
-        .output-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex-shrink: 0;}
-        .history-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex: 1; min-height: 300px;}
+        .output-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex-shrink: 0; }
+        .history-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex: 1; min-height: 300px; flex-shrink: 0; }
 
         h2 { margin-top: 0; color: var(--text-dark); font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; margin-bottom: 20px; border-left: 4px solid var(--accent-blue); padding-left: 10px; line-height: 1; }
         h3 { color: var(--primary-light); font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; }
@@ -103,11 +103,11 @@
         .btn-tag { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 5px;}
         .btn-tag.active { background-color: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
         
-        /* 🚨 V33 修復：加入 height 跟 overflow-y 讓報告太長時，在框框內自己生出捲軸 */
+        /* 🚨 V34：取消 fixed height，改為 height: auto 讓黑框自動撐高展示所有內容 */
         pre { 
             background: #2d3748; color: #f7fafc; padding: 20px; border-radius: 6px; 
             white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; 
-            font-size: 14px; line-height: 1.6; height: 35vh; min-height: 200px; overflow-y: auto; 
+            font-size: 14px; line-height: 1.6; height: auto; min-height: 200px; 
             border: 1px solid #1a202c; margin: 0; 
         }
         
@@ -155,7 +155,7 @@
             .tab-content { flex-direction: column; }
             .form-section, .right-column { width: 100%; height: auto; }
             .right-column { position: static; overflow: visible; }
-            pre { height: auto; min-height: 200px; }
+            pre { height: auto; }
         }
     </style>
 </head>
@@ -323,7 +323,7 @@
 <div id="historyModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
     <div style="background:#fff; width:90%; max-width:500px; padding:25px; border-radius:8px;">
         <h3 id="modalTitle" style="margin-top:0;">歷史報告</h3>
-        <pre id="modalContent" style="min-height:200px; padding:15px; margin-bottom:15px;"></pre>
+        <pre id="modalContent" style="min-height:200px; padding:15px; margin-bottom:15px; border:1px solid #1a202c;"></pre>
         <div style="display:flex; gap:10px;">
             <button style="flex:1;" onclick="copyText('modalContent')">📋 複製內容</button>
             <button style="flex:1; background-color:#e5e7eb; color:#374151;" onclick="document.getElementById('historyModal').style.display='none'">關閉</button>
@@ -334,8 +334,7 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
-    // 更換記憶體金鑰以刷新狀態
-    let memoryKey = 'tco_user_v33';
+    let memoryKey = 'tco_user_v34';
     let currentUser = localStorage.getItem(memoryKey);
 
     window.onload = function() {
@@ -396,7 +395,6 @@
         }
     }
 
-    // 💡 智慧時間問候引擎
     function updateGreeting(name) {
         const now = new Date();
         const hour = now.getHours();
