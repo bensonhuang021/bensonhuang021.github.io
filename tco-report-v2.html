@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V31 (Dashboard Layout)</title>
+    <title>TCO & Shut Out Report V32 (Personalized History)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -54,14 +54,11 @@
         .tab-btn.active { color: var(--text-dark); }
         .tab-btn.active::after { transform: scaleX(1); }
 
-        /* 💡 V31: 全新雙欄式版面配置 */
         .tab-content { display: none; width: 100%; align-items: flex-start; justify-content: space-between; gap: 20px;}
         .tab-content.active { display: flex; }
         
-        /* 左半部：填表區 */
         .form-section { width: 55%; background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
         
-        /* 右半部：預覽區與歷史區上下疊加 */
         .right-column { width: calc(45% - 20px); display: flex; flex-direction: column; gap: 20px; position: sticky; top: 15px; height: calc(100vh - 30px); }
         
         .output-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; }
@@ -80,7 +77,8 @@
         input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
             outline: none; border-color: var(--accent-blue); background-color: var(--surface); box-shadow: 0 0 0 1px var(--accent-blue);
         }
-        
+        input[readonly] { background-color: #f1f5f9; color: #64748b; cursor: not-allowed; } 
+
         .delay-code-builder { background-color: #f9fafb; padding: 20px; border-radius: 6px; margin-bottom: 15px; border: 1px solid var(--secondary); }
         .delay-code-item { display: flex; gap: 10px; align-items: center; background: var(--surface); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--secondary); margin-top: 10px; font-size: 0.85rem; }
         .delay-desc { flex: 1; color: var(--primary-light); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -113,8 +111,11 @@
         .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; margin-top: 10px; }
         .history-card { background: #f8fafc; border: 1px solid var(--secondary); border-radius: 6px; padding: 12px; cursor: pointer; transition: all 0.2s;}
         .history-card:hover { border-color: var(--accent-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .history-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .history-title { font-size: 0.95rem; font-weight: 600; color: var(--primary); }
+        .history-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .history-title { font-size: 0.95rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; }
+        
+        /* 歷史紀錄報告類型小標籤 */
+        .type-badge { font-size: 0.7rem; font-weight: normal; color: #6b7280; border: 1px solid #cbd5e1; padding: 2px 6px; border-radius: 12px; margin-left: 8px; background-color: #ffffff; }
 
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-blue); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 10px; display: none;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -323,7 +324,7 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
     // 更換記憶體金鑰以刷新狀態
-    let memoryKey = 'tco_user_v31';
+    let memoryKey = 'tco_user_v32';
     let currentUser = localStorage.getItem(memoryKey);
 
     window.onload = function() {
@@ -401,7 +402,6 @@
         else if (timeVal > 11 && timeVal <= 17) {
             greeting = "Good afternoon";
         } 
-        // 17:01 到 03:59 預設為 Good evening
 
         document.getElementById('display-username').textContent = `${greeting}, ${name}`;
     }
@@ -535,8 +535,6 @@
     function generateReport() {
         const f = document.getElementById('flight').value.toUpperCase() || "----";
         const d = formatAviationDate(document.getElementById('date').value) || "----";
-        
-        // 💡 登入者就是通報人
         const rep = currentUser || "----"; 
         
         const sta = formatTime(document.getElementById('sta').value); const std = formatTime(document.getElementById('std').value);
@@ -641,7 +639,6 @@
     function removePaxCard(b) { if(document.getElementById('paxListContainer').children.length<=1) return alert("至少留一位"); b.parentElement.remove(); generateShutOutReport(); }
     
     function generateShutOutReport() {
-        // 💡 登入者就是通報人
         const rep = currentUser || "----"; 
         
         let paxList = [];
@@ -706,7 +703,8 @@
                 const timeStr = d.getMonth()+1 + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
                 const tagColor = item.type === 'TCO' ? '#0f4c81' : '#be123c';
 
-                card.innerHTML = `<div class="history-meta"><span style="color: ${tagColor}; font-weight:bold;">[${item.type}]</span><span>${timeStr}</span></div><div class="history-title">${item.flight} (${item.date})</div>`;
+                // 💡 V32: 將 [TCO] 換成 [名字]，並在右側加上小小的報告類型標籤
+                card.innerHTML = `<div class="history-meta"><span style="color: ${tagColor}; font-weight:bold;">[${item.reporter}]</span><span>${timeStr}</span></div><div class="history-title">${item.flight} (${item.date}) <span class="type-badge">${item.type}</span></div>`;
                 card.onclick = () => showModal(item);
                 document.getElementById('history-list').appendChild(card.cloneNode(true));
                 document.getElementById('history-list-shutout').appendChild(card);
