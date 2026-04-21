@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TCO & Shut Out Report V32 (Personalized History)</title>
+    <title>TCO & Shut Out Report V33 (Scroll Fix)</title>
     <style>
         :root {
             --primary: #4b5563;       
@@ -59,10 +59,15 @@
         
         .form-section { width: 55%; background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); flex-shrink: 0;}
         
-        .right-column { width: calc(45% - 20px); display: flex; flex-direction: column; gap: 20px; position: sticky; top: 15px; height: calc(100vh - 30px); }
+        /* 🚨 V33 修復：加入 overflow-y: auto 讓整個右側區塊可以獨立滑動 */
+        .right-column { 
+            width: calc(45% - 20px); display: flex; flex-direction: column; gap: 20px; 
+            position: sticky; top: 15px; height: calc(100vh - 30px); 
+            overflow-y: auto; padding-right: 5px;
+        }
         
-        .output-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; }
-        .history-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+        .output-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex-shrink: 0;}
+        .history-section { background: var(--surface); padding: 25px 30px; border-radius: 6px; border: 1px solid var(--secondary); display: flex; flex-direction: column; flex: 1; min-height: 300px;}
 
         h2 { margin-top: 0; color: var(--text-dark); font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; margin-bottom: 20px; border-left: 4px solid var(--accent-blue); padding-left: 10px; line-height: 1; }
         h3 { color: var(--primary-light); font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; }
@@ -98,7 +103,13 @@
         .btn-tag { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 5px;}
         .btn-tag.active { background-color: var(--accent-blue); color: #ffffff; border-color: var(--accent-blue); }
         
-        pre { background: #2d3748; color: #f7fafc; padding: 20px; border-radius: 6px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; line-height: 1.6; min-height: 250px; border: 1px solid #1a202c; margin: 0; }
+        /* 🚨 V33 修復：加入 height 跟 overflow-y 讓報告太長時，在框框內自己生出捲軸 */
+        pre { 
+            background: #2d3748; color: #f7fafc; padding: 20px; border-radius: 6px; 
+            white-space: pre-wrap; word-wrap: break-word; font-family: 'Consolas', 'Courier New', monospace; 
+            font-size: 14px; line-height: 1.6; height: 35vh; min-height: 200px; overflow-y: auto; 
+            border: 1px solid #1a202c; margin: 0; 
+        }
         
         .validation-box { margin-top: 15px; padding: 12px; border-radius: 4px; font-size: 0.85rem; display: none; line-height: 1.5; }
         .validation-warning { background-color: var(--warning-bg); color: var(--warning-text); border-left: 4px solid #f59e0b; }
@@ -114,7 +125,6 @@
         .history-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 6px; }
         .history-title { font-size: 0.95rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; }
         
-        /* 歷史紀錄報告類型小標籤 */
         .type-badge { font-size: 0.7rem; font-weight: normal; color: #6b7280; border: 1px solid #cbd5e1; padding: 2px 6px; border-radius: 12px; margin-left: 8px; background-color: #ffffff; }
 
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent-blue); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 10px; display: none;}
@@ -144,7 +154,8 @@
         @media screen and (max-width: 1024px) {
             .tab-content { flex-direction: column; }
             .form-section, .right-column { width: 100%; height: auto; }
-            .right-column { position: static; }
+            .right-column { position: static; overflow: visible; }
+            pre { height: auto; min-height: 200px; }
         }
     </style>
 </head>
@@ -324,7 +335,7 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
 
     // 更換記憶體金鑰以刷新狀態
-    let memoryKey = 'tco_user_v32';
+    let memoryKey = 'tco_user_v33';
     let currentUser = localStorage.getItem(memoryKey);
 
     window.onload = function() {
@@ -394,12 +405,9 @@
         
         let greeting = "Good evening";
         
-        // 04:00 到 11:00
         if (timeVal >= 4 && timeVal <= 11) {
             greeting = "Good morning";
-        } 
-        // 11:01 到 17:00
-        else if (timeVal > 11 && timeVal <= 17) {
+        } else if (timeVal > 11 && timeVal <= 17) {
             greeting = "Good afternoon";
         } 
 
@@ -416,7 +424,6 @@
         fetchHistory(); 
     }
 
-    // 🗂️ Delay Code 資料庫 (100% 完整收錄)
     const rawData = `ADC	Arrival Airport Restriction - Curfew/Night/Noise\nADD	Arrival Airport Restriction - Runway/Taxiway\nADG	Arrival Airport Restriction - Operational Concern\nADO	Arrival Airport Restriction - Other\nAEK	Air Traffic Control due to Non-Weather - Arrival Airport\nAFC	Airport Facility - Ground Traffic\nAFH	Airport Facility - Cargo Terminal\nAFJ	Airport Facility - Jet Bridge\nAFL	Airport Facility - Baggage\nAFN	Airport Facility - Passenger Terminal\nAFO	Airport Facility - Apron\nAFP	Airport Facility - Parking Bay Availability\nAGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance\nAGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff\nAGD	Customs/Immigration/Quarantine - Passenger\nAGO	Customs/Immigration/Quarantine - Other\nAMA	Air Traffic Control due to Non-Weather - Departure Airport\nAMC	Departure Airport Restriction - Curfew/Night/Noise\nAMD	Departure Airport Restriction - Runway/Taxiway\nAMO	Departure Airport Restriction - Other\nAMR	Ground Traffic - Aircraft Towing\nAMS	Ground Traffic - Aircraft Pushback\nAMW	Air Traffic Control due to Weather - Departure Airport\nASC	Mandatory Security - Cargo/Mail\nASE	Mandatory Security - Additional Requirement\nASF	Mandatory Security - Facility\nASI	Mandatory Security - Aircraft\nASL	Mandatory Security - Staff Lateness / Lack of\nASN	Mandatory Security - Aerobridge / Boarding Gate\nASS	Mandatory Security - Staff Error\nASU	Mandatory Security - Baggage Offload\nASX	Mandatory Security - Major Security Incident\nATK	Air Traffic Control due to Non-Weather - En Route\nATW	Air Traffic Control due to Weather - En Route\nAWK	Air Traffic Control due to Weather - Arrival Airport\nCCK	Cargo/Mail Acceptance\nCDI	Cargo/Mail Documentation - Error/Missing\nCDL	Cargo/Mail Documentation - Lateness\nCIC	Cargo/Mail Packing - Unit Load Device (ULD)\nCIL	Cargo/Mail Packing - Collapse/Shift\nCIO	Cargo/Mail Packing - Other\nCIP	Cargo/Mail Packing - Damage/Inadequate/Leakage\nCIS	Cargo/Mail Packing - Odorous\nCPD	Cargo/Mail Positioning - Drop Off\nCPO	Cargo/Mail Positioning - Other\nCPP	Cargo/Mail Positioning - Pick Up\nCUC	Cargo/Mail Preparation - Warehouse Congestion\nCUS	Cargo/Mail Preparation - Staff\nDFK	Aircraft Damage - During Flying/Taxiing\nDGK	Aircraft Damage - During Parking/Towing\nECD	IT-CX Group Cargo Documentation/Preparation System\nECE	IT-CTO/GHA Cargo Documentation/Preparation System\nEDA	IT-Departure Control System (DCS)\nEFK	IT-Computer Flight Planning System\nEOA	IT-Aircraft Communications Addressing and Reporting System (ACARS)\nEOB	IT-Baggage Handling System (BHS)\nEON	IT-Network\nEOO	IT-Other\nEOS	IT-Airport Self-Service\nFAA	Cabin Crew Handling - After Landing Procedure\nFAC	Cabin Crew Handling - Cabin Management\nFAE	Cabin Crew Handling - Cabin Crew Error\nFAF	Cabin Crew Handling - Passenger Health Clarification\nFAH	Cabin Crew Handling - Passenger Headcount\nFAL	Cabin Crew Handling - Pre-Flight Procedure\nFAM	Cabin Crew Handling - Catering\nFAO	Cabin Crew Handling - Other\nFAP	Cabin Crew Handling - Passenger Requirement\nFAT	Cabin Crew Handling - Technical\nFAW	Cabin Crew Handling - Cabin Cleaning\nFBS	Flight Deck Crew Handling - Extraordinary Security Check\nFCL	Cabin Crew Availability - Flight Time Limitation\nFCO	Cabin Crew Availability - Other\nFCS	Cabin Crew Availability - Sickness\nFFC	Operational Requirement - Computer Flight Plan (CFP) Change\nFFF	Operational Requirement - Refuelling\nFFL	Operational Requirement - Loadsheet/Payload Change\nFFM	Operational Requirement - Maintenance Request\nFFO	Operational Requirement - Other\nFFT	Operational Requirement - Technical Clarification\nFLI	Cabin Crew Boarding - Late Arrival to Reporting Point\nFLM	Cabin Crew Boarding - Other\nFLW	Cabin Crew Boarding - Late Arrival to Aircraft\nFPD	Flight Operational Documentation - Error/Lateness\nFPE	Flight Operational Documentation - EFB Device / Accessory\nFRN	Flight Deck Crew Handling - Non-Operational Requirement\nFSF	Flight Deck Crew Availability - Fatigue\nFSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point\nFSL	Flight Deck Crew Availability - Flight Time Limitation\nFSM	Flight Deck Crew Boarding - Other\nFSO	Flight Deck Crew Availability - Other\nFSS	Flight Deck Crew Availability - Sickness\nFTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point\nFTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation\nFTM	Flight Deck and Cabin Crew Boarding - Other\nFTO	Flight Deck and Cabin Crew Availability - Other\nFTS	Flight Deck and Cabin Crew Availability - Sickness\nFTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft\nGBD	Catering - Delivery/Loading/Unloading\nGBO	Catering - Other\nGBS	Catering - Aircraft Switch\nGCL	Cabin Cleaning - Service Provider\nGCO	Cabin Cleaning - Other\nGDC	Aircraft Documentation - Centralized Load Control (CLC)\nGDO	Aircraft Documentation - Other\nGDS	Aircraft Documentation - Departure Station\nGET	Loading/Unloading - Equipment\nGFA	Fuelling - Fuel Supplier / Intoplane Operator\nGFE	Fuelling - Engineering Documentation\nGFO	Fuelling - Other\nGLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time\nGLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time\nGLC	Loading/Unloading - Cabin\nGLD	Loading/Unloading - Difficulty\nGLE	Loading/Unloading - Staff Error\nGLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time\nGLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only)\nGLR	Loading/Unloading - Rearrangement\nGLS	Loading/Unloading - Staff Availability\nGLV	Loading/Unloading - Space/Volumetric\nGLX	Loading/Unloading - Other\nGSL	Servicing Equipment - Equipment\nGSS	Servicing Equipment - Staff\nGTL	Technical Equipment - Equipment\nGTS	Technical Equipment - Staff\nGUK	Loading/Unloading - Unit Load Device (ULD)\nIAK	Air Traffic Control - Unknown Reason\nICK	Commercial (Cargo Service only)\nIGK	Aircraft Door Operation\nIPK	Disembarkation\nIWH	Weather - High Cabin Temperature\nMIK	Industrial Action - With CX Group\nMOK	Industrial Action - Outside CX Group\nMXX	No Matched Reason\nPBK	Baggage Handling\nPCO	Catering Order\nPDO	Passenger Acceptance - Other\nPDP	Passenger Acceptance - Transfer due to Irregular Operation\nPEK	Check-In Error\nPHB	Boarding - Cabin Baggage\nPHH	Boarding - Staff\nPHM	Boarding - Missing Passenger\nPHO	Boarding - Other\nPHS	Boarding - Passenger Seating\nPLK	Check-In Area\nPOK	Overbooking\nPSI	Passenger Special Handling - Intoxicated/Sick Passenger\nPSO	Passenger Special Handling - Other\nPSP	Passenger Special Handling - Item Missing\nPSU	Passenger Special Handling - Unruly Passenger\nPWK	Reduced Mobility\nRAA	Aircraft Rotation - Air Traffic Control\nRAC	Aircraft Rotation - Crewing\nRAD	Aircraft Rotation - Aircraft Damage\nRAE	Aircraft Rotation - Information Technology\nRAF	Aircraft Rotation - Flight Operation\nRAG	Aircraft Rotation - Aircraft Servicing\nRAH	Aircraft Rotation - Cargo/Mail\nRAM	Aircraft Rotation - Ground Traffic\nRAN	Aircraft Rotation - En Route\nRAO	Aircraft Rotation - Other\nRAP	Aircraft Rotation - Passenger\nRAQ	Aircraft Rotation - Security\nRAR	Aircraft Rotation - Reactionary\nRAS	Aircraft Rotation - Schedule\nRAT	Aircraft Rotation - Technical\nRAU	Aircraft Rotation - Authority\nRAW	Aircraft Rotation - Weather\nRCA	Crew Rotation - Flight Deck / Entire Crew\nRLO	Load Connection - Non- CX Group\nRLX	Load Connection - CX Group\nROB	Operation Control - Crewing\nROC	Operation Control - Flight Consolidation\nROH	Operation Control - Aircraft Change\nROR	Operation Control - Diversion/Reroute\nROV	Operation Control - Await First Available Aircraft\nRSA	Crew Rotation - Cabin Crew\nRTK	Through Check-In\nSGK	Scheduled Ground Time\nTAA	Technical - AOG Spare from other Aircraft/Station\nTAE	Technical - AOG Spare for other Aircraft/Station\nTCT	Technical - Aircraft Change\nTDA	Technical - Without Aircraft Change\nTDD	Technical - Engineering Documentation\nTDL	Technical - Cargo Loading System (CLS)\nTDT	Technical - High Cabin Temperature\nTDU	Technical - Extra Start-Up Time\nTLT	Technical - Await First Available Aircraft\nTML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance\nTMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance\nTMT	Technical - Scheduled Maintenance\nTNA	Technical - Non-Scheduled Maintenance\nTSS	Technical - Lack of Spare\nTST	Technical - Await Spare from Technical Store\nWGI	Weather - Ground Handling Impaired\nWIK	Weather - Aircraft Frost/Ice/Snow Handling\nWOK	Weather - Departure Airport\nWRK	Weather - Alternate / En Route\nWSR	Weather - Airport Ice/Sand/Snow/Water Handling\nWTK	Weather - Arrival Airport`;
 
     let delayDB = {}; let selectedDelayCodes = [];
@@ -472,8 +479,8 @@
         });
     }
 
-    // 智慧造句
     function toggleSummaryReason(btn) { btn.classList.toggle('active'); updateAutoSummary(); }
+    
     function updateAutoSummary() {
         const activeBtns = document.querySelectorAll('#summary-buttons .btn-tag.active');
         const ta = document.getElementById('summary');
@@ -489,7 +496,6 @@
     document.getElementById('flight').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
     document.getElementById('date').addEventListener('input', () => { if(document.querySelectorAll('#summary-buttons .btn-tag.active').length > 0) updateAutoSummary(); });
 
-    // 📝 產生邏輯與時間軸
     const defaultLogs = ["A/C chocks on.", "Pax off started.", "Pax off completed.", "Cleaning started.", "Cleaning completed.", "Cabin security check started.", "Boarding signal released.", "All pax onboard.", "Last cabin door closed.", "Last cargo hold door closed.", "Aircraft pushback."];
     
     function initLogs() {
@@ -568,7 +574,6 @@
         
         document.getElementById('outputReport').textContent = res;
 
-        // 自動檢核系統
         const validationBox = document.getElementById('delayValidation');
         let staMins = timeStrToIntMins(document.getElementById('sta').value); let ataMins = timeStrToIntMins(document.getElementById('ata').value);
         let stdMins = timeStrToIntMins(document.getElementById('std').value); let atdMins = timeStrToIntMins(document.getElementById('atd').value);
@@ -626,7 +631,6 @@
         else { validationBox.style.display = 'none'; }
     }
 
-    // 📝 減人報告產生邏輯
     let paxCountInternal = 0;
     function initPaxList() { document.getElementById('paxListContainer').innerHTML=''; paxCountInternal=0; addPaxCard(); }
     function addPaxCard() {
@@ -658,7 +662,6 @@
 
     function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert("已複製！")); }
 
-    // ☁️ 雲端儲存與讀取 API
     function saveToCloud(type) {
         const btn = document.getElementById(type === 'TCO' ? 'btn-save-tco' : 'btn-save-shutout');
         const loader = document.getElementById(type === 'TCO' ? 'loader-tco' : 'loader-shutout');
@@ -703,7 +706,6 @@
                 const timeStr = d.getMonth()+1 + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
                 const tagColor = item.type === 'TCO' ? '#0f4c81' : '#be123c';
 
-                // 💡 V32: 將 [TCO] 換成 [名字]，並在右側加上小小的報告類型標籤
                 card.innerHTML = `<div class="history-meta"><span style="color: ${tagColor}; font-weight:bold;">[${item.reporter}]</span><span>${timeStr}</span></div><div class="history-title">${item.flight} (${item.date}) <span class="type-badge">${item.type}</span></div>`;
                 card.onclick = () => showModal(item);
                 document.getElementById('history-list').appendChild(card.cloneNode(true));
