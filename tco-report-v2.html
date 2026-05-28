@@ -703,11 +703,11 @@
                 const timeStr = d.getMonth()+1 + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
                 const tagColor = item.type === 'TCO' ? '#0f4c81' : '#be123c';
 
-                card.innerHTML = `<div class="history-meta"><span style="color: ${tagColor}; font-weight:bold;">[${item.reporter}]</span><span>${timeStr}</span></div><div class="history-title">${item.flight} (${item.date}) <span class="type-badge">${item.type}</span></div>`;
-                card.onclick = () => showModal(item);
+                card.innerHTML = `<div class="history-meta"><span style="color: ${tagColor}; font-weight:bold;">[${item.reporter}]</span><span>${timeStr}</span></div><div class="history-title">${item.flight} (${item.date}) <span class="type-badge">${item.type}</span></div><div style="font-size:0.72rem; color:var(--accent-blue); margin-top:6px; padding-top:6px; border-top:1px solid var(--secondary);">✏️ 點擊載入表單編輯</div>`;
+                card.onclick = () => loadHistoryToForm(item);
                 document.getElementById('history-list').appendChild(card.cloneNode(true));
                 document.getElementById('history-list-shutout').appendChild(card);
-                document.getElementById('history-list').lastChild.onclick = () => showModal(item);
+                document.getElementById('history-list').lastChild.onclick = () => loadHistoryToForm(item);
             });
         })
         .catch(err => { lists.forEach(l => l.innerHTML = '<div style="text-align:center; color:var(--danger);">連線失敗</div>'); });
@@ -717,6 +717,150 @@
         document.getElementById('modalTitle').textContent = `${item.flight} (${item.date}) - ${item.type} 報告`;
         document.getElementById('modalContent').textContent = item.content;
         document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    // ── 載入歷史至表單 ──────────────────────────────────────────
+
+    function aviationDateToInput(dateStr, timestamp) {
+        const months = {JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
+        const m = (dateStr || '').match(/^(\d{1,2})([A-Z]{3})$/);
+        if (!m) return '';
+        let year = new Date().getFullYear();
+        if (timestamp) { const ts = new Date(timestamp); if (!isNaN(ts)) year = ts.getFullYear(); }
+        return `${year}-${months[m[2]] || '01'}-${m[1].padStart(2,'0')}`;
+    }
+
+    function stripL(val) {
+        if (!val || /^-+L?$/.test(val.trim())) return '';
+        return val.replace(/L$/, '').trim();
+    }
+
+    function flashElement(selector) {
+        const el = document.querySelector(selector);
+        if (!el) return;
+        el.style.transition = 'box-shadow 0.4s ease';
+        el.style.boxShadow = '0 0 0 3px #10b981';
+        setTimeout(() => { el.style.transition = 'box-shadow 0.8s ease'; el.style.boxShadow = ''; }, 1000);
+    }
+
+    function loadHistoryToForm(item) {
+        if (item.type === 'TCO') { switchTab('tco'); parseTCOToForm(item); }
+        else if (item.type === 'ShutOut') { switchTab('shutout'); parseShutOutToForm(item); }
+    }
+
+    function parseTCOToForm(item) {
+        ['flight','date','sta','std','eta','etd','ata','atd','dct','summary'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('pts').value = 'N';
+        document.getElementById('otp').value = 'N';
+        document.getElementById('earlyCleaning').value = 'Y';
+        document.querySelectorAll('#summary-buttons .btn-tag').forEach(b => b.classList.remove('active'));
+        selectedDelayCodes = []; renderDelayCodes();
+        document.getElementById('logContainer').innerHTML = '';
+
+        const lines = item.content.split('\n');
+
+        // --CX123/29MAY TCO report--
+        const h = (lines[0] || '').match(/^--(.+?)\/(.+?)\s+TCO/);
+        if (h) {
+            document.getElementById('flight').value = h[1];
+            document.getElementById('date').value = aviationDateToInput(h[2], item.timestamp);
+        }
+
+        // STA/STD
+        const ss = (lines[1] || '').match(/STA\/(\S+)\s*,\s*STD\/(\S+)/);
+        if (ss) { document.getElementById('sta').value = stripL(ss[1]); document.getElementById('std').value = stripL(ss[2]); }
+
+        // ETA/ETD
+        const ee = (lines[2] || '').match(/ETA\/(\S+)\s*,\s*ETD\/(\S+)/);
+        if (ee) { document.getElementById('eta').value = stripL(ee[1]); document.getElementById('etd').value = stripL(ee[2]); }
+
+        // ATA/ATD (DCT optional)
+        const ataLine = lines[3] || '';
+        const dctM = ataLine.match(/\(DCT\/(\S+?)\)/);
+        if (dctM) document.getElementById('dct').value = stripL(dctM[1]);
+        const aa = ataLine.replace(/\(DCT\/\S+?\)/, '').match(/ATA\/(\S+)\s*,\s*ATD\/(\S+)/);
+        if (aa) { document.getElementById('ata').value = stripL(aa[1]); document.getElementById('atd').value = stripL(aa[2]); }
+
+        // PTS / OTP / Early cleaning
+        const pts = (lines[4] || '').match(/PTS:\s*(\w+)/);
+        if (pts) document.getElementById('pts').value = pts[1];
+        const otp = (lines[5] || '').match(/OTP:\s*(\w+)/);
+        if (otp) document.getElementById('otp').value = otp[1];
+        const ec = (lines[6] || '').match(/Early cleaning:\s*(\w+)/);
+        if (ec) document.getElementById('earlyCleaning').value = ec[1];
+
+        // Pre-scan: collect delay descriptions //CODE// desc
+        const descMap = {};
+        lines.forEach(l => { const dm = l.match(/^\/\/([A-Z0-9]{3})\/\/\s*(.+)/); if (dm) descMap[dm[1]] = dm[2]; });
+
+        // Parse delay codes, summary, log entries
+        let summaryLines = [], inLog = false;
+        for (let i = 7; i < lines.length; i++) {
+            const line = lines[i];
+            if (!inLog && line.startsWith('DL')) {
+                const parts = line.substring(2).split('/');
+                const codes = [], times = [];
+                parts.forEach(p => { if (/^\d{4}$/.test(p)) times.push(p); else if (p) codes.push(p); });
+                codes.forEach((code, k) => selectedDelayCodes.push({ code, time: times[k] || '0000', desc: descMap[code] || delayDB[code] || '' }));
+                renderDelayCodes();
+            } else if (!inLog && line.startsWith('//')) {
+                // skip, already processed above
+            } else if (!inLog && line === '--') {
+                inLog = true;
+            } else if (line.startsWith('End of report')) {
+                break;
+            } else if (inLog) {
+                const lm = line.match(/^(\d{4})L\s+(.*)/);
+                if (lm) addLogItemDOM(lm[1], lm[2]);
+            } else if (line.trim()) {
+                summaryLines.push(line);
+            }
+        }
+
+        document.getElementById('summary').value = summaryLines.join('\n');
+        generateReport();
+        document.querySelector('#tab-tco .form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => flashElement('#tab-tco .form-section'), 100);
+    }
+
+    function parseShutOutToForm(item) {
+        ['shut-flight','shut-date','shut-from','shut-to'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('shut-flight').value = item.flight || '';
+        document.getElementById('shut-date').value = aviationDateToInput(item.date, item.timestamp);
+
+        const lines = item.content.split('\n');
+
+        // Shut out XX online check-in pax NAME SEC xxx SNByyy, ...
+        const paxM = (lines[0] || '').match(/^Shut out \d+ online check-in pax (.+)\.$/);
+        document.getElementById('paxListContainer').innerHTML = '';
+        paxCountInternal = 0;
+
+        if (paxM) {
+            paxM[1].split(', ').forEach(entry => {
+                const m = entry.match(/^(.+?)\s+(SEC\s+\S+|----)\s+(SNB\S+|----)$/);
+                paxCountInternal++;
+                const c = document.getElementById('paxListContainer');
+                const d = document.createElement('div'); d.className = 'pax-card';
+                const name = m ? m[1] : entry;
+                const sec  = (m && m[2] !== '----') ? m[2].replace(/^SEC\s+/, '') : '';
+                const seat = (m && m[3] !== '----') ? m[3].replace(/^SNB/, '') : '';
+                d.innerHTML = `<div class="pax-card-title">Pax #${paxCountInternal}</div>
+                <button type="button" class="btn-danger btn-small" style="position:absolute;top:15px;right:15px;" onclick="removePaxCard(this)">✕</button>
+                <div class="row" style="margin-bottom:8px;"><div class="col"><input type="text" class="pax-name" placeholder="Name (e.g. CHEN/DAMING MR)" value="${name}"></div></div>
+                <div class="row" style="margin-bottom:0;"><div class="col"><input type="text" class="pax-sec" placeholder="SEC (e.g. 204)" value="${sec}"></div><div class="col"><input type="text" class="pax-seat" placeholder="Seat (e.g. 41A)" value="${seat}"></div></div>`;
+                c.appendChild(d);
+            });
+        } else {
+            addPaxCard();
+        }
+
+        // Final figure amended from XXX to YYY.
+        const am = (lines[3] || '').match(/amended from (\d+) to (\d+)/);
+        if (am) { document.getElementById('shut-from').value = am[1]; document.getElementById('shut-to').value = am[2]; }
+
+        generateShutOutReport();
+        document.querySelector('#tab-shutout .form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => flashElement('#tab-shutout .form-section'), 100);
     }
 </script>
 
