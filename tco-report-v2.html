@@ -256,7 +256,6 @@
         <div class="tab-nav">
             <button class="tab-btn active" id="btn-tco" onclick="switchTab('tco')">TCO 報告</button>
             <button class="tab-btn" id="btn-shutout" onclick="switchTab('shutout')">減人報告</button>
-            <a href="https://bensonhuang021.github.io/ziwei/" target="_blank" class="tab-btn" style="text-decoration:none; color:var(--text-muted);">星座占卜</a>
         </div>
         <div class="user-panel">
             <span id="display-username">Loading...</span>
@@ -1018,4 +1017,10 @@
         if (am) { document.getElementById('shut-from').value = am[1]; document.getElementById('shut-to').value = am[2]; }
 
         generateShutOutReport();
-        document.querySelector('#tab-shutout .form-section').scroll
+        document.querySelector('#tab-shutout .form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => flashElement('#tab-shutout .form-section'), 100);
+    }
+</script>
+
+</body>
+</html>
