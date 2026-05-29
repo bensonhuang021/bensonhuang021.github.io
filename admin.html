@@ -297,8 +297,8 @@
         <div class="field-row">
             <div class="field-col"><label>STA</label><input type="text" id="fSTA" maxlength="4" placeholder="0930"></div>
             <div class="field-col"><label>STD</label><input type="text" id="fSTD" maxlength="4" placeholder="0800"></div>
-            <div class="field-col"><label>ETA <span style="font-weight:400; color:var(--text-muted)">(選填)</span></label><input type="text" id="fETA" maxlength="4" placeholder="留空同 STA"></div>
-            <div class="field-col"><label>ETD <span style="font-weight:400; color:var(--text-muted)">(選填)</span></label><input type="text" id="fETD" maxlength="4" placeholder="留空同 STD"></div>
+            <div class="field-col"><label>ETA <span style="font-weight:400; color:var(--text-muted)">(選填)</span></label><input type="text" id="fETA" maxlength="4" placeholder="留白則不顯示"></div>
+            <div class="field-col"><label>ETD <span style="font-weight:400; color:var(--text-muted)">(選填)</span></label><input type="text" id="fETD" maxlength="4" placeholder="留白則不顯示"></div>
         </div>
 
         <div class="section-label">預設選項</div>
@@ -413,8 +413,8 @@
 
             const staVal = t.sta ? t.sta + 'L' : null;
             const stdVal = t.std ? t.std + 'L' : null;
-            const etaVal = t.eta ? t.eta + 'L' : (t.sta ? '<span style="color:#b0bec5;font-size:0.78rem;font-weight:400;">同 STA</span>' : null);
-            const etdVal = t.etd ? t.etd + 'L' : (t.std ? '<span style="color:#b0bec5;font-size:0.78rem;font-weight:400;">同 STD</span>' : null);
+            const etaVal = t.eta ? t.eta + 'L' : null;
+            const etdVal = t.etd ? t.etd + 'L' : null;
 
             const pts = t.pts || 'N';
             const otp = t.otp || 'N';
@@ -433,14 +433,8 @@
                         <div class="time-lbl">STD</div>
                         <div class="time-val ${stdVal ? '' : 'blank'}">${stdVal || '未設定'}</div>
                     </div>
-                    <div class="time-cell">
-                        <div class="time-lbl">ETA</div>
-                        <div class="time-val">${etaVal || '<span class="blank">未設定</span>'}</div>
-                    </div>
-                    <div class="time-cell">
-                        <div class="time-lbl">ETD</div>
-                        <div class="time-val">${etdVal || '<span class="blank">未設定</span>'}</div>
-                    </div>
+                    ${etaVal ? `<div class="time-cell"><div class="time-lbl">ETA</div><div class="time-val">${etaVal}</div></div>` : ''}
+                    ${etdVal ? `<div class="time-cell"><div class="time-lbl">ETD</div><div class="time-val">${etdVal}</div></div>` : ''}
                 </div>
                 <div class="card-chips">
                     <span class="chip ${pts==='Y'?'chip-on':'chip-off'}">PTS: ${pts}</span>
