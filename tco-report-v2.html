@@ -497,10 +497,13 @@
     }
 
     function initApp() {
-        buildDelayDB(); 
-        populateDelayCodeSelect(); 
-        initLogs(); 
-        initPaxList(); 
+        buildDelayDB();
+        populateDelayCodeSelect();
+        initLogs();
+        initPaxList();
+        const _today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        document.getElementById('date').value = _today;
+        document.getElementById('shut-date').value = _today;
         generateReport(); 
         generateShutOutReport();
         fetchHistory();
