@@ -259,6 +259,7 @@
         </div>
         <div class="user-panel">
             <span id="display-username">Loading...</span>
+            <a href="admin.html" target="_blank" style="font-size:0.78rem; color:var(--accent-blue); text-decoration:none; font-weight:600; padding:4px 9px; border:1px solid #b0c4ce; border-radius:4px; transition:background 0.2s;" onmouseover="this.style.background='#f0f4f7'" onmouseout="this.style.background='transparent'">⚙️ 管理後台</a>
             <button class="btn-logout" onclick="doLogout()">登出</button>
         </div>
     </div>
@@ -266,6 +267,18 @@
     <div id="tab-tco" class="tab-content active">
         <div class="form-section">
             <h2>TCO 報告填寫</h2>
+
+            <!-- 快速套用預設班機 -->
+            <div id="templateSelector" style="display:none; margin-bottom:18px; animation: slideInDown 0.3s ease both;">
+                <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px 14px; border-radius:7px; border:1px solid var(--secondary);">
+                    <span style="font-size:0.78rem; font-weight:700; color:var(--accent-blue); white-space:nowrap; text-transform:uppercase; letter-spacing:0.06em;">✈️ 快速套用</span>
+                    <select id="flightTemplateSelect" style="flex:1; font-size:0.88rem;" onchange="applyFlightTemplate()">
+                        <option value="">── 選擇預設班機 ──</option>
+                    </select>
+                    <a href="admin.html" target="_blank" style="font-size:0.78rem; color:var(--accent-blue); text-decoration:none; font-weight:600; white-space:nowrap; padding:5px 10px; border:1px solid var(--accent-blue); border-radius:4px; transition:background 0.2s;" onmouseover="this.style.background='#f0f4f7'" onmouseout="this.style.background='transparent'">⚙️ 管理</a>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col"><label>Flight</label><input type="text" id="flight"></div>
                 <div class="col"><label>Date</label><input type="date" id="date"></div>
@@ -492,6 +505,7 @@
         generateShutOutReport();
         fetchHistory();
         addRippleEffect();
+        loadFlightTemplates();
     }
 
     const rawData = `ADC	Arrival Airport Restriction - Curfew/Night/Noise\nADD	Arrival Airport Restriction - Runway/Taxiway\nADG	Arrival Airport Restriction - Operational Concern\nADO	Arrival Airport Restriction - Other\nAEK	Air Traffic Control due to Non-Weather - Arrival Airport\nAFC	Airport Facility - Ground Traffic\nAFH	Airport Facility - Cargo Terminal\nAFJ	Airport Facility - Jet Bridge\nAFL	Airport Facility - Baggage\nAFN	Airport Facility - Passenger Terminal\nAFO	Airport Facility - Apron\nAFP	Airport Facility - Parking Bay Availability\nAGB	Customs/Immigration/Quarantine - Disembarkation/Boarding/ Door Closure Clearance\nAGC	Customs/Immigration/Quarantine - Congestion/Facility/Staff\nAGD	Customs/Immigration/Quarantine - Passenger\nAGO	Customs/Immigration/Quarantine - Other\nAMA	Air Traffic Control due to Non-Weather - Departure Airport\nAMC	Departure Airport Restriction - Curfew/Night/Noise\nAMD	Departure Airport Restriction - Runway/Taxiway\nAMO	Departure Airport Restriction - Other\nAMR	Ground Traffic - Aircraft Towing\nAMS	Ground Traffic - Aircraft Pushback\nAMW	Air Traffic Control due to Weather - Departure Airport\nASC	Mandatory Security - Cargo/Mail\nASE	Mandatory Security - Additional Requirement\nASF	Mandatory Security - Facility\nASI	Mandatory Security - Aircraft\nASL	Mandatory Security - Staff Lateness / Lack of\nASN	Mandatory Security - Aerobridge / Boarding Gate\nASS	Mandatory Security - Staff Error\nASU	Mandatory Security - Baggage Offload\nASX	Mandatory Security - Major Security Incident\nATK	Air Traffic Control due to Non-Weather - En Route\nATW	Air Traffic Control due to Weather - En Route\nAWK	Air Traffic Control due to Weather - Arrival Airport\nCCK	Cargo/Mail Acceptance\nCDI	Cargo/Mail Documentation - Error/Missing\nCDL	Cargo/Mail Documentation - Lateness\nCIC	Cargo/Mail Packing - Unit Load Device (ULD)\nCIL	Cargo/Mail Packing - Collapse/Shift\nCIO	Cargo/Mail Packing - Other\nCIP	Cargo/Mail Packing - Damage/Inadequate/Leakage\nCIS	Cargo/Mail Packing - Odorous\nCPD	Cargo/Mail Positioning - Drop Off\nCPO	Cargo/Mail Positioning - Other\nCPP	Cargo/Mail Positioning - Pick Up\nCUC	Cargo/Mail Preparation - Warehouse Congestion\nCUS	Cargo/Mail Preparation - Staff\nDFK	Aircraft Damage - During Flying/Taxiing\nDGK	Aircraft Damage - During Parking/Towing\nECD	IT-CX Group Cargo Documentation/Preparation System\nECE	IT-CTO/GHA Cargo Documentation/Preparation System\nEDA	IT-Departure Control System (DCS)\nEFK	IT-Computer Flight Planning System\nEOA	IT-Aircraft Communications Addressing and Reporting System (ACARS)\nEOB	IT-Baggage Handling System (BHS)\nEON	IT-Network\nEOO	IT-Other\nEOS	IT-Airport Self-Service\nFAA	Cabin Crew Handling - After Landing Procedure\nFAC	Cabin Crew Handling - Cabin Management\nFAE	Cabin Crew Handling - Cabin Crew Error\nFAF	Cabin Crew Handling - Passenger Health Clarification\nFAH	Cabin Crew Handling - Passenger Headcount\nFAL	Cabin Crew Handling - Pre-Flight Procedure\nFAM	Cabin Crew Handling - Catering\nFAO	Cabin Crew Handling - Other\nFAP	Cabin Crew Handling - Passenger Requirement\nFAT	Cabin Crew Handling - Technical\nFAW	Cabin Crew Handling - Cabin Cleaning\nFBS	Flight Deck Crew Handling - Extraordinary Security Check\nFCL	Cabin Crew Availability - Flight Time Limitation\nFCO	Cabin Crew Availability - Other\nFCS	Cabin Crew Availability - Sickness\nFFC	Operational Requirement - Computer Flight Plan (CFP) Change\nFFF	Operational Requirement - Refuelling\nFFL	Operational Requirement - Loadsheet/Payload Change\nFFM	Operational Requirement - Maintenance Request\nFFO	Operational Requirement - Other\nFFT	Operational Requirement - Technical Clarification\nFLI	Cabin Crew Boarding - Late Arrival to Reporting Point\nFLM	Cabin Crew Boarding - Other\nFLW	Cabin Crew Boarding - Late Arrival to Aircraft\nFPD	Flight Operational Documentation - Error/Lateness\nFPE	Flight Operational Documentation - EFB Device / Accessory\nFRN	Flight Deck Crew Handling - Non-Operational Requirement\nFSF	Flight Deck Crew Availability - Fatigue\nFSI	Flight Deck Crew Boarding - Late Arrival to Reporting Point\nFSL	Flight Deck Crew Availability - Flight Time Limitation\nFSM	Flight Deck Crew Boarding - Other\nFSO	Flight Deck Crew Availability - Other\nFSS	Flight Deck Crew Availability - Sickness\nFTI	Flight Deck and Cabin Crew Boarding - Late Arrival to Reporting Point\nFTL	Flight Deck and Cabin Crew Availability - Flight Time Limitation\nFTM	Flight Deck and Cabin Crew Boarding - Other\nFTO	Flight Deck and Cabin Crew Availability - Other\nFTS	Flight Deck and Cabin Crew Availability - Sickness\nFTW	Flight Deck and Cabin Crew Boarding - Late Arrival to Aircraft\nGBD	Catering - Delivery/Loading/Unloading\nGBO	Catering - Other\nGBS	Catering - Aircraft Switch\nGCL	Cabin Cleaning - Service Provider\nGCO	Cabin Cleaning - Other\nGDC	Aircraft Documentation - Centralized Load Control (CLC)\nGDO	Aircraft Documentation - Other\nGDS	Aircraft Documentation - Departure Station\nGET	Loading/Unloading - Equipment\nGFA	Fuelling - Fuel Supplier / Intoplane Operator\nGFE	Fuelling - Engineering Documentation\nGFO	Fuelling - Other\nGLA	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with Advance Notification and without Extended Ground Time\nGLB	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail without both Advance Notification and Extended Ground Time\nGLC	Loading/Unloading - Cabin\nGLD	Loading/Unloading - Difficulty\nGLE	Loading/Unloading - Staff Error\nGLF	Loading/Unloading - Bulky/Heavy/Special Cargo/Mail with both Advance Notification and Extended Ground Time\nGLP	Loading/Unloading - Non-Standard Procedure (Cargo Service only)\nGLR	Loading/Unloading - Rearrangement\nGLS	Loading/Unloading - Staff Availability\nGLV	Loading/Unloading - Space/Volumetric\nGLX	Loading/Unloading - Other\nGSL	Servicing Equipment - Equipment\nGSS	Servicing Equipment - Staff\nGTL	Technical Equipment - Equipment\nGTS	Technical Equipment - Staff\nGUK	Loading/Unloading - Unit Load Device (ULD)\nIAK	Air Traffic Control - Unknown Reason\nICK	Commercial (Cargo Service only)\nIGK	Aircraft Door Operation\nIPK	Disembarkation\nIWH	Weather - High Cabin Temperature\nMIK	Industrial Action - With CX Group\nMOK	Industrial Action - Outside CX Group\nMXX	No Matched Reason\nPBK	Baggage Handling\nPCO	Catering Order\nPDO	Passenger Acceptance - Other\nPDP	Passenger Acceptance - Transfer due to Irregular Operation\nPEK	Check-In Error\nPHB	Boarding - Cabin Baggage\nPHH	Boarding - Staff\nPHM	Boarding - Missing Passenger\nPHO	Boarding - Other\nPHS	Boarding - Passenger Seating\nPLK	Check-In Area\nPOK	Overbooking\nPSI	Passenger Special Handling - Intoxicated/Sick Passenger\nPSO	Passenger Special Handling - Other\nPSP	Passenger Special Handling - Item Missing\nPSU	Passenger Special Handling - Unruly Passenger\nPWK	Reduced Mobility\nRAA	Aircraft Rotation - Air Traffic Control\nRAC	Aircraft Rotation - Crewing\nRAD	Aircraft Rotation - Aircraft Damage\nRAE	Aircraft Rotation - Information Technology\nRAF	Aircraft Rotation - Flight Operation\nRAG	Aircraft Rotation - Aircraft Servicing\nRAH	Aircraft Rotation - Cargo/Mail\nRAM	Aircraft Rotation - Ground Traffic\nRAN	Aircraft Rotation - En Route\nRAO	Aircraft Rotation - Other\nRAP	Aircraft Rotation - Passenger\nRAQ	Aircraft Rotation - Security\nRAR	Aircraft Rotation - Reactionary\nRAS	Aircraft Rotation - Schedule\nRAT	Aircraft Rotation - Technical\nRAU	Aircraft Rotation - Authority\nRAW	Aircraft Rotation - Weather\nRCA	Crew Rotation - Flight Deck / Entire Crew\nRLO	Load Connection - Non- CX Group\nRLX	Load Connection - CX Group\nROB	Operation Control - Crewing\nROC	Operation Control - Flight Consolidation\nROH	Operation Control - Aircraft Change\nROR	Operation Control - Diversion/Reroute\nROV	Operation Control - Await First Available Aircraft\nRSA	Crew Rotation - Cabin Crew\nRTK	Through Check-In\nSGK	Scheduled Ground Time\nTAA	Technical - AOG Spare from other Aircraft/Station\nTAE	Technical - AOG Spare for other Aircraft/Station\nTCT	Technical - Aircraft Change\nTDA	Technical - Without Aircraft Change\nTDD	Technical - Engineering Documentation\nTDL	Technical - Cargo Loading System (CLS)\nTDT	Technical - High Cabin Temperature\nTDU	Technical - Extra Start-Up Time\nTLT	Technical - Await First Available Aircraft\nTML	Technical - Aircraft Towing due to Servicing Equipment after Maintenance\nTMS	Technical - Aircraft Towing due to Servicing Staff after Maintenance\nTMT	Technical - Scheduled Maintenance\nTNA	Technical - Non-Scheduled Maintenance\nTSS	Technical - Lack of Spare\nTST	Technical - Await Spare from Technical Store\nWGI	Weather - Ground Handling Impaired\nWIK	Weather - Aircraft Frost/Ice/Snow Handling\nWOK	Weather - Departure Airport\nWRK	Weather - Alternate / En Route\nWSR	Weather - Airport Ice/Sand/Snow/Water Handling\nWTK	Weather - Arrival Airport`;
@@ -816,6 +830,55 @@
         el.style.transition = 'box-shadow 0.4s ease';
         el.style.boxShadow = '0 0 0 3px #10b981';
         setTimeout(() => { el.style.transition = 'box-shadow 0.8s ease'; el.style.boxShadow = ''; }, 1000);
+    }
+
+    // ── 班機預設套用 ──────────────────────────────────────────
+
+    function loadFlightTemplates() {
+        try {
+            const templates = JSON.parse(localStorage.getItem('tco_flight_templates') || '[]');
+            const sel = document.getElementById('flightTemplateSelect');
+            sel.innerHTML = '<option value="">── 選擇預設班機 ──</option>';
+
+            if (templates.length === 0) {
+                document.getElementById('templateSelector').style.display = 'none';
+                return;
+            }
+
+            templates.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify(t);
+                let label = t.flight;
+                if (t.route) label += `  ·  ${t.route}`;
+                if (t.std)   label += `  STD ${t.std}`;
+                opt.textContent = label;
+                sel.appendChild(opt);
+            });
+
+            document.getElementById('templateSelector').style.display = 'block';
+        } catch(e) {
+            console.warn('無法載入班機預設', e);
+        }
+    }
+
+    function applyFlightTemplate() {
+        const val = document.getElementById('flightTemplateSelect').value;
+        if (!val) return;
+        try {
+            const t = JSON.parse(val);
+            document.getElementById('flight').value = t.flight || '';
+            document.getElementById('sta').value    = t.sta    || '';
+            document.getElementById('std').value    = t.std    || '';
+            document.getElementById('eta').value    = t.eta    || t.sta || '';
+            document.getElementById('etd').value    = t.etd    || t.std || '';
+            document.getElementById('pts').value    = t.pts    || 'N';
+            document.getElementById('otp').value    = t.otp    || 'N';
+            document.getElementById('earlyCleaning').value = t.ec || 'Y';
+            generateReport();
+            flashElement('#tab-tco .form-section');
+        } catch(e) {
+            console.warn('套用班機預設失敗', e);
+        }
     }
 
     function addRippleEffect() {
