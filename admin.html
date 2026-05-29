@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCO 管理後台</title>
+    <style>
+        :root {
+            --primary: #4b5563;
+            --primary-light: #6b7280;
+            --accent-blue: #607d8b;
+            --secondary: #e5e7eb;
+            --bg-color: #f3f4f6;
+            --surface: #ffffff;
+            --text-dark: #374151;
+            --text-muted: #9ca3af;
+            --danger: #be123c;
+            --green: #10b981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            background: var(--bg-color); color: var(--text-dark);
+            letter-spacing: 0.03em; min-height: 100vh;
+        }
+
+        /* ── Login Overlay ── */
+        #loginOverlay {
+            position: fixed; inset: 0; background: rgba(243,244,246,0.95);
+            backdrop-filter: blur(10px); display: flex; justify-content: center;
+            align-items: center; z-index: 9999;
+        }
+        .login-box {
+            background: var(--surface); padding: 44px 40px; border-radius: 14px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12); width: 100%; max-width: 380px;
+            border: 1px solid var(--secondary); text-align: center;
+            animation: loginEntrance 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .login-box h2 { font-size: 1.45rem; font-weight: 700; margin-bottom: 8px; }
+        .login-box p.subtitle { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 28px; }
+        .login-field { text-align: left; margin-bottom: 18px; }
+        .login-field label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--primary-light); margin-bottom: 6px; }
+        .default-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 14px; }
+
+        /* ── Header ── */
+        .admin-header {
+            background: var(--surface); border-bottom: 1px solid var(--secondary);
+            padding: 0 28px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; height: 56px;
+            animation: fadeInDown 0.35s ease both;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .header-left { display: flex; align-items: center; gap: 18px; }
+        .back-link {
+            color: var(--accent-blue); text-decoration: none; font-size: 0.85rem;
+            font-weight: 600; display: flex; align-items: center; gap: 4px;
+            padding: 4px 0; transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--primary); }
+        .header-title { font-size: 1rem; font-weight: 700; color: var(--text-dark); }
+        .header-divider { width: 1px; height: 20px; background: var(--secondary); }
+        .header-right { display: flex; gap: 8px; align-items: center; }
+
+        /* ── Body ── */
+        .admin-body { max-width: 1120px; margin: 0 auto; padding: 28px 24px 60px; }
+
+        /* ── Controls Bar ── */
+        .controls-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 22px; animation: fadeInUp 0.4s 0.08s ease both;
+        }
+        .controls-left { display: flex; align-items: center; gap: 12px; }
+        .count-label { font-size: 0.83rem; color: var(--text-muted); }
+        .search-input {
+            padding: 7px 14px 7px 32px; border: 1px solid #d1d5db; border-radius: 20px;
+            font-size: 0.85rem; outline: none; background: var(--surface);
+            transition: all 0.2s; width: 190px; color: var(--text-dark);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: 10px center;
+        }
+        .search-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(96,125,139,0.15); width: 220px; }
+
+        /* ── Template Grid ── */
+        .template-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+            gap: 16px; animation: fadeInUp 0.4s 0.14s ease both;
+        }
+
+        /* ── Template Card ── */
+        .t-card {
+            background: var(--surface); border: 1px solid var(--secondary); border-radius: 10px;
+            padding: 20px 22px; transition: all 0.22s ease;
+            animation: fadeInUp 0.3s ease both; position: relative; overflow: hidden;
+        }
+        .t-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), #90a4ae);
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .t-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.09); transform: translateY(-3px); border-color: #b0bec5; }
+        .t-card:hover::before { opacity: 1; }
+
+        .card-flight { font-size: 1.35rem; font-weight: 800; letter-spacing: 0.06em; color: var(--text-dark); font-family: 'Consolas', monospace; }
+        .card-route { font-size: 0.82rem; color: var(--text-muted); margin-top: 3px; min-height: 18px; }
+        .card-divider { border: none; height: 1px; background: var(--secondary); margin: 14px 0; }
+
+        .card-times { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; margin-bottom: 12px; }
+        .time-cell { }
+        .time-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+        .time-val { font-size: 1rem; font-weight: 700; font-family: 'Consolas', monospace; color: var(--text-dark); }
+        .time-val.blank { font-size: 0.78rem; font-weight: 400; color: #c4cad4; font-family: inherit; font-style: italic; }
+
+        .card-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+        .chip { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
+        .chip-off { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; }
+        .chip-on { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+
+        .card-actions { display: flex; gap: 8px; }
+        .btn-edit-card { flex: 1; background: transparent; color: var(--accent-blue); border: 1px solid #b0c4ce; padding: 7px; border-radius: 5px; font-size: 0.82rem; cursor: pointer; transition: all 0.18s; position: relative; overflow: hidden; }
+        .btn-edit-card:hover { background: #f0f4f7; border-color: var(--accent-blue); }
+        .btn-del-card { background: transparent; color: #ef4444; border: 1px solid #fecaca; padding: 7px 11px; border-radius: 5px; font-size: 0.82rem; cursor: pointer; transition: all 0.18s; position: relative; overflow: hidden; }
+        .btn-del-card:hover { background: #fff1f2; border-color: #ef4444; }
+
+        /* ── Empty State ── */
+        .empty-state { text-align: center; padding: 70px 20px; animation: fadeInUp 0.35s ease both; }
+        .empty-icon { font-size: 3.5rem; margin-bottom: 18px; }
+        .empty-state h3 { font-size: 1.1rem; color: var(--primary-light); margin-bottom: 8px; font-weight: 600; }
+        .empty-state p { font-size: 0.88rem; color: var(--text-muted); }
+
+        /* ── Buttons ── */
+        button { display: inline-flex; align-items: center; gap: 5px; background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; position: relative; overflow: hidden; letter-spacing: 0.02em; font-family: inherit; }
+        button:hover { background: #374151; }
+        .btn-green { background: var(--green); }
+        .btn-green:hover { background: #059669; }
+        .btn-ghost { background: transparent; color: var(--primary); border: 1px solid var(--secondary); }
+        .btn-ghost:hover { background: var(--bg-color); border-color: #9ca3af; color: var(--text-dark); }
+        .btn-logout { background: transparent; color: var(--text-muted); border: 1px solid var(--secondary); padding: 6px 12px; font-size: 0.8rem; }
+        .btn-logout:hover { background: var(--bg-color); color: var(--text-dark); }
+
+        /* ── Inputs ── */
+        input[type="text"], input[type="password"], select {
+            width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 5px;
+            font-size: 0.92rem; background: #fdfdfd; color: var(--text-dark);
+            transition: all 0.2s; font-family: inherit;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(96,125,139,0.15); background: var(--surface); }
+
+        /* ── Modal ── */
+        .modal-bg {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 8000; animation: fadeIn 0.18s ease;
+        }
+        .modal-box {
+            background: var(--surface); border-radius: 12px; padding: 30px 34px;
+            width: 580px; max-width: 96vw; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+            animation: fadeInUp 0.28s cubic-bezier(0.34,1.2,0.64,1) both;
+        }
+        .modal-heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--secondary); }
+        .section-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin: 20px 0 10px; }
+        .field-row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .field-col { flex: 1; }
+        .field-col label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--primary-light); margin-bottom: 5px; }
+        .field-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+        .modal-footer { display: flex; gap: 10px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--secondary); }
+
+        /* ── Settings Panel ── */
+        .settings-panel {
+            background: var(--surface); border: 1px solid var(--secondary); border-radius: 10px;
+            padding: 22px 26px; margin-top: 36px; animation: fadeInUp 0.4s 0.22s ease both;
+        }
+        .settings-title { font-size: 0.88rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .pw-row { display: flex; gap: 10px; align-items: flex-end; max-width: 480px; }
+        .pw-col { flex: 1; }
+        .pw-col label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--primary-light); margin-bottom: 5px; }
+        #pwMsg { font-size: 0.82rem; margin-top: 8px; }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(16px);
+            background: #1f2937; color: #fff; padding: 10px 22px; border-radius: 8px;
+            font-size: 0.87rem; opacity: 0; transition: all 0.3s ease;
+            pointer-events: none; z-index: 9999; white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── Ripple ── */
+        .ripple { position: absolute; width: 12px; height: 12px; background: rgba(255,255,255,0.38); border-radius: 50%; transform: scale(0); animation: rippleAnim 0.55s linear; pointer-events: none; margin-left: -6px; margin-top: -6px; }
+        .light-ripple { background: rgba(0,0,0,0.08) !important; }
+
+        /* ── Animations ── */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes loginEntrance { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+        @media (max-width: 640px) {
+            .admin-header { padding: 0 16px; }
+            .header-right { gap: 5px; }
+            .admin-body { padding: 18px 14px 50px; }
+            .controls-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .modal-box { padding: 22px 18px; }
+            .field-row { flex-direction: column; }
+            .pw-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2>⚙️ 管理後台</h2>
+        <p class="subtitle">TCO 班機預設管理系統</p>
+        <div class="login-field">
+            <label>管理密碼</label>
+            <input type="password" id="loginPw" placeholder="輸入密碼" onkeypress="if(event.key==='Enter') doAdminLogin()">
+        </div>
+        <button style="width:100%; padding:10px; font-size:0.95rem; justify-content:center;" onclick="doAdminLogin()">進入後台</button>
+        <p id="loginErr" style="color:var(--danger); font-size:0.82rem; margin-top:12px; min-height:18px;"></p>
+    </div>
+</div>
+
+<!-- ── App Shell ── -->
+<div id="adminApp" style="display:none;">
+
+    <header class="admin-header">
+        <div class="header-left">
+            <a href="tco-report-v2.html" class="back-link">← 返回報告</a>
+            <div class="header-divider"></div>
+            <span class="header-title">⚙️ 班機預設管理</span>
+        </div>
+        <div class="header-right">
+            <button class="btn-ghost" onclick="triggerImport()" title="從 JSON 匯入班機預設">📥 匯入</button>
+            <button class="btn-ghost" onclick="doExport()" title="匯出所有預設為 JSON">📤 匯出</button>
+            <button class="btn-logout" onclick="doLogout()">登出</button>
+        </div>
+    </header>
+
+    <main class="admin-body">
+
+        <div class="controls-bar">
+            <div class="controls-left">
+                <button class="btn-green" onclick="openModal()">＋ 新增班機預設</button>
+                <span class="count-label" id="countLabel">共 0 個預設</span>
+            </div>
+            <input type="text" class="search-input" id="searchBox" placeholder="搜尋班機…" oninput="renderGrid()">
+        </div>
+
+        <div class="template-grid" id="templateGrid"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-icon">✈️</div>
+            <h3 id="emptyTitle">尚無預設班機</h3>
+            <p id="emptyDesc">點擊「新增班機預設」開始設定</p>
+        </div>
+
+        <div class="settings-panel">
+            <div class="settings-title">🔑 修改管理密碼</div>
+            <div class="pw-row">
+                <div class="pw-col">
+                    <label>新密碼</label>
+                    <input type="password" id="newPw" placeholder="輸入新密碼">
+                </div>
+                <div class="pw-col">
+                    <label>確認密碼</label>
+                    <input type="password" id="confirmPw" placeholder="再次輸入">
+                </div>
+                <button onclick="changePw()" style="flex-shrink:0; align-self:flex-end;">更新密碼</button>
+            </div>
+            <p id="pwMsg"></p>
+        </div>
+
+    </main>
+</div>
+
+<!-- ── Add / Edit Modal ── -->
+<div id="modal" class="modal-bg" style="display:none;" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+        <div class="modal-heading" id="modalHeading">✈️ 新增班機預設</div>
+
+        <div class="section-label">基本資訊</div>
+        <div class="field-row">
+            <div class="field-col">
+                <label>班機號碼 <span style="color:var(--danger)">*</span></label>
+                <input type="text" id="fFlight" placeholder="e.g. CX407" oninput="this.value=this.value.toUpperCase()" maxlength="8">
+            </div>
+            <div class="field-col">
+                <label>航線說明（選填）</label>
+                <input type="text" id="fRoute" placeholder="e.g. HKG → NRT">
+            </div>
+        </div>
+
+        <div class="section-label">排定時間（HHMM 格式）</div>
+        <div class="field-row">
+            <div class="field-col"><label>STA</label><input type="text" id="fSTA" maxlength="4" placeholder="0930"></div>
+            <div class="field-col"><label>STD</label><input type="text" id="fSTD" maxlength="4" placeholder="0800"></div>
+            <div class="field-col"><label>ETA <span style="font-weight:400; color:var(--text-muted)">(選填)</span></label><input type="text" id="fETA" maxlength="4" placeholder="留空同 STA"></div>
+            <div class="field-col"><label>ETD <span style="font-weight:400; color:var(--text-muted)">(選填)</span></label><input type="text" id="fETD" maxlength="4" placeholder="留空同 STD"></div>
+        </div>
+
+        <div class="section-label">預設選項</div>
+        <div class="field-row">
+            <div class="field-col">
+                <label>PTS</label>
+                <select id="fPTS"><option value="N">N</option><option value="Y">Y</option></select>
+            </div>
+            <div class="field-col">
+                <label>OTP</label>
+                <select id="fOTP"><option value="N">N</option><option value="Y">Y</option></select>
+            </div>
+            <div class="field-col">
+                <label>Early Cleaning</label>
+                <select id="fEC"><option value="Y">Y</option><option value="N">N</option></select>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-green" style="flex:2; justify-content:center;" onclick="saveTemplate()">💾 儲存預設</button>
+            <button class="btn-ghost" style="flex:1; justify-content:center;" onclick="closeModal()">取消</button>
+        </div>
+    </div>
+</div>
+
+<input type="file" id="importFile" accept=".json" style="display:none;" onchange="doImport(this)">
+<div class="toast" id="toast"></div>
+
+<script>
+    const TMPL_KEY = 'tco_flight_templates';
+    const PW_KEY   = 'tco_admin_pw';
+
+    let templates = [];
+    let editingId = null;
+
+    // ── Auth ─────────────────────────────────────
+    function doAdminLogin() {
+        const pw = document.getElementById('loginPw').value;
+        const stored = localStorage.getItem(PW_KEY) || 'admin';
+        const err = document.getElementById('loginErr');
+        if (pw === stored) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'block';
+            loadTemplates();
+            setupRipple();
+        } else {
+            err.textContent = '密碼錯誤，請重試';
+            document.getElementById('loginPw').value = '';
+            document.getElementById('loginPw').focus();
+            // Shake animation
+            const box = document.querySelector('.login-box');
+            box.style.animation = 'none'; box.offsetHeight;
+            box.style.animation = 'shake 0.35s ease';
+        }
+    }
+
+    function doLogout() {
+        document.getElementById('loginOverlay').style.display = 'flex';
+        document.getElementById('adminApp').style.display = 'none';
+        document.getElementById('loginPw').value = '';
+        document.getElementById('loginErr').textContent = '';
+    }
+
+    function changePw() {
+        const np = document.getElementById('newPw').value.trim();
+        const cp = document.getElementById('confirmPw').value.trim();
+        const msg = document.getElementById('pwMsg');
+        if (!np) { msg.style.color = 'var(--danger)'; msg.textContent = '請輸入新密碼'; return; }
+        if (np !== cp) { msg.style.color = 'var(--danger)'; msg.textContent = '兩次密碼不一致'; return; }
+        localStorage.setItem(PW_KEY, np);
+        msg.style.color = '#047857'; msg.textContent = '✅ 密碼已更新';
+        document.getElementById('newPw').value = '';
+        document.getElementById('confirmPw').value = '';
+        setTimeout(() => msg.textContent = '', 3000);
+    }
+
+    // ── Data ─────────────────────────────────────
+    function loadTemplates() {
+        try { templates = JSON.parse(localStorage.getItem(TMPL_KEY) || '[]'); }
+        catch { templates = []; }
+        renderGrid();
+    }
+
+    function persist() { localStorage.setItem(TMPL_KEY, JSON.stringify(templates)); }
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+    // ── Render Grid ───────────────────────────────
+    function renderGrid() {
+        const q = (document.getElementById('searchBox').value || '').toLowerCase().trim();
+        const filtered = templates.filter(t =>
+            t.flight.toLowerCase().includes(q) ||
+            (t.route || '').toLowerCase().includes(q)
+        );
+
+        document.getElementById('countLabel').textContent = `共 ${templates.length} 個預設`;
+        const grid  = document.getElementById('templateGrid');
+        const empty = document.getElementById('emptyState');
+        grid.innerHTML = '';
+
+        if (filtered.length === 0) {
+            empty.style.display = 'block';
+            document.getElementById('emptyTitle').textContent = q ? '找不到符合的班機' : '尚無預設班機';
+            document.getElementById('emptyDesc').textContent  = q ? '請嘗試其他關鍵字' : '點擊「新增班機預設」開始設定';
+            return;
+        }
+        empty.style.display = 'none';
+
+        filtered.forEach((t, i) => {
+            const card = document.createElement('div');
+            card.className = 't-card';
+            card.style.animationDelay = `${i * 0.05}s`;
+
+            const staVal = t.sta ? t.sta + 'L' : null;
+            const stdVal = t.std ? t.std + 'L' : null;
+            const etaVal = t.eta ? t.eta + 'L' : (t.sta ? '<span style="color:#b0bec5;font-size:0.78rem;font-weight:400;">同 STA</span>' : null);
+            const etdVal = t.etd ? t.etd + 'L' : (t.std ? '<span style="color:#b0bec5;font-size:0.78rem;font-weight:400;">同 STD</span>' : null);
+
+            const pts = t.pts || 'N';
+            const otp = t.otp || 'N';
+            const ec  = t.ec  || 'Y';
+
+            card.innerHTML = `
+                <div class="card-flight">${t.flight}</div>
+                <div class="card-route">${t.route || '&nbsp;'}</div>
+                <hr class="card-divider">
+                <div class="card-times">
+                    <div class="time-cell">
+                        <div class="time-lbl">STA</div>
+                        <div class="time-val ${staVal ? '' : 'blank'}">${staVal || '未設定'}</div>
+                    </div>
+                    <div class="time-cell">
+                        <div class="time-lbl">STD</div>
+                        <div class="time-val ${stdVal ? '' : 'blank'}">${stdVal || '未設定'}</div>
+                    </div>
+                    <div class="time-cell">
+                        <div class="time-lbl">ETA</div>
+                        <div class="time-val">${etaVal || '<span class="blank">未設定</span>'}</div>
+                    </div>
+                    <div class="time-cell">
+                        <div class="time-lbl">ETD</div>
+                        <div class="time-val">${etdVal || '<span class="blank">未設定</span>'}</div>
+                    </div>
+                </div>
+                <div class="card-chips">
+                    <span class="chip ${pts==='Y'?'chip-on':'chip-off'}">PTS: ${pts}</span>
+                    <span class="chip ${otp==='Y'?'chip-on':'chip-off'}">OTP: ${otp}</span>
+                    <span class="chip ${ec==='Y'?'chip-on':'chip-off'}">Early: ${ec}</span>
+                </div>
+                <hr class="card-divider">
+                <div class="card-actions">
+                    <button class="btn-edit-card" onclick="openModal('${t.id}')">✏️ 編輯</button>
+                    <button class="btn-del-card"  onclick="deleteTemplate('${t.id}')">🗑️</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // ── Modal ─────────────────────────────────────
+    function openModal(id) {
+        editingId = id || null;
+        const heading = document.getElementById('modalHeading');
+        if (id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+            heading.textContent = `✏️ 編輯 ${t.flight}`;
+            document.getElementById('fFlight').value = t.flight;
+            document.getElementById('fRoute').value  = t.route || '';
+            document.getElementById('fSTA').value    = t.sta   || '';
+            document.getElementById('fSTD').value    = t.std   || '';
+            document.getElementById('fETA').value    = t.eta   || '';
+            document.getElementById('fETD').value    = t.etd   || '';
+            document.getElementById('fPTS').value    = t.pts   || 'N';
+            document.getElementById('fOTP').value    = t.otp   || 'N';
+            document.getElementById('fEC').value     = t.ec    || 'Y';
+        } else {
+            heading.textContent = '✈️ 新增班機預設';
+            ['fFlight','fRoute','fSTA','fSTD','fETA','fETD'].forEach(x => document.getElementById(x).value = '');
+            document.getElementById('fPTS').value = 'N';
+            document.getElementById('fOTP').value = 'N';
+            document.getElementById('fEC').value  = 'Y';
+        }
+        document.getElementById('modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('fFlight').focus(), 80);
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        editingId = null;
+    }
+
+    function saveTemplate() {
+        const flight = document.getElementById('fFlight').value.trim().toUpperCase();
+        if (!flight) { toast('⚠️ 請輸入班機號碼'); document.getElementById('fFlight').focus(); return; }
+
+        // Check duplicate flight (excluding self when editing)
+        const dup = templates.find(t => t.flight === flight && t.id !== editingId);
+        if (dup) { toast('⚠️ 此班機號碼已存在'); return; }
+
+        const t = {
+            id:     editingId || uid(),
+            flight,
+            route:  document.getElementById('fRoute').value.trim(),
+            sta:    document.getElementById('fSTA').value.trim(),
+            std:    document.getElementById('fSTD').value.trim(),
+            eta:    document.getElementById('fETA').value.trim(),
+            etd:    document.getElementById('fETD').value.trim(),
+            pts:    document.getElementById('fPTS').value,
+            otp:    document.getElementById('fOTP').value,
+            ec:     document.getElementById('fEC').value,
+        };
+
+        if (editingId) {
+            const i = templates.findIndex(x => x.id === editingId);
+            if (i !== -1) templates[i] = t;
+        } else {
+            templates.push(t);
+        }
+
+        persist();
+        closeModal();
+        renderGrid();
+        toast(editingId ? `✅ ${flight} 已更新` : `✅ ${flight} 已新增`);
+    }
+
+    function deleteTemplate(id) {
+        const t = templates.find(x => x.id === id);
+        if (!t || !confirm(`確定要刪除 ${t.flight} 的預設設定嗎？`)) return;
+        templates = templates.filter(x => x.id !== id);
+        persist();
+        renderGrid();
+        toast(`🗑️ ${t.flight} 已刪除`);
+    }
+
+    // ── Export / Import ───────────────────────────
+    function doExport() {
+        if (!templates.length) { toast('⚠️ 目前沒有可匯出的預設'); return; }
+        const json = JSON.stringify(templates, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `tco-templates-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        toast('📤 已匯出 JSON 檔案');
+    }
+
+    function triggerImport() { document.getElementById('importFile').click(); }
+
+    function doImport(input) {
+        const file = input.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!Array.isArray(data)) throw new Error();
+                const choice = templates.length
+                    ? confirm(`偵測到 ${templates.length} 個現有預設。\n確定 → 合併（相同班機號碼將更新）\n取消 → 全部覆蓋`)
+                    : false;
+
+                if (choice) {
+                    // Merge
+                    data.forEach(incoming => {
+                        const idx = templates.findIndex(x => x.flight === incoming.flight);
+                        if (idx !== -1) templates[idx] = { ...incoming, id: templates[idx].id };
+                        else templates.push({ ...incoming, id: incoming.id || uid() });
+                    });
+                } else {
+                    templates = data.map(x => ({ ...x, id: x.id || uid() }));
+                }
+                persist();
+                renderGrid();
+                toast(`📥 成功載入 ${data.length} 個班機預設`);
+            } catch {
+                alert('匯入失敗：請確認檔案格式正確（JSON 陣列）');
+            }
+            input.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    // ── Toast & Ripple ────────────────────────────
+    let toastTimer;
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    function setupRipple() {
+        document.addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const r = document.createElement('span');
+            r.className = 'ripple';
+            if (['btn-ghost','btn-logout','btn-edit-card','btn-del-card'].some(c => btn.classList.contains(c))) r.classList.add('light-ripple');
+            const rect = btn.getBoundingClientRect();
+            r.style.left = (e.clientX - rect.left) + 'px';
+            r.style.top  = (e.clientY - rect.top)  + 'px';
+            btn.appendChild(r);
+            r.addEventListener('animationend', () => r.remove());
+        });
+    }
+
+    // ── Keyboard shortcuts ───────────────────────
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Enter' && document.getElementById('modal').style.display === 'flex' &&
+            document.activeElement.tagName !== 'SELECT') saveTemplate();
+    });
+
+    // CSS shake animation (injected dynamically)
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }`;
+    document.head.appendChild(styleEl);
+</script>
+</body>
+</html>
