@@ -245,7 +245,9 @@
         <div class="controls-bar">
             <div class="controls-left">
                 <button class="btn-green" onclick="openModal()">＋ 新增班機預設</button>
+                <button class="btn-ghost" onclick="loadTemplates()" style="font-size:0.82rem; padding:6px 12px;">🔄 重新整理</button>
                 <span class="count-label" id="countLabel">共 0 個預設</span>
+                <span id="syncStatus" style="font-size:0.78rem; color:var(--text-muted);"></span>
             </div>
             <input type="text" class="search-input" id="searchBox" placeholder="搜尋班機…" oninput="renderGrid()">
         </div>
@@ -328,11 +330,33 @@
 <div class="toast" id="toast"></div>
 
 <script>
+    const SUPA_URL = 'https://xdayofmoqdrsvcwfynyd.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkYXlvZm1vcWRyc3Zjd2Z5bnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MTE2ODksImV4cCI6MjA5NTk4NzY4OX0.Sg8okEzquiCHrzCu4vdmSYi3XgQGLA5aViCN_dobdhQ';
     const TMPL_KEY = 'tco_flight_templates';
     const PW_KEY   = 'tco_admin_pw';
 
     let templates = [];
     let editingId = null;
+
+    function setSyncStatus(msg, color) {
+        const el = document.getElementById('syncStatus');
+        if (el) { el.textContent = msg; el.style.color = color || 'var(--text-muted)'; }
+    }
+
+    function supaFetch(path, method = 'GET', body = null) {
+        const opts = {
+            method,
+            headers: {
+                'apikey': SUPA_KEY,
+                'Authorization': `Bearer ${SUPA_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            }
+        };
+        if (body) opts.body = JSON.stringify(body);
+        return fetch(SUPA_URL + '/rest/v1' + path, opts)
+            .then(r => (r.status === 204 ? null : r.json()));
+    }
 
     // ── Auth ─────────────────────────────────────
     function doAdminLogin() {
@@ -377,13 +401,28 @@
 
     // ── Data ─────────────────────────────────────
     function loadTemplates() {
-        try { templates = JSON.parse(localStorage.getItem(TMPL_KEY) || '[]'); }
-        catch { templates = []; }
-        renderGrid();
+        setSyncStatus('🔄 載入中…', 'var(--accent-blue)');
+        document.getElementById('templateGrid').innerHTML =
+            '<div class="history-shimmer"></div>'.repeat(3);
+        document.getElementById('emptyState').style.display = 'none';
+
+        supaFetch('/flight_templates?select=*&order=flight')
+            .then(data => {
+                templates = Array.isArray(data) ? data : [];
+                localStorage.setItem(TMPL_KEY, JSON.stringify(templates));
+                renderGrid();
+                setSyncStatus('✓ 已同步 Supabase', '#047857');
+                setTimeout(() => setSyncStatus(''), 3000);
+            })
+            .catch(() => {
+                try { templates = JSON.parse(localStorage.getItem(TMPL_KEY) || '[]'); }
+                catch { templates = []; }
+                renderGrid();
+                setSyncStatus('⚠️ 離線模式（顯示本機快取）', '#92400e');
+            });
     }
 
     function persist() { localStorage.setItem(TMPL_KEY, JSON.stringify(templates)); }
-    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
     // ── Render Grid ───────────────────────────────
     function renderGrid() {
@@ -492,8 +531,7 @@
         const dup = templates.find(t => t.flight === flight && t.id !== editingId);
         if (dup) { toast('⚠️ 此班機號碼已存在'); return; }
 
-        const t = {
-            id:     editingId || uid(),
+        const body = {
             flight,
             route:  document.getElementById('fRoute').value.trim(),
             sta:    document.getElementById('fSTA').value.trim(),
@@ -505,26 +543,47 @@
             ec:     document.getElementById('fEC').value,
         };
 
-        if (editingId) {
-            const i = templates.findIndex(x => x.id === editingId);
-            if (i !== -1) templates[i] = t;
-        } else {
-            templates.push(t);
-        }
+        const isEdit = !!editingId;
+        setSyncStatus('🔄 儲存中…', 'var(--accent-blue)');
 
-        persist();
-        closeModal();
-        renderGrid();
-        toast(editingId ? `✅ ${flight} 已更新` : `✅ ${flight} 已新增`);
+        const req = isEdit
+            ? supaFetch(`/flight_templates?id=eq.${editingId}`, 'PATCH', body)
+            : supaFetch('/flight_templates', 'POST', body);
+
+        req.then(() => supaFetch('/flight_templates?select=*&order=flight'))
+            .then(data => {
+                templates = Array.isArray(data) ? data : templates;
+                persist();
+                closeModal();
+                renderGrid();
+                toast(isEdit ? `✅ ${flight} 已更新` : `✅ ${flight} 已新增`);
+                setSyncStatus('✓ 已同步', '#047857');
+                setTimeout(() => setSyncStatus(''), 3000);
+            })
+            .catch(() => {
+                toast('❌ 儲存失敗，請檢查網路連線');
+                setSyncStatus('❌ 儲存失敗', 'var(--danger)');
+            });
     }
 
     function deleteTemplate(id) {
         const t = templates.find(x => x.id === id);
         if (!t || !confirm(`確定要刪除 ${t.flight} 的預設設定嗎？`)) return;
-        templates = templates.filter(x => x.id !== id);
-        persist();
-        renderGrid();
-        toast(`🗑️ ${t.flight} 已刪除`);
+        setSyncStatus('🔄 刪除中…', 'var(--accent-blue)');
+
+        supaFetch(`/flight_templates?id=eq.${id}`, 'DELETE')
+            .then(() => {
+                templates = templates.filter(x => x.id !== id);
+                persist();
+                renderGrid();
+                toast(`🗑️ ${t.flight} 已刪除`);
+                setSyncStatus('✓ 已同步', '#047857');
+                setTimeout(() => setSyncStatus(''), 3000);
+            })
+            .catch(() => {
+                toast('❌ 刪除失敗，請重試');
+                setSyncStatus('❌ 刪除失敗', 'var(--danger)');
+            });
     }
 
     // ── Export / Import ───────────────────────────
@@ -564,7 +623,15 @@
                 }
                 persist();
                 renderGrid();
-                toast(`📥 成功載入 ${data.length} 個班機預設`);
+                toast(`📥 成功載入 ${data.length} 個預設，正在同步至 Supabase…`);
+                setSyncStatus('🔄 同步中…', 'var(--accent-blue)');
+                // Replace all: delete existing → insert new
+                supaFetch('/flight_templates?id=not.is.null', 'DELETE')
+                    .then(() => Promise.all(
+                        templates.map(({ id: _id, ...rest }) => supaFetch('/flight_templates', 'POST', rest))
+                    ))
+                    .then(() => loadTemplates())
+                    .catch(() => setSyncStatus('⚠️ 部分同步失敗', '#92400e'));
             } catch {
                 alert('匯入失敗：請確認檔案格式正確（JSON 陣列）');
             }
