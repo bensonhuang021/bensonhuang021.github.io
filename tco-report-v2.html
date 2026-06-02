@@ -256,6 +256,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" id="btn-tco" onclick="switchTab('tco')">TCO 報告</button>
             <button class="tab-btn" id="btn-shutout" onclick="switchTab('shutout')">減人報告</button>
+            <a href="https://bensonhuang021.github.io/ziwei/" target="_blank" class="tab-btn" style="text-decoration:none; color:var(--text-muted);">星座占卜</a>
         </div>
         <div class="user-panel">
             <span id="display-username">Loading...</span>
@@ -501,7 +502,8 @@
         populateDelayCodeSelect();
         initLogs();
         initPaxList();
-        const _today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        const _d = new Date();
+        const _today = _d.getFullYear() + '-' + String(_d.getMonth()+1).padStart(2,'0') + '-' + String(_d.getDate()).padStart(2,'0');
         document.getElementById('date').value = _today;
         document.getElementById('shut-date').value = _today;
         generateReport(); 
@@ -619,6 +621,7 @@
         const m = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']; return p[2] + m[parseInt(p[1],10)-1];
     }
     function timeStrToIntMins(ts) { if(!ts||ts.length!==4||isNaN(ts)) return null; return parseInt(ts.substring(0,2),10)*60 + parseInt(ts.substring(2,4),10); }
+    function minsToDurationStr(m) { const h = Math.floor(m/60); const mm = m%60; return h>0 ? (h+'h'+(mm>0?mm+'m':'')) : mm+'m'; }
 
     function getLogTimeStr(logs, descSnippet) {
         const log = logs.find(l => l.descStr && l.descStr.toLowerCase().includes(descSnippet.toLowerCase()));
@@ -837,31 +840,46 @@
 
     // ── 班機預設套用 ──────────────────────────────────────────
 
-    function loadFlightTemplates() {
-        try {
-            const templates = JSON.parse(localStorage.getItem('tco_flight_templates') || '[]');
-            const sel = document.getElementById('flightTemplateSelect');
-            sel.innerHTML = '<option value="">── 選擇預設班機 ──</option>';
-
-            if (templates.length === 0) {
-                document.getElementById('templateSelector').style.display = 'none';
-                return;
-            }
-
-            templates.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = JSON.stringify(t);
-                let label = t.flight;
-                if (t.route) label += `  ·  ${t.route}`;
-                if (t.std)   label += `  STD ${t.std}`;
-                opt.textContent = label;
-                sel.appendChild(opt);
-            });
-
-            document.getElementById('templateSelector').style.display = 'block';
-        } catch(e) {
-            console.warn('無法載入班機預設', e);
+    function renderTemplateSelect(templates) {
+        const sel = document.getElementById('flightTemplateSelect');
+        sel.innerHTML = '<option value="">── 選擇預設班機 ──</option>';
+        if (!templates.length) {
+            document.getElementById('templateSelector').style.display = 'none';
+            return;
         }
+        templates.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify(t);
+            let label = t.flight;
+            if (t.route) label += `  ·  ${t.route}`;
+            if (t.std)   label += `  STD ${t.std}`;
+            opt.textContent = label;
+            sel.appendChild(opt);
+        });
+        document.getElementById('templateSelector').style.display = 'block';
+    }
+
+    const SUPA_URL = 'https://xdayofmoqdrsvcwfynyd.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkYXlvZm1vcWRyc3Zjd2Z5bnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MTE2ODksImV4cCI6MjA5NTk4NzY4OX0.Sg8okEzquiCHrzCu4vdmSYi3XgQGLA5aViCN_dobdhQ';
+
+    function loadFlightTemplates() {
+        // Show cached data immediately for fast display
+        try {
+            const cached = JSON.parse(localStorage.getItem('tco_flight_templates') || '[]');
+            if (cached.length) renderTemplateSelect(cached);
+        } catch {}
+
+        // Fetch latest from Supabase
+        fetch(SUPA_URL + '/rest/v1/flight_templates?select=*&order=flight', {
+            headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (!Array.isArray(data)) return;
+                localStorage.setItem('tco_flight_templates', JSON.stringify(data));
+                renderTemplateSelect(data);
+            })
+            .catch(e => console.warn('無法從 Supabase 載入班機預設', e));
     }
 
     function applyFlightTemplate() {
