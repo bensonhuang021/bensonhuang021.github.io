@@ -417,7 +417,9 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxNN1yDRgLH65oTqd0K8L7RkHX1sLE92DzNgBlbXN1VeZst0KNdQebwVJnb7-rUxOz/exec";
+    const SUPA_URL   = 'https://xdayofmoqdrsvcwfynyd.supabase.co';
+    const SUPA_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkYXlvZm1vcWRyc3Zjd2Z5bnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MTE2ODksImV4cCI6MjA5NTk4NzY4OX0.Sg8okEzquiCHrzCu4vdmSYi3XgQGLA5aViCN_dobdhQ';
 
     let memoryKey = 'tco_user_v35';
     let currentUser = localStorage.getItem(memoryKey);
@@ -862,9 +864,6 @@
         document.getElementById('templateSelector').style.display = 'block';
     }
 
-    const SUPA_URL = 'https://xdayofmoqdrsvcwfynyd.supabase.co';
-    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkYXlvZm1vcWRyc3Zjd2Z5bnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MTE2ODksImV4cCI6MjA5NTk4NzY4OX0.Sg8okEzquiCHrzCu4vdmSYi3XgQGLA5aViCN_dobdhQ';
-
     function loadFlightTemplates() {
         // Show cached data immediately for fast display
         try {
@@ -1038,4 +1037,10 @@
         if (am) { document.getElementById('shut-from').value = am[1]; document.getElementById('shut-to').value = am[2]; }
 
         generateShutOutReport();
-        document.querySelector('#tab-shutout 
+        document.querySelector('#tab-shutout .form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => flashElement('#tab-shutout .form-section'), 100);
+    }
+</script>
+
+</body>
+</html>
