@@ -847,7 +847,10 @@
             document.getElementById('templateSelector').style.display = 'none';
             return;
         }
-        templates.forEach(t => {
+        const sorted = [...templates].sort((a, b) =>
+            (a.std || '9999').localeCompare(b.std || '9999') || a.flight.localeCompare(b.flight)
+        );
+        sorted.forEach(t => {
             const opt = document.createElement('option');
             opt.value = JSON.stringify(t);
             let label = t.flight;
@@ -870,7 +873,7 @@
         } catch {}
 
         // Fetch latest from Supabase
-        fetch(SUPA_URL + '/rest/v1/flight_templates?select=*&order=flight', {
+        fetch(SUPA_URL + '/rest/v1/flight_templates?select=*&order=std.asc.nullslast,flight.asc', {
             headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` }
         })
             .then(r => r.json())
@@ -1035,10 +1038,4 @@
         if (am) { document.getElementById('shut-from').value = am[1]; document.getElementById('shut-to').value = am[2]; }
 
         generateShutOutReport();
-        document.querySelector('#tab-shutout .form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setTimeout(() => flashElement('#tab-shutout .form-section'), 100);
-    }
-</script>
-
-</body>
-</html>
+        document.querySelector('#tab-shutout 
