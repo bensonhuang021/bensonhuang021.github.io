@@ -1200,14 +1200,14 @@
       if (nonDeparting.length <= MAX_TREE_ORNAMENTS) return;
 
       // Pick the oldest ornaments beyond the 30-ornament cap (from oldest to newest among the overflow)
+      // Keep all rows in Google Sheet intact — only hide them from the display screen after transforming into a meteor!
       const overflowOldest = nonDeparting.slice(MAX_TREE_ORNAMENTS).reverse();
       overflowOldest.forEach((oldestItem, idx) => {
         if (!oldestItem || !oldestItem.id || state.departingIds[oldestItem.id]) return;
         state.deletedIds[oldestItem.id] = true;
-        deleteOrnamentFromGoogleSheet(oldestItem.id);
         setTimeout(() => {
           if (!state.isPureQrScanMode) {
-            showToast(`🌠 樹上掛飾已滿 ${MAX_TREE_ORNAMENTS} 個，最舊的「${oldestItem.author}」吊飾化作流星劃過夜空！`);
+            showToast(`🌠 樹上掛飾已滿 ${MAX_TREE_ORNAMENTS} 個，最舊的「${oldestItem.author}」吊飾化作流星劃過夜空（資料已保留於 Google Sheet）！`);
           }
           transformOrnamentToMeteor(oldestItem.id);
         }, 380 + idx * 380);
@@ -1424,7 +1424,11 @@
             }
             const prevIds = new Set(state.ornaments.map(o => o.id));
             const recentLocal = state.ornaments.filter(o => (Date.now() - o.createdAtMs) < 15000);
-            const nextOrnaments = filterOrnamentsWithin24Hours([...data.items, ...recentLocal]);
+            let nextOrnaments = filterOrnamentsWithin24Hours([...data.items, ...recentLocal]);
+            if (!state.hasCompletedInitialSync && nextOrnaments.length > MAX_TREE_ORNAMENTS) {
+              nextOrnaments.slice(MAX_TREE_ORNAMENTS).forEach(oldIt => { state.deletedIds[oldIt.id] = true; });
+              nextOrnaments = nextOrnaments.slice(0, MAX_TREE_ORNAMENTS);
+            }
             const newlyArrived = nextOrnaments.filter(o => !prevIds.has(o.id));
             state.ornaments = nextOrnaments;
             saveStateToStorage();
@@ -1511,7 +1515,11 @@
               // Sync with valid 24h items from Google Sheet while preserving any item just submitted in the last 15s
               const prevIds = new Set(state.ornaments.map(o => o.id));
               const recentLocal = state.ornaments.filter(o => (Date.now() - o.createdAtMs) < 15000);
-              const combined = filterOrnamentsWithin24Hours([...fetchedItems, ...recentLocal]);
+              let combined = filterOrnamentsWithin24Hours([...fetchedItems, ...recentLocal]);
+              if (!state.hasCompletedInitialSync && combined.length > MAX_TREE_ORNAMENTS) {
+                combined.slice(MAX_TREE_ORNAMENTS).forEach(oldIt => { state.deletedIds[oldIt.id] = true; });
+                combined = combined.slice(0, MAX_TREE_ORNAMENTS);
+              }
               const newlyArrived = combined.filter(o => !prevIds.has(o.id));
               state.ornaments = combined;
               saveStateToStorage();
@@ -1713,8 +1721,8 @@
       const item = state.ornaments.find(o => o.id === itemId);
       if (!item || state.departingIds[itemId]) return;
       state.departingIds[itemId] = true;
+      // Record in deletedIds (hidden on screen) so it stays hidden on display, while keeping the row in Google Sheet intact!
       state.deletedIds[itemId] = true;
-      deleteOrnamentFromGoogleSheet(itemId);
 
       // Play shooting star "咻～" whoosh sound effect
       playMeteorWhooshSound();
@@ -2375,7 +2383,7 @@
         "    '<label class=\"lbl\">STEP 2. 選擇吊飾掛放高度區域</label>' +",
         "    '<select id=\"zone\" class=\"fld\"><option value=\"middle\">🎄 樹身中央區（推薦）</option><option value=\"top\">🌟 樹頂星光區</option><option value=\"bottom\">🎁 樹底茂密區</option></select>' +",
         "    '<label class=\"lbl\">STEP 3. 你的名字 / 暱稱 *</label>' +",
-        "    '<input id=\"author\" class=\"fld\" required maxlength=\"20\" placeholder=\"例如：行銷部 小芸 / Kevin\" />' +",
+        "    '<input id=\"author\" class=\"fld\" required maxlength=\"20\" placeholder=\"例如：George\" />' +",
         "    '<label class=\"lbl\">祝福標籤顏色</label>' +",
         "    '<select id=\"theme\" class=\"fld\"><option value=\"amber\">🌟 璀璨暖金（預設）</option><option value=\"rose\">❤️ 聖誕喜慶紅</option><option value=\"emerald\">🎄 松針森林綠</option><option value=\"sky\">❄️ 冰雪極光藍</option><option value=\"purple\">🔮 星夜夢幻紫</option></select>' +",
         "    '<div style=\"display:flex;justify-content:space-between;align-items:center\"><label class=\"lbl\">STEP 4. 寫下你的聖誕祝福留言（限 30 字內） *</label><span id=\"cnt\" style=\"font-size:11px;color:#fcd34d;font-weight:700\">0 / 30 字</span></div>' +",
