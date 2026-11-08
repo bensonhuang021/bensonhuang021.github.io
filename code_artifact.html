@@ -200,7 +200,7 @@
       <!-- Marquee Direction / Mode Button -->
       <button id="toggleMarqueeModeBtn" type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-500/30 transition-all" title="切換跑馬燈左右滾動模式">
         <span>🔄 跑馬燈：</span>
-        <span id="marqueeModeLabel">左右往返輪播</span>
+        <span id="marqueeModeLabel">由左至右循環</span>
       </button>
 
       <!-- Settings & Manage Modal Button -->
@@ -408,9 +408,7 @@
             <button id="simulateScanBtn" type="button" class="w-full py-1 px-1.5 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 text-amber-200 border border-amber-400/40 text-[10px] font-semibold transition-all truncate">
               👉 點此直接體驗掃碼
             </button>
-            <button id="openQrSetupGuideBtn" type="button" class="w-full py-0.5 px-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/35 text-sky-200 border border-sky-400/40 text-[9px] font-semibold transition-all truncate">
-              📡 手機掃碼空白？點此設定
-            </button>
+
           </div>
         </div>
 
@@ -427,11 +425,7 @@
               </span>
             </div>
 
-            <div class="flex items-center gap-1 bg-slate-900/85 backdrop-blur-md px-2 py-0.5 rounded-full border border-slate-700/80">
-              <button id="marqueeDirLeftBtn" type="button" class="px-1.5 py-0.5 rounded text-[10px] hover:bg-slate-700 text-amber-300 font-semibold" title="向左捲動">◀ 左行</button>
-              <button id="marqueePauseBtn" type="button" class="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 hover:bg-amber-500/35 text-amber-200 font-semibold">⏸ 暫停</button>
-              <button id="marqueeDirRightBtn" type="button" class="px-1.5 py-0.5 rounded text-[10px] hover:bg-slate-700 text-amber-300 font-semibold" title="向右捲動">右行 ▶</button>
-              <div class="h-2.5 w-[1px] bg-slate-700 mx-0.5"></div>
+            <div class="flex items-center gap-1.5 bg-slate-900/85 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-slate-700/80">
               <label for="marqueeSpeedRange" class="text-[9px] text-slate-300">速度</label>
               <input id="marqueeSpeedRange" type="range" min="1" max="5" value="2" class="w-12 accent-amber-400 cursor-pointer" />
             </div>
@@ -951,8 +945,8 @@
       activePopoverId: null,
       departingIds: {},
       // Marquee settings
-      marqueeMode: 'pingpong',
-      marqueeDirection: -1,
+      marqueeMode: 'continuous',
+      marqueeDirection: 1,
       marqueePaused: false,
       marqueeSpeed: 2,
       marqueeOffset: 0,
@@ -1056,7 +1050,7 @@
 
       // When running inside the un-deployed AI Canvas preview (about:srcdoc) with no public URL configured yet,
       // encode a clear human-readable instruction note so scanning with a phone camera displays a helpful prompt instead of a blank about:srcdoc screen
-      return `【聖誕許願樹提示】目前網頁在電腦預覽視窗中，請直接用滑鼠點擊電腦左下角QR Code體驗手機掃碼畫面；若要用真實手機掃碼，請點擊左下角「手機掃碼空白？點此設定」綁定公開網址！(時段驗證碼:${token})`;
+      return `【聖誕許願樹提示】目前網頁在電腦預覽視窗中，請直接用滑鼠點擊電腦左下角QR Code體驗手機掃碼畫面；若要用真實手機掃碼，請至右上角「留言與QR設定」綁定公開網址！(時段驗證碼:${token})`;
     }
 
     function verifyQrHashToken() {
@@ -1430,7 +1424,9 @@
         // Duplicate items enough times for smooth scrolling across wide screens
         const cardsHtml = state.ornaments.map(buildMarqueeItemHtml).join('');
         trackPrimary.innerHTML = cardsHtml + cardsHtml + cardsHtml;
-        state.marqueeOffset = 0;
+        // Start from -oneSetWidth so Left-to-Right scrolling (+X) smoothly moves rightwards
+        const totalW = trackPrimary.scrollWidth || 1200;
+        state.marqueeOffset = -Math.floor(totalW / 3);
       }
     }
 
@@ -1471,35 +1467,22 @@
         const track = document.getElementById('marqueeTrackPrimary');
         const viewport = document.getElementById('marqueeViewport');
 
-        if (track && viewport && !state.marqueePaused && state.marqueeMode !== 'spotlight' && state.ornaments.length > 0) {
+        if (track && viewport && state.marqueeMode !== 'spotlight' && state.ornaments.length > 0) {
           const totalWidth = track.scrollWidth;
           const oneSetWidth = totalWidth / 3;
           const speedPx = state.marqueeSpeed * 0.55;
 
-          state.marqueeOffset += state.marqueeDirection * speedPx;
-
-          if (state.marqueeMode === 'pingpong') {
-            // Left-Right Ping-Pong bounce when reaching bounds
-            const maxLeft = -Math.max(120, oneSetWidth - viewport.clientWidth * 0.45);
-            if (state.marqueeOffset <= maxLeft) {
-              state.marqueeOffset = maxLeft;
-              state.marqueeDirection = 1; // Bounce to right
-              updateDirectionButtonsUI();
-            } else if (state.marqueeOffset >= 0) {
-              state.marqueeOffset = 0;
-              state.marqueeDirection = -1; // Bounce to left
-              updateDirectionButtonsUI();
+          if (oneSetWidth > 0) {
+            if (state.marqueeOffset < -oneSetWidth * 2 || state.marqueeOffset > 0) {
+              state.marqueeOffset = -oneSetWidth;
             }
-          } else {
-            // Continuous loop in current direction
-            if (state.marqueeDirection < 0 && Math.abs(state.marqueeOffset) >= oneSetWidth) {
-              state.marqueeOffset += oneSetWidth;
-            } else if (state.marqueeDirection > 0 && state.marqueeOffset >= 0) {
+            // Always move from Left to Right (+speedPx)
+            state.marqueeOffset += speedPx;
+            if (state.marqueeOffset >= 0) {
               state.marqueeOffset -= oneSetWidth;
             }
+            track.style.transform = `translate3d(${state.marqueeOffset}px, 0, 0)`;
           }
-
-          track.style.transform = `translate3d(${state.marqueeOffset}px, 0, 0)`;
         }
 
         marqueeAnimFrameId = requestAnimationFrame(step);
@@ -1508,19 +1491,7 @@
       marqueeAnimFrameId = requestAnimationFrame(step);
     }
 
-    function updateDirectionButtonsUI() {
-      const leftBtn = document.getElementById('marqueeDirLeftBtn');
-      const rightBtn = document.getElementById('marqueeDirRightBtn');
-      if (!leftBtn || !rightBtn) return;
 
-      if (state.marqueeDirection < 0) {
-        leftBtn.classList.add('bg-amber-500/30', 'text-amber-200');
-        rightBtn.classList.remove('bg-amber-500/30', 'text-amber-200');
-      } else {
-        rightBtn.classList.add('bg-amber-500/30', 'text-amber-200');
-        leftBtn.classList.remove('bg-amber-500/30', 'text-amber-200');
-      }
-    }
 
     // =========================================================================
     // 6. MOBILE QR SUBMISSION VIEW (Ornament Picker & Mini Tree Position Picker)
@@ -1839,7 +1810,6 @@
       renderQrCode();
       renderTreeOrnaments();
       renderMarqueeContent();
-      updateDirectionButtonsUI();
       startMarqueeLoop();
       pickRandomTreePosition();
 
@@ -1997,15 +1967,7 @@
       document.getElementById('quickAddFromScreenBtn').addEventListener('click', () => switchView('mobile'));
       document.getElementById('simulateScanBtn').addEventListener('click', () => switchView('mobile'));
       document.getElementById('qrCodeClickTrigger').addEventListener('click', () => switchView('mobile'));
-      document.getElementById('openQrSetupGuideBtn').addEventListener('click', () => {
-        document.getElementById('customTitleInput').value = state.title;
-        document.getElementById('bgFitModeSelect').value = state.bgFitMode;
-        if (state.qrTargetUrl) {
-          document.getElementById('qrUrlInput').value = state.qrTargetUrl;
-        }
-        renderManageMessagesList();
-        document.getElementById('manageModal').classList.remove('hidden');
-      });
+
 
       // Upload Custom Christmas Tree Background Image
       document.getElementById('bgUploadInput').addEventListener('change', (e) => {
@@ -2034,9 +1996,8 @@
       // Marquee Mode Cycle Button (Ping-Pong <-> Continuous <-> Spotlight)
       document.getElementById('toggleMarqueeModeBtn').addEventListener('click', () => {
         const modes = [
-          { key: 'pingpong', label: '左右往返輪播' },
-          { key: 'continuous', label: '連續循環跑馬燈' },
-          { key: 'spotlight', label: '單則左右切換' }
+          { key: 'continuous', label: '由左至右循環' },
+          { key: 'spotlight', label: '單則焦點切換' }
         ];
         const idx = modes.findIndex(m => m.key === state.marqueeMode);
         const next = modes[(idx + 1) % modes.length];
@@ -2045,19 +2006,7 @@
         renderMarqueeContent();
       });
 
-      // Marquee Direction, Pause & Speed Controls
-      document.getElementById('marqueeDirLeftBtn').addEventListener('click', () => {
-        state.marqueeDirection = -1;
-        updateDirectionButtonsUI();
-      });
-      document.getElementById('marqueeDirRightBtn').addEventListener('click', () => {
-        state.marqueeDirection = 1;
-        updateDirectionButtonsUI();
-      });
-      document.getElementById('marqueePauseBtn').addEventListener('click', (e) => {
-        state.marqueePaused = !state.marqueePaused;
-        e.currentTarget.textContent = state.marqueePaused ? '▶ 播放' : '⏸ 暫停';
-      });
+      // Marquee Speed Control (Fixed Left-to-Right continuous scrolling)
       document.getElementById('marqueeSpeedRange').addEventListener('input', (e) => {
         state.marqueeSpeed = Number(e.target.value) || 2;
       });
