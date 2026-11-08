@@ -381,7 +381,7 @@
               type="text"
               maxlength="20"
               required
-              placeholder="例如：George 或 Mary"
+              placeholder="例如：George"
               class="w-full rounded-xl bg-slate-800/90 border border-slate-700 focus:border-amber-400 focus:outline-none px-3.5 py-2.5 text-sm text-white placeholder-slate-400"
             />
           </div>
@@ -968,6 +968,7 @@
     // No fake preset messages! Ornaments start empty and only load real messages within 24 hours from Google Sheet / Storage
     const DEFAULT_ORNAMENTS = [];
     const DEFAULT_GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/11_ufi19pQPxgv7YBdMtDyBgz-E5LfVNossnYFI4FT0g/edit';
+    const DEFAULT_GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBaxv4HD28alG6VSKiCrN0Tz7bSxHCVT3D-5e4MStosUQc4RNQASRnHPP5_UaerBs0lg/exec';
 
     // =========================================================================
     // 2. APPLICATION STATE, 24H FILTER & GOOGLE SHEET SYNC HELPERS
@@ -987,8 +988,8 @@
       title: '聖誕許願樹・祝福互動牆',
       bgFitMode: 'contain',
       customBgDataUrl: null,
-      qrTargetUrl: '',
-      googleScriptUrl: '',
+      qrTargetUrl: DEFAULT_GOOGLE_SCRIPT_URL,
+      googleScriptUrl: DEFAULT_GOOGLE_SCRIPT_URL,
       googleSheetUrl: DEFAULT_GOOGLE_SHEET_URL,
       qrHourSlot: Math.floor(Date.now() / QR_ROTATION_MS),
       qrSalt: 'xmas2026',
@@ -1223,6 +1224,9 @@
         if (!rawItem || !rawItem.id) continue;
         const idStr = String(rawItem.id);
         if (idStr === '__CONFIG__' || (state.deletedIds && state.deletedIds[idStr])) continue;
+        const rawAuthor = String(rawItem.author || '').trim();
+        const rawMsg = String(rawItem.message || '').trim();
+        if (!rawAuthor && !rawMsg) continue;
         if (seenIds.has(idStr)) continue;
         const createdAtMs = Number(rawItem.createdAtMs) || (rawItem.createdAtIso ? new Date(rawItem.createdAtIso).getTime() : 0);
         if (!createdAtMs || isNaN(createdAtMs)) continue;
@@ -1618,6 +1622,10 @@
       }
 
       if (customBase) {
+        if (customBase.startsWith('https://script.google.com/')) {
+          // For Google Apps Script Web App URLs, return clean /exec URL without #hash so HtmlService iframe router never stalls on mobile!
+          return customBase;
+        }
         const sep = customBase.includes('?') ? '&' : '?';
         // Keep QR URL concise so the QR code has large, crisp modules that scan instantaneously on any phone camera
         return `${customBase}${sep}mode=mobile&r=${encodeURIComponent(room)}&s=${hourSlot}#mobile`;
@@ -2215,11 +2223,12 @@
     // 8. UTILITIES & INITIALIZATION
     // =========================================================================
     function getUpgradedGoogleAppsScriptCode() {
-      const closeScriptTag = '<' + '/script>';
-      const closeStyleTag = '<' + '/style>';
+      const sClose = '<' + '/script>';
+      const stClose = '<' + '/style>';
       return [
         "const TTL_24H_MS = 24 * 60 * 60 * 1000;",
         "const MAX_MSG_LEN = 30;",
+        "",
         "function getSheet() {",
         "  const ss = SpreadsheetApp.getActiveSpreadsheet();",
         "  let sheet = ss.getSheetByName('Messages') || ss.getSheets()[0];",
@@ -2228,6 +2237,7 @@
         "  }",
         "  return sheet;",
         "}",
+        "",
         "function saveConfigRow(sheet, qrUrl, gasUrl) {",
         "  try {",
         "    const rows = sheet.getDataRange().getValues();",
@@ -2242,39 +2252,60 @@
         "    sheet.appendRow(['__CONFIG__', new Date().toISOString(), Date.now(), 0, qrUrl || '', gasUrl || '', 'config', 'amber', 50, 42]);",
         "  } catch (e) {}",
         "}",
+        "",
+        "function read24hItems(sheet) {",
+        "  const rows = sheet.getDataRange().getValues();",
+        "  const now = Date.now();",
+        "  const items = [];",
+        "  for (let i = 1; i < rows.length; i++) {",
+        "    const r = rows[i];",
+        "    const id = String(r[0] || '');",
+        "    if (!id || id === '__CONFIG__') continue;",
+        "    const author = String(r[4] || '').trim();",
+        "    const message = String(r[5] || '').trim();",
+        "    if (!author && !message) continue;",
+        "    const createdAtMs = Number(r[2]) || (r[1] ? new Date(r[1]).getTime() : 0);",
+        "    if (!createdAtMs || (now - createdAtMs) > TTL_24H_MS) continue;",
+        "    items.push({",
+        "      id: id,",
+        "      createdAtIso: String(r[1] || ''),",
+        "      createdAtMs: createdAtMs,",
+        "      expiresAtMs: Number(r[3]) || (createdAtMs + TTL_24H_MS),",
+        "      author: author.slice(0, 20),",
+        "      message: message.slice(0, MAX_MSG_LEN),",
+        "      ornamentId: String(r[6] || 'cathay-bear-captain'),",
+        "      theme: String(r[7] || 'amber'),",
+        "      x: Number(r[8]) || 50,",
+        "      y: Number(r[9]) || 42",
+        "    });",
+        "  }",
+        "  items.sort(function(a, b) { return b.createdAtMs - a.createdAtMs; });",
+        "  return items.slice(0, 30);",
+        "}",
+        "",
         "function doGet(e) {",
         "  const params = (e && e.parameter) ? e.parameter : {};",
-        "  const sheet = getSheet();",
-        "  let selfUrl = '';",
-        "  try { selfUrl = ScriptApp.getService().getUrl() || ''; } catch (err) {}",
-        "  if (selfUrl) { saveConfigRow(sheet, '', selfUrl); }",
-        "  if (params.format === 'json') {",
-        "    const rows = sheet.getDataRange().getValues();",
-        "    const now = Date.now();",
-        "    const items = [];",
-        "    for (let i = 1; i < rows.length; i++) {",
-        "      const r = rows[i];",
-        "      const id = String(r[0] || '');",
-        "      if (!id || id === '__CONFIG__') continue;",
-        "      const createdAtMs = Number(r[2]) || (r[1] ? new Date(r[1]).getTime() : 0);",
-        "      if (!createdAtMs || (now - createdAtMs) > TTL_24H_MS) continue;",
-        "      items.push({",
-        "        id: id, createdAtIso: String(r[1] || ''), createdAtMs: createdAtMs,",
-        "        expiresAtMs: Number(r[3]) || (createdAtMs + TTL_24H_MS),",
-        "        author: String(r[4] || '匿名同事').slice(0, 20), message: String(r[5] || '').slice(0, MAX_MSG_LEN),",
-        "        ornamentId: String(r[6] || 'cathay-bear-captain'), theme: String(r[7] || 'amber'),",
-        "        x: Number(r[8]) || 50, y: Number(r[9]) || 42",
-        "      });",
-        "    }",
-        "    return ContentService.createTextOutput(JSON.stringify({ status: 'ok', scriptUrl: selfUrl, count: items.length, items: items })).setMimeType(ContentService.MimeType.JSON);",
+        "  if (params.format === 'jsonp' && params.callback) {",
+        "    const sheet = getSheet();",
+        "    const payload = JSON.stringify({ status: 'ok', items: read24hItems(sheet) });",
+        "    return ContentService.createTextOutput(params.callback + '(' + payload + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);",
         "  }",
-        "  return HtmlService.createHtmlOutput(getMobileFormHtml()).setTitle('聖誕許願樹・選吊飾與寫留言').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).addMetaTag('viewport', 'width=device-width, initial-scale=1');",
+        "  if (params.format === 'json') {",
+        "    const sheet = getSheet();",
+        "    const payload = JSON.stringify({ status: 'ok', items: read24hItems(sheet) });",
+        "    return ContentService.createTextOutput(payload).setMimeType(ContentService.MimeType.JSON);",
+        "  }",
+        "  return HtmlService.createHtmlOutput(getMobileFormHtml())",
+        "    .setTitle('聖誕許願樹・掃碼選吊飾與寫留言')",
+        "    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)",
+        "    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1');",
         "}",
+        "",
         "function submitFromMobileClient(payload) {",
         "  const sheet = getSheet();",
         "  const now = Date.now();",
         "  const item = {",
-        "    id: 'item-' + now + '-' + Math.floor(Math.random() * 1000),",
+        "    id: 'item-' + now,",
         "    createdAtIso: new Date(now).toISOString(),",
         "    createdAtMs: now,",
         "    expiresAtMs: now + TTL_24H_MS,",
@@ -2288,21 +2319,73 @@
         "  sheet.appendRow([item.id, item.createdAtIso, item.createdAtMs, item.expiresAtMs, item.author, item.message, item.ornamentId, item.theme, item.x, item.y]);",
         "  return item;",
         "}",
+        "",
         "function doPost(e) {",
         "  const sheet = getSheet();",
         "  const body = JSON.parse((e && e.postData && e.postData.contents) ? e.postData.contents : '{}');",
         "  if (body.action === 'save_config') {",
         "    saveConfigRow(sheet, String(body.qrTargetUrl || ''), String(body.googleScriptUrl || ''));",
-        "  } else if (body.action === 'add' && body.item) {",
-        "    const it = body.item;",
-        "    const now = Date.now();",
-        "    const cMs = Number(it.createdAtMs) || now;",
-        "    sheet.appendRow([it.id || ('item-' + now), it.createdAtIso || new Date(cMs).toISOString(), cMs, it.expiresAtMs || (cMs + TTL_24H_MS), String(it.author || '').slice(0, 20), String(it.message || '').slice(0, MAX_MSG_LEN), it.ornamentId || 'red-bauble', it.theme || 'amber', Number(it.x) || 50, Number(it.y) || 42]);",
+        "    return ContentService.createTextOutput(JSON.stringify({ status: 'config_saved' })).setMimeType(ContentService.MimeType.JSON);",
         "  }",
-        "  return ContentService.createTextOutput(JSON.stringify({ status: 'ok' })).setMimeType(ContentService.MimeType.JSON);",
+        "  if (body.action === 'delete' && body.id) {",
+        "    const rows = sheet.getDataRange().getValues();",
+        "    for (let i = rows.length - 1; i >= 1; i--) {",
+        "      if (String(rows[i][0]) === String(body.id)) sheet.deleteRow(i + 1);",
+        "    }",
+        "    return ContentService.createTextOutput(JSON.stringify({ status: 'deleted' })).setMimeType(ContentService.MimeType.JSON);",
+        "  }",
+        "  if (body.action === 'clear') {",
+        "    const rows = sheet.getDataRange().getValues();",
+        "    for (let i = rows.length - 1; i >= 1; i--) {",
+        "      if (String(rows[i][0]) !== '__CONFIG__') sheet.deleteRow(i + 1);",
+        "    }",
+        "    return ContentService.createTextOutput(JSON.stringify({ status: 'cleared' })).setMimeType(ContentService.MimeType.JSON);",
+        "  }",
+        "  const it = body.item || body;",
+        "  const author = String(it.author || '').trim().slice(0, 20);",
+        "  const message = String(it.message || '').trim().slice(0, MAX_MSG_LEN);",
+        "  if (!author && !message) {",
+        "    return ContentService.createTextOutput(JSON.stringify({ status: 'ignored_empty' })).setMimeType(ContentService.MimeType.JSON);",
+        "  }",
+        "  const now = Date.now();",
+        "  const cMs = Number(it.createdAtMs) || now;",
+        "  sheet.appendRow([it.id || ('item-' + now), it.createdAtIso || new Date(cMs).toISOString(), cMs, it.expiresAtMs || (cMs + TTL_24H_MS), author, message, it.ornamentId || 'cathay-bear-captain', it.theme || 'amber', Number(it.x) || 50, Number(it.y) || 42]);",
+        "  return ContentService.createTextOutput(JSON.stringify({ status: 'saved' })).setMimeType(ContentService.MimeType.JSON);",
         "}",
+        "",
         "function getMobileFormHtml() {",
-        "  return `<!DOCTYPE html><html lang='zh-Hant'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>聖誕許願樹・掃碼掛吊飾</title><script src='https://cdn.tailwindcss.com'>` + closeScriptTag + `<style>*{box-sizing:border-box;font-family:'Noto Sans TC',sans-serif}body{margin:0;padding:16px;min-height:100vh;background:#020617;color:#f8fafc}.hidden{display:none!important}.card{max-width:440px;margin:0 auto;background:#0f172a;border:1px solid rgba(245,158,11,0.4);border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.6)}.hdr{background:linear-gradient(90deg,#b91c1c,#dc2626,#d97706);padding:20px;color:#fff}.fld{width:100%;border-radius:12px;background:#1e293b;border:1px solid #334155;padding:12px;color:#fff;font-size:14px;margin-top:6px}.btn{width:100%;padding:14px;border-radius:16px;border:none;background:linear-gradient(90deg,#dc2626,#f59e0b,#059669);color:#fff;font-weight:900;font-size:16px;cursor:pointer}` + closeStyleTag + `</head><body class='min-h-screen bg-slate-950 text-white p-4 font-sans'><div class='card max-w-md mx-auto bg-slate-900 border border-amber-500/40 rounded-3xl overflow-hidden shadow-2xl'><div class='hdr bg-gradient-to-r from-red-700 via-red-600 to-amber-600 p-5'><span class='px-2.5 py-0.5 rounded-full bg-black/25 text-amber-200 text-xs font-semibold'>📱 現場掃碼掛吊飾專頁</span><h1 class='text-xl font-black mt-2'>掛上你的專屬聖誕吊飾 🎄</h1><p class='text-xs text-amber-100 mt-1'>挑選喜歡的吊飾並寫下 30 字內祝福，送出後直接掛上大螢幕聖誕樹！</p></div><form id='f' class='p-5 space-y-4' style='padding:20px'><div style='margin-bottom:14px'><label class='block text-xs font-bold text-amber-300' style='color:#fcd34d;font-size:12px;font-weight:700'>STEP 1. 選擇要掛在樹上的吊飾</label><select id='orn' class='fld w-full rounded-xl bg-slate-800 border border-slate-700 p-3 text-sm text-white'><option value='cathay-bear-captain'>🐻✈️ 帥氣黑西裝機長熊</option><option value='cathay-bear-1946'>🐻🩵 1946 復古天藍熊</option><option value='cathay-bear-1950'>🐻💙 1950 深藍腰帶熊</option><option value='cathay-bear-1962'>🐻❤️ 1962 紅帽白領巾熊</option><option value='cathay-bear-1974'>🐻🧣 1974 彩紋領巾熊</option><option value='cathay-bear-1983'>🐻❤️ 1983 紅帽紅制服熊</option><option value='cathay-bear-1999'>🐻🍷 1999 經典酒紅熊</option><option value='cathay-bear-purser'>🐻👔 灰西裝紅領帶熊</option><option value='gold-star'>⭐ 伯利恆金星</option><option value='red-bauble'>🔴 經典紅金球</option><option value='gingerbread'>🍪 微笑薑餅人</option><option value='candy-cane'>🍬 甜蜜拐杖糖</option><option value='snowflake-gem'>❄️ 冰晶雪花球</option><option value='stocking'>🧦 驚喜聖誕襪</option><option value='reindeer-bell'>🔔 金鹿幸福鈴</option><option value='wreath'>🌿 槲寄生花圈</option><option value='gift-box'>🎁 願望禮物盒</option><option value='snowman'>⛄ 暖心小雪人</option><option value='emerald-drop'>💎 松林翡翠墜</option><option value='angel-wing'>👼 許願小天使</option></select></div><div style='margin-bottom:14px'><label class='block text-xs font-bold text-amber-300' style='color:#fcd34d;font-size:12px;font-weight:700'>STEP 2. 選擇掛放區域</label><select id='zone' class='fld w-full rounded-xl bg-slate-800 border border-slate-700 p-3 text-sm text-white'><option value='middle'>🎄 樹身中央區</option><option value='top'>🌟 樹頂星光區</option><option value='bottom'>🎁 樹底茂密區</option></select></div><div style='margin-bottom:14px'><label class='block text-xs font-bold text-amber-300' style='color:#fcd34d;font-size:12px;font-weight:700'>STEP 3. 你的名字 / 暱稱 *</label><input id='author' required maxlength='20' placeholder='例如：行銷部 小芸 / Kevin' class='fld w-full rounded-xl bg-slate-800 border border-slate-700 p-3 text-sm text-white'/></div><div style='margin-bottom:16px'><div style='display:flex;justify-content:space-between;align-items:center'><label class='block text-xs font-bold text-amber-300' style='color:#fcd34d;font-size:12px;font-weight:700'>STEP 4. 聖誕祝福留言（限 30 字內） *</label><span id='cnt' style='font-size:11px;color:#fcd34d;font-weight:700'>0 / 30 字</span></div><textarea id='msg' required maxlength='30' rows='2' placeholder='請輸入 30 字以內的聖誕祝福留言...' class='fld w-full rounded-xl bg-slate-800 border border-slate-700 p-3 text-sm text-white'></textarea></div><button id='btn' type='submit' class='btn w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-amber-500 to-emerald-600 font-black text-base shadow-xl'>✨ 掛上聖誕樹並發送跑馬燈留言</button></form><div id='ok' class='hidden p-8 text-center space-y-3' style='padding:32px;text-align:center'><div style='font-size:42px'>🎉</div><h2 class='text-lg font-bold text-amber-300' style='color:#fcd34d'>已成功掛上大螢幕聖誕樹！</h2><p class='text-xs text-slate-300'>請抬頭觀看現場大螢幕聖誕樹與底部跑馬燈 ✨</p><button type='button' onclick='location.reload()' class='btn' style='margin-top:12px'>🎄 再掛一個吊飾</button></div></div><script>var mEl=document.getElementById('msg'),cEl=document.getElementById('cnt');function clampMsg(){var chars=Array.from(mEl.value||'');if(chars.length>30){mEl.value=chars.slice(0,30).join('');}cEl.textContent=Array.from(mEl.value||'').length+' / 30 字';}mEl.addEventListener('input',clampMsg);mEl.addEventListener('compositionend',clampMsg);document.getElementById('f').onsubmit=function(e){e.preventDefault();clampMsg();var b=document.getElementById('btn');b.disabled=true;b.textContent='傳送中...';var z=document.getElementById('zone').value;var minY=z==='top'?14:(z==='bottom'?49:30),maxY=z==='top'?29:(z==='bottom'?66:48);var y=Number((minY+Math.random()*(maxY-minY)).toFixed(1));var spread=3.5+Math.max(0,(y-12)/56)*15.5;var x=Number((50+(Math.random()*2-1)*spread).toFixed(1));var p={ornamentId:document.getElementById('orn').value,author:document.getElementById('author').value.trim().slice(0,20),message:Array.from(mEl.value.trim()).slice(0,30).join(''),theme:'amber',x:x,y:y};google.script.run.withSuccessHandler(function(it){try{fetch('https://ntfy.sh/xmas_tree_wall_xmas2026',{method:'POST',body:JSON.stringify({type:'NEW_ORNAMENT',item:it})});}catch(err){}document.getElementById('f').classList.add('hidden');document.getElementById('ok').classList.remove('hidden');}).submitFromMobileClient(p);};` + closeScriptTag + `</body></html>`;",
+        "  return '<!DOCTYPE html><html lang=\"zh-Hant\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">' +",
+        "    '<title>聖誕許願樹・掃碼掛吊飾</title>' +",
+        "    '<style>*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,\"Noto Sans TC\",sans-serif}body{margin:0;padding:16px;min-height:100vh;background:linear-gradient(180deg,#0f172a,#020617,#450a0a);color:#f8fafc}.card{max-width:460px;margin:0 auto;background:#0f172a;border:1px solid rgba(245,158,11,0.45);border-radius:24px;overflow:hidden;box-shadow:0 20px 45px rgba(0,0,0,0.65)}.hdr{background:linear-gradient(90deg,#b91c1c,#dc2626,#d97706);padding:20px;color:#fff}.badge{display:inline-block;padding:3px 10px;border-radius:99px;background:rgba(0,0,0,0.28);color:#fde68a;font-size:12px;font-weight:700}h1{margin:10px 0 6px;font-size:21px;font-weight:900}p.sub{margin:0;font-size:12px;color:#fef3c7;line-height:1.5}.body{padding:20px}.lbl{display:block;font-size:12px;font-weight:700;color:#fcd34d;margin-bottom:6px}.fld{width:100%;border-radius:12px;background:#1e293b;border:1px solid #475569;padding:12px;color:#fff;font-size:14px;margin-bottom:14px;outline:none}.fld:focus{border-color:#fbbf24}.btn{width:100%;padding:14px;border-radius:16px;border:1px solid rgba(253,230,138,0.4);background:linear-gradient(90deg,#dc2626,#f59e0b,#059669);color:#fff;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,0.4)}.hidden{display:none!important}.ok{padding:32px 20px;text-align:center}' +",
+        "    '" + stClose + "</head>' +",
+        "    '<body><div class=\"card\"><div class=\"hdr\"><span class=\"badge\">📱 現場掃碼掛吊飾專頁</span><h1>掛上你的專屬聖誕吊飾 🎄</h1><p class=\"sub\">挑選喜歡的國泰小熊或節慶吊飾並寫下 30 字內祝福，送出後直接掛上現場大螢幕聖誕樹！</p></div>' +",
+        "    '<form id=\"f\" class=\"body\">' +",
+        "    '<label class=\"lbl\">STEP 1. 選擇要掛在樹上的吊飾（含照片 8 款小熊）</label>' +",
+        "    '<select id=\"orn\" class=\"fld\">' +",
+        "    '<option value=\"cathay-bear-1946\">🐻🩵 1. 1946 復古天藍熊（左1）</option>' +",
+        "    '<option value=\"cathay-bear-1974\">🐻🧣 2. 1974 彩紋領巾熊（左2）</option>' +",
+        "    '<option value=\"cathay-bear-1962\">🐻❤️ 3. 1962 紅帽白領巾熊（左3）</option>' +",
+        "    '<option value=\"cathay-bear-captain\" selected>🐻✈️ 4. 帥氣黑西裝機長熊（左4）</option>' +",
+        "    '<option value=\"cathay-bear-1999\">🐻🍷 5. 1999 經典酒紅熊（右4）</option>' +",
+        "    '<option value=\"cathay-bear-1983\">🐻❤️ 6. 1983 紅帽紅制服熊（右3）</option>' +",
+        "    '<option value=\"cathay-bear-purser\">🐻👔 7. 灰西裝紅領帶熊（右2）</option>' +",
+        "    '<option value=\"cathay-bear-1950\">🐻💙 8. 1950 深藍腰帶熊（右1）</option>' +",
+        "    '<option value=\"gold-star\">⭐ 伯利恆金星</option><option value=\"red-bauble\">🔴 經典紅金球</option><option value=\"gingerbread\">🍪 微笑薑餅人</option><option value=\"candy-cane\">🍬 甜蜜拐杖糖</option><option value=\"snowflake-gem\">❄️ 冰晶雪花球</option><option value=\"stocking\">🧦 驚喜聖誕襪</option><option value=\"reindeer-bell\">🔔 金鹿幸福鈴</option><option value=\"wreath\">🌿 槲寄生花圈</option><option value=\"gift-box\">🎁 願望禮物盒</option><option value=\"snowman\">⛄ 暖心小雪人</option><option value=\"emerald-drop\">💎 松林翡翠墜</option><option value=\"angel-wing\">👼 許願小天使</option>' +",
+        "    '</select>' +",
+        "    '<label class=\"lbl\">STEP 2. 選擇吊飾掛放高度區域</label>' +",
+        "    '<select id=\"zone\" class=\"fld\"><option value=\"middle\">🎄 樹身中央區（推薦）</option><option value=\"top\">🌟 樹頂星光區</option><option value=\"bottom\">🎁 樹底茂密區</option></select>' +",
+        "    '<label class=\"lbl\">STEP 3. 你的名字 / 暱稱 *</label>' +",
+        "    '<input id=\"author\" class=\"fld\" required maxlength=\"20\" placeholder=\"例如：行銷部 小芸 / Kevin\" />' +",
+        "    '<label class=\"lbl\">祝福標籤顏色</label>' +",
+        "    '<select id=\"theme\" class=\"fld\"><option value=\"amber\">🌟 璀璨暖金（預設）</option><option value=\"rose\">❤️ 聖誕喜慶紅</option><option value=\"emerald\">🎄 松針森林綠</option><option value=\"sky\">❄️ 冰雪極光藍</option><option value=\"purple\">🔮 星夜夢幻紫</option></select>' +",
+        "    '<div style=\"display:flex;justify-content:space-between;align-items:center\"><label class=\"lbl\">STEP 4. 寫下你的聖誕祝福留言（限 30 字內） *</label><span id=\"cnt\" style=\"font-size:11px;color:#fcd34d;font-weight:700\">0 / 30 字</span></div>' +",
+        "    '<textarea id=\"msg\" class=\"fld\" required maxlength=\"30\" rows=\"2\" placeholder=\"請輸入 30 字以內的聖誕祝福留言...\"></textarea>' +",
+        "    '<button id=\"btn\" type=\"submit\" class=\"btn\">✨ 掛上聖誕樹並發送跑馬燈留言</button>' +",
+        "    '</form>' +",
+        "    '<div id=\"ok\" class=\"ok hidden\"><div style=\"font-size:48px\">🎉</div><h2 style=\"color:#fcd34d;margin:10px 0\">你的吊飾已經掛上聖誕樹囉！</h2><p id=\"okMsg\" style=\"font-size:14px;color:#fff;background:#1e293b;padding:12px;border-radius:12px;max-width:340px;margin:10px auto\"></p><p style=\"font-size:12px;color:#cbd5e1\">請抬頭觀看現場大螢幕的聖誕樹與底部跑馬燈 ✨</p><button type=\"button\" onclick=\"location.reload()\" class=\"btn\" style=\"margin-top:14px\">🎄 再掛一個吊飾</button></div>' +",
+        "    '</div>' +",
+        "    '<script>var mEl=document.getElementById(\"msg\"),cEl=document.getElementById(\"cnt\");function clamp(){var a=Array.from(mEl.value||\"\");if(a.length>30)mEl.value=a.slice(0,30).join(\"\");cEl.textContent=Array.from(mEl.value||\"\").length+\" / 30 字\";}mEl.addEventListener(\"input\",clamp);mEl.addEventListener(\"compositionend\",clamp);document.getElementById(\"f\").onsubmit=function(e){e.preventDefault();clamp();var b=document.getElementById(\"btn\");b.disabled=true;b.textContent=\"傳送中...\";var z=document.getElementById(\"zone\").value;var minY=z===\"top\"?14:(z===\"bottom\"?49:30),maxY=z===\"top\"?29:(z===\"bottom\"?66:48);var y=Number((minY+Math.random()*(maxY-minY)).toFixed(1));var sp=3.5+Math.max(0,(y-12)/56)*15.5;var x=Number((50+(Math.random()*2-1)*sp).toFixed(1));var p={ornamentId:document.getElementById(\"orn\").value,author:document.getElementById(\"author\").value.trim().slice(0,20),message:Array.from(mEl.value.trim()).slice(0,30).join(\"\"),theme:document.getElementById(\"theme\").value||\"amber\",x:x,y:y};google.script.run.withSuccessHandler(function(it){try{fetch(\"https://ntfy.sh/xmas_tree_wall_xmas2026\",{method:\"POST\",body:JSON.stringify({type:\"NEW_ORNAMENT\",item:it})});}catch(err){}document.getElementById(\"okMsg\").textContent=it.author+\"：「\"+it.message+\"」\";document.getElementById(\"f\").classList.add(\"hidden\");document.getElementById(\"ok\").classList.remove(\"hidden\");}).submitFromMobileClient(p);};' +",
+        "    '" + sClose + "</body></html>';",
         "}"
       ].join('\n');
     }
