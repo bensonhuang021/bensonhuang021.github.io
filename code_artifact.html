@@ -168,7 +168,7 @@
       <div>
         <h1 id="boardTitleDisplay" class="text-sm sm:text-base font-bold text-amber-100 tracking-wide flex items-center gap-2">
           <span>聖誕許願樹・祝福互動牆</span>
-          <span id="ornamentCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-medium">6 個吊飾</span>
+          <span id="ornamentCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-medium">0 個吊飾</span>
         </h1>
         <p class="text-[11px] text-slate-300 hidden sm:block">掃描左下角 QR Code 選擇專屬吊飾掛上聖誕樹，底部跑馬燈即時輪播同事祝福</p>
       </div>
@@ -662,8 +662,32 @@
               </div>
             </div>
           </div>
+          <div class="sm:col-span-2 bg-emerald-950/40 border border-emerald-400/40 rounded-2xl p-3.5 space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs sm:text-sm font-bold text-emerald-300">📊 Google Sheet 雲端留言資料庫（自動撈取 24 小時內裝飾與留言）</span>
+              <span id="gsheetSyncStatusBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 font-semibold">僅顯示 24h 內留言</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              已移除所有系統預設假留言！開啟您的專屬試算表
+              <a href="https://docs.google.com/spreadsheets/d/11_ufi19pQPxgv7YBdMtDyBgz-E5LfVNossnYFI4FT0g/edit" target="_blank" rel="noopener noreferrer" class="text-amber-300 underline font-semibold">聖誕許願樹・祝福留言資料庫 (點此開啟 Google Sheet)</a>，
+              依分頁「AppsScript設定說明」將擴充功能部署為網頁應用程式後，將產生的 <code class="text-amber-300">https://script.google.com/macros/s/.../exec</code> 網址貼入下方，即可雙向寫入 Google Sheet 並自動只撈出 <strong>24 小時內</strong>的吊飾與留言！
+            </p>
+            <div class="space-y-2">
+              <div>
+                <label for="googleScriptUrlInput" class="block text-[11px] font-bold text-amber-200 mb-1">Google Apps Script 網頁應用程式網址 (支援自動寫入與撈取 24 小時內留言)</label>
+                <input id="googleScriptUrlInput" type="text" placeholder="貼上 https://script.google.com/macros/s/.../exec" class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white" />
+              </div>
+              <div>
+                <label for="googleSheetUrlInput" class="block text-[11px] font-bold text-slate-300 mb-1">Google Sheet 試算表網址 (已預設綁定您的專屬試算表)</label>
+                <div class="flex gap-2">
+                  <input id="googleSheetUrlInput" type="text" value="https://docs.google.com/spreadsheets/d/11_ufi19pQPxgv7YBdMtDyBgz-E5LfVNossnYFI4FT0g/edit" class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs text-slate-200" />
+                  <button id="syncGoogleSheetNowBtn" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0">🔄 立即撈取24h留言</button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="sm:col-span-2">
-            <label for="qrUrlInput" class="block text-xs font-bold text-amber-300 mb-1">左下角 QR Code 公開活動網址 (貼上部署後的 https:// 網址，系統會自動附加每小時動態驗證碼與跨裝置同步房號)</label>
+            <label for="qrUrlInput" class="block text-xs font-bold text-amber-300 mb-1">左下角 QR Code 公開活動網址 (貼上部署後的 https:// 網址，系統會自動附加每小時動態驗證碼與 Google Sheet 連動參數)</label>
             <div class="flex gap-2">
               <input id="qrUrlInput" type="text" placeholder="例如：https://your-xmas-tree.netlify.app" class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs sm:text-sm text-white" />
               <button id="saveSettingsBtn" type="button" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">套用設定</button>
@@ -848,97 +872,26 @@
     const ORNAMENT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
     const QR_ROTATION_MS = 60 * 60 * 1000;       // 1 hour QR code rotation
 
-    // Initial Default Sample Ornaments on the Christmas Tree (all <= 20 chars, with 48h timestamps)
-    const nowInitMs = Date.now();
-    const DEFAULT_ORNAMENTS = [
-      {
-        id: 'item-1',
-        ornamentId: 'gold-star',
-        author: '產品部 雅婷',
-        message: '祝大家聖誕快樂！專案順利零Bug🎉',
-        theme: 'amber',
-        x: 50.0,
-        y: 20.5,
-        createdAt: '剛剛',
-        createdAtMs: nowInitMs - 2 * 60 * 1000,
-        expiresAtMs: nowInitMs - 2 * 60 * 1000 + ORNAMENT_TTL_MS
-      },
-      {
-        id: 'item-2',
-        ornamentId: 'gingerbread',
-        author: '研發部 Kevin',
-        message: '感謝神隊友支援，祝年終領滿滿💰',
-        theme: 'emerald',
-        x: 44.0,
-        y: 34.0,
-        createdAt: '3 分鐘前',
-        createdAtMs: nowInitMs - 15 * 60 * 1000,
-        expiresAtMs: nowInitMs - 15 * 60 * 1000 + ORNAMENT_TTL_MS
-      },
-      {
-        id: 'item-3',
-        ornamentId: 'red-bauble',
-        author: '行銷部 小芸',
-        message: '聖誕快樂！明年活動場場爆滿✨',
-        theme: 'rose',
-        x: 55.5,
-        y: 32.5,
-        createdAt: '5 分鐘前',
-        createdAtMs: nowInitMs - 35 * 60 * 1000,
-        expiresAtMs: nowInitMs - 35 * 60 * 1000 + ORNAMENT_TTL_MS
-      },
-      {
-        id: 'item-4',
-        ornamentId: 'candy-cane',
-        author: '設計組 Leo',
-        message: '稿件一次過！祝大家聖誕佳節愉快⛄',
-        theme: 'sky',
-        x: 39.5,
-        y: 51.0,
-        createdAt: '8 分鐘前',
-        createdAtMs: nowInitMs - 70 * 60 * 1000,
-        expiresAtMs: nowInitMs - 70 * 60 * 1000 + ORNAMENT_TTL_MS
-      },
-      {
-        id: 'item-5',
-        ornamentId: 'gift-box',
-        author: '人資部 詩涵',
-        message: '謝謝大家付出，週五交換禮物見🎁',
-        theme: 'purple',
-        x: 59.0,
-        y: 49.5,
-        createdAt: '12 分鐘前',
-        createdAtMs: nowInitMs - 110 * 60 * 1000,
-        expiresAtMs: nowInitMs - 110 * 60 * 1000 + ORNAMENT_TTL_MS
-      },
-      {
-        id: 'item-6',
-        ornamentId: 'snowman',
-        author: '營運處 Jason',
-        message: '祝闔家平安健康，明年業績再創高峰🔥',
-        theme: 'amber',
-        x: 49.5,
-        y: 44.0,
-        createdAt: '15 分鐘前',
-        createdAtMs: nowInitMs - 160 * 60 * 1000,
-        expiresAtMs: nowInitMs - 160 * 60 * 1000 + ORNAMENT_TTL_MS
-      }
-    ];
+    // No fake preset messages! Ornaments start empty and only load real messages within 24 hours from Google Sheet / Storage
+    const DEFAULT_ORNAMENTS = [];
+    const DEFAULT_GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/11_ufi19pQPxgv7YBdMtDyBgz-E5LfVNossnYFI4FT0g/edit';
 
     // =========================================================================
-    // 2. APPLICATION STATE & STORAGE HELPERS
+    // 2. APPLICATION STATE, 24H FILTER & GOOGLE SHEET SYNC HELPERS
     // =========================================================================
-    const STORAGE_KEY = 'xmas_tree_interactive_wall_v4';
+    const STORAGE_KEY = 'xmas_tree_interactive_wall_v5_gsheet';
 
     let state = {
       title: '聖誕許願樹・祝福互動牆',
       bgFitMode: 'contain',
       customBgDataUrl: null,
       qrTargetUrl: '',
+      googleScriptUrl: '',
+      googleSheetUrl: DEFAULT_GOOGLE_SHEET_URL,
       qrHourSlot: Math.floor(Date.now() / QR_ROTATION_MS),
       qrSalt: 'xmas2026',
-      isPureQrScanMode: false, // true when colleague enters via QR code (#mobile): hides tree view & top bar completely
-      ornaments: [...DEFAULT_ORNAMENTS],
+      isPureQrScanMode: false,
+      ornaments: [],
       selectedOrnamentType: 'red-bauble',
       selectedTreeZone: 'middle',
       selectedTreePos: { x: 50, y: 42 },
@@ -953,24 +906,62 @@
       spotlightIndex: 0
     };
 
+    // Strict 24-hour filter: only keeps ornaments created within the last 24 hours
+    function filterOrnamentsWithin24Hours(list) {
+      if (!Array.isArray(list)) return [];
+      const now = Date.now();
+      const seenIds = new Set();
+      const result = [];
+      for (const rawItem of list) {
+        if (!rawItem || !rawItem.id) continue;
+        if (seenIds.has(rawItem.id)) continue;
+        const createdAtMs = Number(rawItem.createdAtMs) || (rawItem.createdAtIso ? new Date(rawItem.createdAtIso).getTime() : 0);
+        if (!createdAtMs || isNaN(createdAtMs)) continue;
+        const ageMs = now - createdAtMs;
+        // Strictly within 24 hours
+        if (ageMs > ORNAMENT_TTL_MS || ageMs < -300000) continue;
+        const expiresAtMs = createdAtMs + ORNAMENT_TTL_MS;
+        if (now >= expiresAtMs) continue;
+        seenIds.add(rawItem.id);
+        result.push({
+          id: String(rawItem.id),
+          ornamentId: String(rawItem.ornamentId || 'red-bauble'),
+          author: String(rawItem.author || '匿名同事').slice(0, 20),
+          message: String(rawItem.message || '').slice(0, 20),
+          theme: String(rawItem.theme || 'amber'),
+          x: Number(rawItem.x) || 50,
+          y: Number(rawItem.y) || 42,
+          createdAt: rawItem.createdAt || formatRelativeTimeText(createdAtMs),
+          createdAtMs,
+          expiresAtMs
+        });
+      }
+      result.sort((a, b) => b.createdAtMs - a.createdAtMs);
+      return result;
+    }
+
+    function formatRelativeTimeText(createdAtMs) {
+      const diffMins = Math.max(0, Math.floor((Date.now() - createdAtMs) / 60000));
+      if (diffMins < 1) return '剛剛';
+      if (diffMins < 60) return `${diffMins} 分鐘前`;
+      const hrs = Math.floor(diffMins / 60);
+      return `${hrs} 小時前`;
+    }
+
     function loadStateFromStorage() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed.ornaments) && parsed.ornaments.length > 0) {
-            const now = Date.now();
-            state.ornaments = parsed.ornaments.map(item => {
-              const createdAtMs = item.createdAtMs || now;
-              const maxExpiry = createdAtMs + ORNAMENT_TTL_MS;
-              const expiresAtMs = item.expiresAtMs ? Math.min(item.expiresAtMs, maxExpiry) : maxExpiry;
-              return { ...item, createdAtMs, expiresAtMs };
-            });
+          if (Array.isArray(parsed.ornaments)) {
+            state.ornaments = filterOrnamentsWithin24Hours(parsed.ornaments);
           }
           if (parsed.title) state.title = parsed.title;
           if (parsed.bgFitMode) state.bgFitMode = parsed.bgFitMode;
           if (parsed.customBgDataUrl) state.customBgDataUrl = parsed.customBgDataUrl;
-          if (parsed.qrTargetUrl) state.qrTargetUrl = parsed.qrTargetUrl;
+          if (typeof parsed.qrTargetUrl === 'string') state.qrTargetUrl = parsed.qrTargetUrl;
+          if (typeof parsed.googleScriptUrl === 'string') state.googleScriptUrl = parsed.googleScriptUrl;
+          if (typeof parsed.googleSheetUrl === 'string' && parsed.googleSheetUrl) state.googleSheetUrl = parsed.googleSheetUrl;
         }
       } catch (e) {
         // Ignore storage errors in sandboxed iframes
@@ -979,16 +970,162 @@
 
     function saveStateToStorage() {
       try {
+        state.ornaments = filterOrnamentsWithin24Hours(state.ornaments);
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           title: state.title,
           bgFitMode: state.bgFitMode,
           customBgDataUrl: state.customBgDataUrl,
           qrTargetUrl: state.qrTargetUrl,
+          googleScriptUrl: state.googleScriptUrl,
+          googleSheetUrl: state.googleSheetUrl,
           ornaments: state.ornaments
         }));
       } catch (e) {
         // Ignore storage errors if quota exceeded
       }
+    }
+
+    function extractGoogleSheetId(urlOrId) {
+      if (!urlOrId) return '';
+      const m = String(urlOrId).match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (m && m[1]) return m[1];
+      if (/^[a-zA-Z0-9-_]{20,}$/.test(String(urlOrId).trim())) return String(urlOrId).trim();
+      return '';
+    }
+
+    async function appendOrnamentToGoogleSheet(newItem) {
+      const gasUrl = (state.googleScriptUrl || '').trim();
+      if (!gasUrl) return;
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'add', item: newItem })
+        });
+      } catch (e) {}
+    }
+
+    async function deleteOrnamentFromGoogleSheet(itemId) {
+      const gasUrl = (state.googleScriptUrl || '').trim();
+      if (!gasUrl) return;
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'delete', id: itemId })
+        });
+      } catch (e) {}
+    }
+
+    async function clearAllOrnamentsInGoogleSheet() {
+      const gasUrl = (state.googleScriptUrl || '').trim();
+      if (!gasUrl) return;
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'clear' })
+        });
+      } catch (e) {}
+    }
+
+    async function fetchOrnamentsFromGoogleSheet(showNotification = false) {
+      const statusBadge = document.getElementById('gsheetSyncStatusBadge');
+      const gasUrl = (state.googleScriptUrl || '').trim();
+
+      // Priority 1: Fetch via Google Apps Script Web App (supports full read/write & 24h filtering)
+      if (gasUrl && gasUrl.startsWith('https://script.google.com/')) {
+        try {
+          if (statusBadge) statusBadge.textContent = '🔄 Google Sheet 同步中...';
+          const res = await fetch(`${gasUrl}${gasUrl.includes('?') ? '&' : '?'}t=${Date.now()}`);
+          const data = await res.json();
+          if (data && Array.isArray(data.items)) {
+            state.ornaments = filterOrnamentsWithin24Hours(data.items);
+            saveStateToStorage();
+            renderTreeOrnaments();
+            renderMarqueeContent();
+            renderManageMessagesList();
+            if (statusBadge) statusBadge.textContent = `✅ 已同步 (${state.ornaments.length} 則 24h 內留言)`;
+            if (showNotification) {
+              showToast(`📊 已從 Google Sheet 撈出 ${state.ornaments.length} 則 24 小時內的裝飾與留言！`);
+            }
+            return;
+          }
+        } catch (err) {
+          // Fall through to direct Google Sheet Gviz reader if GAS fetch fails
+        }
+      }
+
+      // Priority 2: Direct read from Google Sheet via JSONP gviz endpoint if sheet is viewable
+      const sheetId = extractGoogleSheetId(state.googleSheetUrl);
+      if (!sheetId) return;
+
+      return new Promise((resolve) => {
+        const cbName = '__gsheetCb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => {
+          cleanup();
+          resolve();
+        }, 6000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[cbName] = function(response) {
+          cleanup();
+          try {
+            if (response && response.table && Array.isArray(response.table.rows)) {
+              const rows = response.table.rows;
+              const fetchedItems = [];
+              for (const r of rows) {
+                const c = r.c || [];
+                const val = (idx) => (c[idx] && c[idx].v !== null && c[idx].v !== undefined) ? c[idx].v : '';
+                const id = String(val(0)).trim();
+                if (!id || id === 'id') continue;
+                const createdAtIso = String(val(1));
+                const createdAtMs = Number(val(2)) || (createdAtIso ? new Date(createdAtIso).getTime() : 0);
+                const expiresAtMs = Number(val(3)) || (createdAtMs + ORNAMENT_TTL_MS);
+                const author = String(val(4));
+                const message = String(val(5));
+                const ornamentId = String(val(6) || 'red-bauble');
+                const theme = String(val(7) || 'amber');
+                const x = Number(val(8)) || 50;
+                const y = Number(val(9)) || 42;
+                fetchedItems.push({
+                  id, createdAtIso, createdAtMs, expiresAtMs, author, message, ornamentId, theme, x, y
+                });
+              }
+              // Merge or replace with valid 24h items from Google Sheet
+              const combined = fetchedItems.length > 0
+                ? filterOrnamentsWithin24Hours([...fetchedItems, ...state.ornaments])
+                : filterOrnamentsWithin24Hours(state.ornaments);
+              state.ornaments = combined;
+              saveStateToStorage();
+              renderTreeOrnaments();
+              renderMarqueeContent();
+              renderManageMessagesList();
+              if (statusBadge) statusBadge.textContent = `✅ 已連線 (${state.ornaments.length} 則 24h 內留言)`;
+              if (showNotification) {
+                showToast(`📊 已同步 24 小時內的裝飾與留言（共 ${state.ornaments.length} 則）！`);
+              }
+            }
+          } catch (e) {}
+          resolve();
+        };
+
+        script.onerror = () => {
+          cleanup();
+          resolve();
+        };
+        script.src = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(sheetId)}/gviz/tq?tqx=out:json;responseHandler:${cbName}&sheet=Messages&t=${Date.now()}`;
+        document.body.appendChild(script);
+      });
     }
 
     function getOrnamentSvg(ornamentId) {
@@ -1045,7 +1182,8 @@
       }
 
       if (customBase) {
-        return `${customBase}#mobile?slot=${hourSlot}&token=${token}&room=${encodeURIComponent(room)}`;
+        const gasParam = state.googleScriptUrl ? `&gas=${encodeURIComponent(state.googleScriptUrl.trim())}` : '';
+        return `${customBase}#mobile?slot=${hourSlot}&token=${token}&room=${encodeURIComponent(room)}${gasParam}`;
       }
 
       // When running inside the un-deployed AI Canvas preview (about:srcdoc) with no public URL configured yet,
@@ -1067,6 +1205,10 @@
       const roomParam = params.get('room');
       if (roomParam) {
         state.qrSalt = roomParam;
+      }
+      const gasParam = params.get('gas');
+      if (gasParam) {
+        state.googleScriptUrl = gasParam;
       }
       const slotStr = params.get('slot');
       const tokenStr = params.get('token');
@@ -1812,6 +1954,13 @@
       renderMarqueeContent();
       startMarqueeLoop();
       pickRandomTreePosition();
+      // Immediately fetch 24-hour ornaments & messages from Google Sheet on load, and poll every 10s
+      fetchOrnamentsFromGoogleSheet(false);
+      setInterval(() => {
+        if (!state.isPureQrScanMode) {
+          fetchOrnamentsFromGoogleSheet(false);
+        }
+      }, 10000);
 
       // Check if URL has #mobile hash (colleague scanned QR code -> ONLY enter hang-ornament screen, never show full tree screen)
       const qrCheck = verifyQrHashToken();
@@ -2040,12 +2189,14 @@
       });
       document.getElementById('deletePopoverOrnamentBtn').addEventListener('click', () => {
         if (!state.activePopoverId) return;
-        state.ornaments = state.ornaments.filter(o => o.id !== state.activePopoverId);
+        const delId = state.activePopoverId;
+        state.ornaments = state.ornaments.filter(o => o.id !== delId);
+        deleteOrnamentFromGoogleSheet(delId);
         closeOrnamentPopover();
         saveStateToStorage();
         renderTreeOrnaments();
         renderMarqueeContent();
-        showToast('已從聖誕樹上移除該吊飾');
+        showToast('已從聖誕樹與 Google Sheet 移除該吊飾');
       });
 
       // Mobile View: Ornament Catalog Selection Delegation
@@ -2174,6 +2325,7 @@
 
         state.ornaments.unshift(newItem);
         saveStateToStorage();
+        appendOrnamentToGoogleSheet(newItem);
         if (typeof window.__pushOrnamentToBigScreen === 'function') {
           window.__pushOrnamentToBigScreen(newItem);
         }
@@ -2201,6 +2353,11 @@
       document.getElementById('openManageModalBtn').addEventListener('click', () => {
         document.getElementById('customTitleInput').value = state.title;
         document.getElementById('bgFitModeSelect').value = state.bgFitMode;
+        document.getElementById('googleScriptUrlInput').value = state.googleScriptUrl || '';
+        document.getElementById('googleSheetUrlInput').value = state.googleSheetUrl || DEFAULT_GOOGLE_SHEET_URL;
+        if (state.qrTargetUrl) {
+          document.getElementById('qrUrlInput').value = state.qrTargetUrl;
+        }
         renderManageMessagesList();
         manageModal.classList.remove('hidden');
       });
@@ -2208,14 +2365,24 @@
         manageModal.classList.add('hidden');
       });
 
+      document.getElementById('syncGoogleSheetNowBtn').addEventListener('click', () => {
+        state.googleScriptUrl = document.getElementById('googleScriptUrlInput').value.trim();
+        state.googleSheetUrl = document.getElementById('googleSheetUrlInput').value.trim() || DEFAULT_GOOGLE_SHEET_URL;
+        saveStateToStorage();
+        fetchOrnamentsFromGoogleSheet(true);
+      });
+
       document.getElementById('saveSettingsBtn').addEventListener('click', () => {
         state.title = document.getElementById('customTitleInput').value.trim() || '聖誕許願樹・祝福互動牆';
         state.bgFitMode = document.getElementById('bgFitModeSelect').value;
         state.qrTargetUrl = document.getElementById('qrUrlInput').value.trim();
+        state.googleScriptUrl = document.getElementById('googleScriptUrlInput').value.trim();
+        state.googleSheetUrl = document.getElementById('googleSheetUrlInput').value.trim() || DEFAULT_GOOGLE_SHEET_URL;
         applyBackgroundAndSettings();
         renderQrCode();
         saveStateToStorage();
-        showToast('已儲存設定並更新左下角 QR Code！');
+        fetchOrnamentsFromGoogleSheet(false);
+        showToast('已儲存 Google Sheet 與 QR Code 設定！');
       });
 
       document.getElementById('manageMessagesList').addEventListener('click', (e) => {
@@ -2223,6 +2390,7 @@
         if (!delBtn) return;
         const targetId = delBtn.getAttribute('data-delete-id');
         state.ornaments = state.ornaments.filter(o => o.id !== targetId);
+        deleteOrnamentFromGoogleSheet(targetId);
         saveStateToStorage();
         renderTreeOrnaments();
         renderMarqueeContent();
@@ -2230,16 +2398,12 @@
       });
 
       document.getElementById('resetDemoDataBtn').addEventListener('click', () => {
-        state.ornaments = [...DEFAULT_ORNAMENTS];
-        saveStateToStorage();
-        renderTreeOrnaments();
-        renderMarqueeContent();
-        renderManageMessagesList();
-        showToast('已還原 6 則預設同事祝福範例！');
+        fetchOrnamentsFromGoogleSheet(true);
       });
 
       document.getElementById('clearAllOrnamentsBtn').addEventListener('click', () => {
         state.ornaments = [];
+        clearAllOrnamentsInGoogleSheet();
         closeOrnamentPopover();
         saveStateToStorage();
         renderTreeOrnaments();
