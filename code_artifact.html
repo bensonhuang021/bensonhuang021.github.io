@@ -1321,11 +1321,18 @@
       node.addEventListener('touchstart', onPointerDown, { passive: true });
     }
 
+    let popoverAutoCloseTimer = null;
+
     function openOrnamentPopover(itemId) {
       const item = state.ornaments.find(o => o.id === itemId);
       const popover = document.getElementById('ornamentDetailPopover');
       const stage = document.getElementById('treeStageContainer');
       if (!item || !popover || !stage) return;
+
+      if (popoverAutoCloseTimer) {
+        clearTimeout(popoverAutoCloseTimer);
+        popoverAutoCloseTimer = null;
+      }
 
       state.activePopoverId = itemId;
       document.getElementById('popoverOrnamentIcon').innerHTML = getOrnamentSvg(item.ornamentId);
@@ -1349,9 +1356,18 @@
       document.querySelectorAll('.ornament-node').forEach(el => {
         el.classList.toggle('highlighted', el.dataset.id === itemId);
       });
+
+      // Automatically auto-dismiss popover after 6 seconds so it never permanently covers the tree
+      popoverAutoCloseTimer = setTimeout(() => {
+        closeOrnamentPopover();
+      }, 6000);
     }
 
     function closeOrnamentPopover() {
+      if (popoverAutoCloseTimer) {
+        clearTimeout(popoverAutoCloseTimer);
+        popoverAutoCloseTimer = null;
+      }
       state.activePopoverId = null;
       const popover = document.getElementById('ornamentDetailPopover');
       if (popover) popover.classList.add('hidden');
@@ -1870,8 +1886,9 @@
         renderTreeOrnaments(item.id);
         renderMarqueeContent();
         renderManageMessagesList();
+        // Do NOT auto open the large modal popover so the screen is never blocked!
+        // The newly hung ornament on the tree gently glows and pops in, and the marquee plays the message below.
         if (!state.isPureQrScanMode) {
-          openOrnamentPopover(item.id);
           showToast(`🎉 收到手機掃碼祝福：${item.author} 掛上了「${getOrnamentName(item.ornamentId)}」！`);
         }
       }
