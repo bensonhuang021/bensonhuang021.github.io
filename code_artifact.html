@@ -430,15 +430,9 @@
         
         <!-- Step 1: Choose Ornament -->
         <div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-            <label class="block text-xs font-bold text-amber-300 uppercase tracking-wider">
-              STEP 1. 選擇要掛在樹上的吊飾（8 款照片小熊掛飾 ＋ 支援上傳自訂掛飾）
-            </label>
-            <label for="uploadCustomOrnamentInput" class="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/60 text-amber-200 text-[11px] font-bold transition-all shadow">
-              <span>➕ 新增自訂掛飾圖</span>
-              <input id="uploadCustomOrnamentInput" type="file" accept="image/*" class="hidden" />
-            </label>
-          </div>
+          <label class="block text-xs font-bold text-amber-300 uppercase tracking-wider mb-2.5">
+            STEP 1. 點選要掛在樹上的吊飾
+          </label>
           <div id="ornamentPickerGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2.5"></div>
         </div>
 
@@ -3844,64 +3838,6 @@
         state.selectedOrnamentType = btn.getAttribute('data-pick-ornament');
         renderMobileOrnamentPicker();
       });
-
-      // Custom Ornament Image Uploader (automatically adds golden ornament cap & hanging ring!)
-      const customOrnInput = document.getElementById('uploadCustomOrnamentInput');
-      if (customOrnInput) {
-        customOrnInput.addEventListener('change', (e) => {
-          const file = e.target.files && e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const rawImg = new Image();
-            rawImg.onload = () => {
-              const canvas = document.createElement('canvas');
-              canvas.width = 180;
-              canvas.height = 180;
-              const ctx = canvas.getContext('2d');
-              // Draw golden hanging ring & cap at top
-              ctx.strokeStyle = '#f59e0b';
-              ctx.lineWidth = 4;
-              ctx.beginPath();
-              ctx.arc(90, 16, 8, 0, Math.PI * 2);
-              ctx.stroke();
-              ctx.fillStyle = '#f59e0b';
-              ctx.fillRect(80, 22, 20, 8);
-              ctx.strokeStyle = '#fef08a';
-              ctx.lineWidth = 1.5;
-              ctx.strokeRect(80, 22, 20, 8);
-
-              // Fit user uploaded image nicely below the ornament cap
-              const scale = Math.min(140 / rawImg.width, 140 / rawImg.height);
-              const dw = rawImg.width * scale;
-              const dh = rawImg.height * scale;
-              const dx = (180 - dw) / 2;
-              const dy = 30 + (144 - dh) / 2;
-              ctx.shadowColor = 'rgba(254, 240, 138, 0.85)';
-              ctx.shadowBlur = 6;
-              ctx.drawImage(rawImg, dx, dy, dw, dh);
-
-              const dataUrl = canvas.toDataURL('image/png');
-              const baseName = (file.name || '自訂掛飾').replace(/\.[^.]+$/, '').slice(0, 10) || '自訂掛飾';
-              const customId = 'custom-orn-' + Date.now();
-              const customEntry = {
-                id: customId,
-                name: baseName,
-                dataUrl: dataUrl,
-                svg: `<img src="${dataUrl}" alt="${escapeHtml(baseName)}" class="w-full h-full object-contain pointer-events-none select-none" />`
-              };
-              state.customOrnaments.unshift(customEntry);
-              state.selectedOrnamentType = customId;
-              saveStateToStorage();
-              renderMobileOrnamentPicker();
-              showToast(`✨ 已新增自訂掛飾「${baseName}」並自動加上金色吊環！`);
-            };
-            rawImg.src = ev.target.result;
-          };
-          reader.readAsDataURL(file);
-          customOrnInput.value = '';
-        });
-      }
 
       // Mobile View: Click on Mini Tree to Choose Exact Ornament Hanging Spot
       const miniTreeBox = document.getElementById('miniTreePickerBox');
