@@ -4,24 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>聖誕樹祝福吊飾互動牆 | 掃碼掛吊飾與跑馬燈留言</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" async onload="if(window.Office&&Office.onReady){Office.onReady(function(){});}"></script>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <script>
     (function() {
       try {
+        if (window.Office && typeof window.Office.onReady === 'function') {
+          window.Office.onReady(function() {});
+        }
         var s = window.location.search || '';
         var h = decodeURIComponent(window.location.hash || '');
         var ref = document.referrer || '';
-        // ONLY enter locked QR-scan mobile mode when the URL contains QR scan parameters (?mode=mobile, #mobile, etc.)
-        // Typing/opening the full base URL on either PC or mobile phone will normally show the Christmas tree!
+        // ONLY enter locked QR-scan mobile mode when the URL contains exact QR scan parameters (?mode=mobile, #mobile, etc.)
+        // Excel Content Add-in query params (?_host_Info=...) or opening the base URL on PC/mobile will normally show the Christmas tree!
         var hasQrScanParam = (
-          s.indexOf('mode=mobile') !== -1 ||
-          s.indexOf('view=mobile') !== -1 ||
-          s.indexOf('slot=') !== -1 ||
-          s.indexOf('token=') !== -1 ||
-          s.indexOf('r=') !== -1 ||
-          s.indexOf('s=') !== -1 ||
+          /[?&](mode=mobile|view=mobile|slot=|token=|r=|s=)/i.test(s) ||
           h.indexOf('mobile') !== -1 ||
           ref.indexOf('mode=mobile') !== -1
         );
@@ -1136,7 +1135,7 @@
       title: '聖誕許願樹・祝福互動牆',
       bgFitMode: 'contain',
       customBgDataUrl: null,
-      qrTargetUrl: DEFAULT_GOOGLE_SCRIPT_URL,
+      qrTargetUrl: 'https://bensonhuang021.github.io/code_artifact.html',
       googleScriptUrl: DEFAULT_GOOGLE_SCRIPT_URL,
       googleSheetUrl: DEFAULT_GOOGLE_SHEET_URL,
       qrHourSlot: Math.floor(Date.now() / QR_ROTATION_MS),
@@ -2627,14 +2626,7 @@
       const rawHash = decodeURIComponent(window.location.hash || '');
       const rawSearch = window.location.search || '';
       const hasMobileHash = rawHash.includes('mobile');
-      const hasMobileQuery = (
-        rawSearch.includes('mode=mobile') ||
-        rawSearch.includes('view=mobile') ||
-        rawSearch.includes('slot=') ||
-        rawSearch.includes('token=') ||
-        rawSearch.includes('r=') ||
-        rawSearch.includes('s=')
-      );
+      const hasMobileQuery = /[?&](mode=mobile|view=mobile|slot=|token=|r=|s=)/i.test(rawSearch);
 
       // Only lock into Hang-Ornament-Only view when entered via QR Code URL parameters (?mode=mobile / #mobile)
       if (!hasMobileHash && !hasMobileQuery && !document.documentElement.classList.contains('qr-mobile-mode')) {
