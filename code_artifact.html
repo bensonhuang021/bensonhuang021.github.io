@@ -1122,7 +1122,7 @@
     state.hasCompletedInitialSync = false;
 
     function getAllAvailableOrnaments() {
-      return [...(state.customOrnaments || []), ...ORNAMENT_CATALOG];
+      return ORNAMENT_CATALOG;
     }
 
     // =========================================================================
@@ -2132,9 +2132,11 @@
         seenIds.add(idStr);
         result.push({
           id: idStr,
-          ornamentId: String(rawItem.ornamentId || 'red-bauble'),
-          customImgDataUrl: rawItem.customImgDataUrl || null,
-          customOrnamentName: rawItem.customOrnamentName || null,
+          ornamentId: String(rawItem.ornamentId || 'red-bauble').startsWith('custom-orn-')
+            ? 'cathay-bear-captain'
+            : String(rawItem.ornamentId || 'red-bauble'),
+          customImgDataUrl: null,
+          customOrnamentName: null,
           author: String(rawItem.author || '匿名同事').slice(0, 20),
           message: String(rawItem.message || '').slice(0, 30),
           theme: String(rawItem.theme || 'amber'),
@@ -2183,9 +2185,7 @@
       if (parsed.customPositions && typeof parsed.customPositions === 'object') {
         state.customPositions = { ...state.customPositions, ...parsed.customPositions };
       }
-      if (Array.isArray(parsed.customOrnaments) && state.customOrnaments.length === 0) {
-        state.customOrnaments = parsed.customOrnaments;
-      }
+      state.customOrnaments = [];
       if (state.ornaments.length === 0 && Array.isArray(parsed.ornaments)) {
         state.ornaments = filterOrnamentsWithin24Hours(parsed.ornaments);
       }
@@ -2239,7 +2239,7 @@
         googleSheetUrl: state.googleSheetUrl,
         deletedIds: state.deletedIds,
         customPositions: state.customPositions,
-        customOrnaments: state.customOrnaments,
+        customOrnaments: [],
         ornaments: state.ornaments
       });
       try {
@@ -2467,21 +2467,13 @@
       });
     }
 
-    function getOrnamentSvg(ornamentId, itemOpt = null) {
-      if (itemOpt && itemOpt.customImgDataUrl) {
-        return `<img src="${itemOpt.customImgDataUrl}" alt="${escapeHtml(itemOpt.customOrnamentName || '自訂掛飾')}" class="w-full h-full object-contain pointer-events-none select-none" />`;
-      }
-      const all = getAllAvailableOrnaments();
-      const found = all.find(o => o.id === ornamentId);
+    function getOrnamentSvg(ornamentId) {
+      const found = ORNAMENT_CATALOG.find(o => o.id === ornamentId);
       return found ? found.svg : ORNAMENT_CATALOG[0].svg;
     }
 
-    function getOrnamentName(ornamentId, itemOpt = null) {
-      if (itemOpt && itemOpt.customOrnamentName) {
-        return itemOpt.customOrnamentName;
-      }
-      const all = getAllAvailableOrnaments();
-      const found = all.find(o => o.id === ornamentId);
+    function getOrnamentName(ornamentId) {
+      const found = ORNAMENT_CATALOG.find(o => o.id === ornamentId);
       return found ? found.name : ORNAMENT_CATALOG[0].name;
     }
 
