@@ -13,8 +13,9 @@
         var s = window.location.search || '';
         var h = decodeURIComponent(window.location.hash || '');
         var ref = document.referrer || '';
-        var ua = navigator.userAgent || '';
-        var hasMobileParam = (
+        // ONLY enter locked QR-scan mobile mode when the URL contains QR scan parameters (?mode=mobile, #mobile, etc.)
+        // Typing/opening the full base URL on either PC or mobile phone will normally show the Christmas tree!
+        var hasQrScanParam = (
           s.indexOf('mode=mobile') !== -1 ||
           s.indexOf('view=mobile') !== -1 ||
           s.indexOf('slot=') !== -1 ||
@@ -24,10 +25,7 @@
           h.indexOf('mobile') !== -1 ||
           ref.indexOf('mode=mobile') !== -1
         );
-        var isMobileUa = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Line|MicroMessenger|Instagram|FBAN|FBAV/i.test(ua);
-        var minScreen = Math.min(window.screen && window.screen.width ? window.screen.width : 9999, window.screen && window.screen.height ? window.screen.height : 9999);
-        var isTouchPhone = (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) && (minScreen <= 540 || (window.innerWidth > 0 && window.innerWidth <= 560));
-        if (hasMobileParam || isMobileUa || isTouchPhone) {
+        if (hasQrScanParam) {
           document.documentElement.classList.add('qr-mobile-mode');
         }
       } catch (e) {}
@@ -38,7 +36,9 @@
       display: none !important;
     }
     html.qr-mobile-mode #displayViewSection,
-    html.qr-mobile-mode #topToolbar {
+    html.qr-mobile-mode #topToolbar,
+    html.qr-mobile-mode #restoreToolbarBtn,
+    html.qr-mobile-mode #backToDisplayBtn {
       display: none !important;
     }
     html.qr-mobile-mode #mobileViewSection {
@@ -2590,7 +2590,8 @@
         rawSearch.includes('s=')
       );
 
-      if (!hasMobileHash && !hasMobileQuery && !isLikelyMobileDeviceScanner() && !document.documentElement.classList.contains('qr-mobile-mode')) {
+      // Only lock into Hang-Ornament-Only view when entered via QR Code URL parameters (?mode=mobile / #mobile)
+      if (!hasMobileHash && !hasMobileQuery && !document.documentElement.classList.contains('qr-mobile-mode')) {
         return { isMobileHash: false, valid: true };
       }
 
