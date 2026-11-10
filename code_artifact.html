@@ -419,7 +419,7 @@
           這顆吊飾與祝福將在畫面上閃耀 <strong class="text-amber-300">24 小時</strong>，時間一到將化作流星從背景夜空劃過！
         </p>
         <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-          <button id="hangAnotherOrnamentBtn" type="button" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs sm:text-sm shadow-lg">
+          <button id="hangAnotherOrnamentBtn" type="button" onclick="window.resetMobileFormForNextOrnament && window.resetMobileFormForNextOrnament()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs sm:text-sm shadow-lg cursor-pointer active:scale-95 transition-transform">
             🎄 再掛一個吊飾
           </button>
         </div>
@@ -2199,7 +2199,6 @@
         const candidateQr = normalizePublicUrl(parsed.qrTargetUrl);
         if (candidateQr.startsWith('https://script.google.com/')) {
           if (!state.googleScriptUrl) state.googleScriptUrl = candidateQr;
-          if (!state.qrTargetUrl) state.qrTargetUrl = candidateQr;
         } else if (candidateQr && !state.qrTargetUrl) {
           state.qrTargetUrl = candidateQr;
         }
@@ -2522,28 +2521,28 @@
       state.qrHourSlot = hourSlot;
       const room = state.qrSalt || 'xmas2026';
 
-      // Priority 1: Explicit online webpage URL or Apps Script URL from Settings
+      // Priority 1: Explicit non-GAS online webpage URL from Settings
       let customBase = '';
       if (state.qrTargetUrl && state.qrTargetUrl.trim()) {
-        const normalized = normalizePublicUrl(state.qrTargetUrl.trim().split('#')[0]);
-        if (normalized) {
+        const normalized = normalizePublicUrl(state.qrTargetUrl.trim().split('#')[0].split('?')[0]);
+        if (normalized && !normalized.startsWith('https://script.google.com/')) {
           customBase = normalized;
         }
       }
 
-      // Priority 2: Google Apps Script Web App URL (always serves the standalone mobile Hang-Ornament page via doGet!)
+      // Priority 2: Current window URL if hosted on an actual standalone http/https web server
+      if (!customBase) {
+        const currentClean = (window.location.href || '').split('#')[0].split('?')[0];
+        if (!isSandboxPreviewEnvironment(currentClean) && !currentClean.startsWith('https://script.google.com/')) {
+          customBase = currentClean;
+        }
+      }
+
+      // Priority 3: Google Apps Script Web App URL fallback (when previewing inside a sandbox without a hosted static URL)
       if (!customBase && state.googleScriptUrl && state.googleScriptUrl.trim()) {
         const normalizedGas = normalizePublicUrl(state.googleScriptUrl.trim().split('#')[0]);
         if (normalizedGas && normalizedGas.startsWith('https://script.google.com/')) {
           customBase = normalizedGas;
-        }
-      }
-
-      // Priority 3: Current window URL if hosted on an actual standalone http/https web server (not inside Google Sites / Canvas iframe)
-      if (!customBase) {
-        const currentClean = (window.location.href || '').split('#')[0].split('?')[0];
-        if (!isSandboxPreviewEnvironment(currentClean)) {
-          customBase = currentClean;
         }
       }
 
@@ -3312,9 +3311,9 @@
         "    '<textarea id=\"msg\" class=\"fld\" required maxlength=\"30\" rows=\"2\" placeholder=\"請輸入 30 字以內的聖誕祝福留言...\"></textarea>' +",
         "    '<button id=\"btn\" type=\"submit\" class=\"btn\">✨ 掛上聖誕樹並發送跑馬燈留言</button>' +",
         "    '</form>' +",
-        "    '<div id=\"ok\" class=\"ok hidden\"><div style=\"font-size:48px\">🎉</div><h2 style=\"color:#fcd34d;margin:10px 0\">你的吊飾已經掛上聖誕樹囉！</h2><p id=\"okMsg\" style=\"font-size:14px;color:#fff;background:#1e293b;padding:12px;border-radius:12px;max-width:340px;margin:10px auto\"></p><p style=\"font-size:12px;color:#cbd5e1\">請抬頭觀看現場大螢幕的聖誕樹與底部跑馬燈 ✨</p><button type=\"button\" onclick=\"location.reload()\" class=\"btn\" style=\"margin-top:14px\">🎄 再掛一個吊飾</button></div>' +",
+        "    '<div id=\"ok\" class=\"ok hidden\"><div style=\"font-size:48px\">🎉</div><h2 style=\"color:#fcd34d;margin:10px 0\">你的吊飾已經掛上聖誕樹囉！</h2><p id=\"okMsg\" style=\"font-size:14px;color:#fff;background:#1e293b;padding:12px;border-radius:12px;max-width:340px;margin:10px auto\"></p><p style=\"font-size:12px;color:#cbd5e1\">請抬頭觀看現場大螢幕的聖誕樹與底部跑馬燈 ✨</p><button type=\"button\" onclick=\"resetForNext()\" class=\"btn\" style=\"margin-top:14px\">🎄 再掛一個吊飾</button></div>' +",
         "    '</div>' +",
-        "    '<script>function pickOrn(btn){var all=document.querySelectorAll(\".orn-btn\");for(var i=0;i<all.length;i++)all[i].classList.remove(\"active\");btn.classList.add(\"active\");document.getElementById(\"orn\").value=btn.getAttribute(\"data-id\");}function pickZone(btn){var all=document.querySelectorAll(\".zone-btn\");for(var i=0;i<all.length;i++)all[i].classList.remove(\"active\");btn.classList.add(\"active\");document.getElementById(\"zone\").value=btn.getAttribute(\"data-z\");}var mEl=document.getElementById(\"msg\"),cEl=document.getElementById(\"cnt\");function clamp(){var a=Array.from(mEl.value||\"\");if(a.length>30)mEl.value=a.slice(0,30).join(\"\");cEl.textContent=Array.from(mEl.value||\"\").length+\" / 30 字\";}mEl.addEventListener(\"input\",clamp);mEl.addEventListener(\"compositionend\",clamp);document.getElementById(\"f\").onsubmit=function(e){e.preventDefault();clamp();var b=document.getElementById(\"btn\");b.disabled=true;b.textContent=\"傳送中...\";var z=document.getElementById(\"zone\").value;var minY=z===\"top\"?14:(z===\"bottom\"?49:30),maxY=z===\"top\"?29:(z===\"bottom\"?66:48);var y=Number((minY+Math.random()*(maxY-minY)).toFixed(1));var sp=3.5+Math.max(0,(y-12)/56)*15.5;var x=Number((50+(Math.random()*2-1)*sp).toFixed(1));var p={ornamentId:document.getElementById(\"orn\").value,author:document.getElementById(\"author\").value.trim().slice(0,20),message:Array.from(mEl.value.trim()).slice(0,30).join(\"\"),theme:document.getElementById(\"theme\").value||\"amber\",x:x,y:y};google.script.run.withSuccessHandler(function(it){try{fetch(\"https://ntfy.sh/xmas_tree_wall_xmas2026\",{method:\"POST\",body:JSON.stringify({type:\"NEW_ORNAMENT\",item:it})});}catch(err){}document.getElementById(\"okMsg\").textContent=it.author+\"：「\"+it.message+\"」\";document.getElementById(\"f\").classList.add(\"hidden\");document.getElementById(\"ok\").classList.remove(\"hidden\");}).submitFromMobileClient(p);};' +",
+        "    '<script>function pickOrn(btn){var all=document.querySelectorAll(\".orn-btn\");for(var i=0;i<all.length;i++)all[i].classList.remove(\"active\");btn.classList.add(\"active\");document.getElementById(\"orn\").value=btn.getAttribute(\"data-id\");}function pickZone(btn){var all=document.querySelectorAll(\".zone-btn\");for(var i=0;i<all.length;i++)all[i].classList.remove(\"active\");btn.classList.add(\"active\");document.getElementById(\"zone\").value=btn.getAttribute(\"data-z\");}var mEl=document.getElementById(\"msg\"),cEl=document.getElementById(\"cnt\");function clamp(){var a=Array.from(mEl.value||\"\");if(a.length>30)mEl.value=a.slice(0,30).join(\"\");cEl.textContent=Array.from(mEl.value||\"\").length+\" / 30 字\";}mEl.addEventListener(\"input\",clamp);mEl.addEventListener(\"compositionend\",clamp);function resetForNext(){var b=document.getElementById(\"btn\");if(b){b.disabled=false;b.textContent=\"✨ 掛上聖誕樹並發送跑馬燈留言\";}if(mEl){mEl.value=\"\";clamp();}document.getElementById(\"ok\").classList.add(\"hidden\");document.getElementById(\"f\").classList.remove(\"hidden\");window.scrollTo(0,0);}document.getElementById(\"f\").onsubmit=function(e){e.preventDefault();clamp();var b=document.getElementById(\"btn\");b.disabled=true;b.textContent=\"傳送中...\";var z=document.getElementById(\"zone\").value;var minY=z===\"top\"?14:(z===\"bottom\"?49:30),maxY=z===\"top\"?29:(z===\"bottom\"?66:48);var y=Number((minY+Math.random()*(maxY-minY)).toFixed(1));var sp=3.5+Math.max(0,(y-12)/56)*15.5;var x=Number((50+(Math.random()*2-1)*sp).toFixed(1));var p={ornamentId:document.getElementById(\"orn\").value,author:document.getElementById(\"author\").value.trim().slice(0,20),message:Array.from(mEl.value.trim()).slice(0,30).join(\"\"),theme:document.getElementById(\"theme\").value||\"amber\",x:x,y:y};google.script.run.withSuccessHandler(function(it){try{fetch(\"https://ntfy.sh/xmas_tree_wall_xmas2026\",{method:\"POST\",body:JSON.stringify({type:\"NEW_ORNAMENT\",item:it})});}catch(err){}b.disabled=false;b.textContent=\"✨ 掛上聖誕樹並發送跑馬燈留言\";document.getElementById(\"okMsg\").textContent=it.author+\"：「\"+it.message+\"」\";document.getElementById(\"f\").classList.add(\"hidden\");document.getElementById(\"ok\").classList.remove(\"hidden\");window.scrollTo(0,0);}).withFailureHandler(function(){b.disabled=false;b.textContent=\"✨ 掛上聖誕樹並發送跑馬燈留言\";}).submitFromMobileClient(p);};' +",
         "    '" + sClose + "</body></html>';",
         "}"
       ].join('\n');
@@ -3969,11 +3968,50 @@
         });
       });
 
-      // Mobile View: Hang Another Ornament Button on Success Card
-      document.getElementById('hangAnotherOrnamentBtn').addEventListener('click', () => {
-        document.getElementById('mobileSubmitSuccessBox').classList.add('hidden');
-        document.getElementById('mobileSubmitForm').classList.remove('hidden');
-        pickRandomTreePosition();
+      // Mobile View: Hang Another Ornament Button on Success Card (Instant DOM reset without page reload)
+      window.resetMobileFormForNextOrnament = function() {
+        const successBox = document.getElementById('mobileSubmitSuccessBox');
+        const expiredBox = document.getElementById('mobileQrExpiredBox');
+        const formEl = document.getElementById('mobileSubmitForm');
+        const errBanner = document.getElementById('formErrorBanner');
+        const mobileSec = document.getElementById('mobileViewSection');
+        if (successBox) {
+          successBox.classList.add('hidden');
+          successBox.style.display = 'none';
+        }
+        if (expiredBox) {
+          expiredBox.classList.add('hidden');
+          expiredBox.style.display = 'none';
+        }
+        if (errBanner) {
+          errBanner.classList.add('hidden');
+        }
+        if (formEl) {
+          formEl.classList.remove('hidden');
+          formEl.style.display = 'block';
+          const submitBtn = formEl.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.disabled = false;
+        }
+        if (messageInput) messageInput.value = '';
+        if (charCountLabel) {
+          charCountLabel.textContent = `0 / ${MAX_MESSAGE_LENGTH} 字`;
+          charCountLabel.className = 'text-[11px] text-amber-300 font-semibold';
+        }
+        renderMobileOrnamentPicker();
+        pickRandomTreePosition(state.selectedTreeZone || 'middle');
+        try {
+          if (mobileSec) mobileSec.scrollTop = 0;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        } catch (e) {
+          window.scrollTo(0, 0);
+        }
+      };
+
+      document.getElementById('hangAnotherOrnamentBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.resetMobileFormForNextOrnament();
       });
 
       // Mobile View: Form Submit -> Hang Ornament & Stay on Mobile Confirmation Screen (Never show full tree screen to QR scanner)
@@ -4030,12 +4068,24 @@
         pickRandomTreePosition();
 
         // Stay on mobile view and show the completion screen (never expose full Christmas tree screen on QR scan)
-        document.getElementById('mobileSubmitForm').classList.add('hidden');
+        const formEl = document.getElementById('mobileSubmitForm');
+        if (formEl) {
+          formEl.classList.add('hidden');
+          formEl.style.display = 'none';
+        }
         const successBox = document.getElementById('mobileSubmitSuccessBox');
         document.getElementById('mobileSuccessOrnamentPreview').innerHTML = getOrnamentSvg(newItem.ornamentId);
         document.getElementById('mobileSuccessTitle').textContent = `${newItem.author} 的「${getOrnamentName(newItem.ornamentId)}」已掛上聖誕樹！`;
         document.getElementById('mobileSuccessMsgPreview').textContent = `「${newItem.message}」`;
-        successBox.classList.remove('hidden');
+        if (successBox) {
+          successBox.classList.remove('hidden');
+          successBox.style.display = 'block';
+        }
+        try {
+          const mobileSec = document.getElementById('mobileViewSection');
+          if (mobileSec) mobileSec.scrollTop = 0;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {}
         showToast('🎉 已成功送出吊飾與祝福！（將於現場大螢幕閃耀 24 小時）');
       });
 
