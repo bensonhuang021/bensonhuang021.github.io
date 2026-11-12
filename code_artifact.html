@@ -1790,30 +1790,153 @@
     let nextSleighDirectionLeftToRight = true;
     state.lastSleighHourSlot = Math.floor(Date.now() / QR_ROTATION_MS);
 
-    // 🎅 Play Hosted Santa MP3 ("https://bensonhuang021.github.io/hohoho.mp3") — No Chinese Speech
-    const SANTA_HOHOHO_MP3_URL = 'https://bensonhuang021.github.io/hohoho.mp3';
-    let santaHoHoHoAudioEl = null;
-
+    // 🎅 Play Jolly "Ho! Ho! Ho!" Laugh + 10-Second Shimmering Sleigh Bells & Magical Stardust Chimes
     function playSantaHoHoHoSound10s() {
       if (!state.soundEnabled) return;
 
-      // 強制取消任何語音合成（確保不講中文）
-      if ('speechSynthesis' in window) {
-        try { window.speechSynthesis.cancel(); } catch (e) {}
-      }
-
-      // 播放您上傳到 GitHub 的 hohoho.mp3
+      // Layer A: Browser SpeechSynthesis deep jolly Santa "Ho! Ho! Ho!" voice (when available)
       try {
-        if (!santaHoHoHoAudioEl) {
-          santaHoHoHoAudioEl = new Audio(SANTA_HOHOHO_MP3_URL);
-          santaHoHoHoAudioEl.preload = 'auto';
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter1 = new SpeechSynthesisUtterance('Ho! Ho! Ho! Merry Christmas!');
+          utter1.lang = 'en-US';
+          utter1.pitch = 0.55;
+          utter1.rate = 0.85;
+          utter1.volume = 1.0;
+          window.speechSynthesis.speak(utter1);
+
+          setTimeout(() => {
+            if (!isSleighFlybyActive || !state.soundEnabled) return;
+            try {
+              const utter2 = new SpeechSynthesisUtterance('Ho! Ho! Ho! 聖誕快樂！');
+              utter2.lang = 'zh-TW';
+              utter2.pitch = 0.6;
+              utter2.rate = 0.9;
+              utter2.volume = 1.0;
+              window.speechSynthesis.speak(utter2);
+            } catch (e) {}
+          }, 4800);
         }
-        santaHoHoHoAudioEl.pause();
-        santaHoHoHoAudioEl.currentTime = 0;
-        santaHoHoHoAudioEl.volume = 1.0;
-        santaHoHoHoAudioEl.play().catch(() => {});
       } catch (e) {}
-    
+
+      // Layer B: Web Audio API Formant-Synthesized Deep Santa "Ho! Ho! Ho!" Vocal + 10s Sleigh Bells & Chimes
+      const ctx = getOrCreateAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime + 0.04;
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(0.75, now);
+        master.connect(ctx.destination);
+
+        // Helper to synthesize a single resonant male baritone "HO!" syllable using vocal tract formants (F1=460Hz, F2=840Hz)
+        function scheduleHoSyllable(startTime, basePitch, duration) {
+          const hLen = Math.floor(ctx.sampleRate * 0.05);
+          const hBuf = ctx.createBuffer(1, hLen, ctx.sampleRate);
+          const hData = hBuf.getChannelData(0);
+          for (let i = 0; i < hLen; i++) {
+            hData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.02));
+          }
+          const hSrc = ctx.createBufferSource();
+          hSrc.buffer = hBuf;
+          const hFilter = ctx.createBiquadFilter();
+          hFilter.type = 'bandpass';
+          hFilter.frequency.setValueAtTime(750, startTime);
+          hFilter.Q.setValueAtTime(2.0, startTime);
+          const hGain = ctx.createGain();
+          hGain.gain.setValueAtTime(0.22, startTime);
+          hSrc.connect(hFilter);
+          hFilter.connect(hGain);
+          hGain.connect(master);
+          hSrc.start(startTime);
+
+          const glottal = ctx.createOscillator();
+          const subOsc = ctx.createOscillator();
+          glottal.type = 'sawtooth';
+          subOsc.type = 'triangle';
+          glottal.frequency.setValueAtTime(basePitch * 0.95, startTime);
+          glottal.frequency.linearRampToValueAtTime(basePitch * 1.08, startTime + duration * 0.25);
+          glottal.frequency.exponentialRampToValueAtTime(basePitch * 0.82, startTime + duration);
+
+          subOsc.frequency.setValueAtTime(basePitch * 0.5, startTime);
+          subOsc.frequency.exponentialRampToValueAtTime(basePitch * 0.41, startTime + duration);
+
+          const f1 = ctx.createBiquadFilter();
+          f1.type = 'bandpass';
+          f1.frequency.setValueAtTime(460, startTime);
+          f1.Q.setValueAtTime(4.5, startTime);
+
+          const f2 = ctx.createBiquadFilter();
+          f2.type = 'bandpass';
+          f2.frequency.setValueAtTime(840, startTime);
+          f2.Q.setValueAtTime(5.0, startTime);
+
+          const vGain = ctx.createGain();
+          vGain.gain.setValueAtTime(0.001, startTime);
+          vGain.gain.linearRampToValueAtTime(0.42, startTime + 0.035);
+          vGain.gain.setValueAtTime(0.38, startTime + duration * 0.55);
+          vGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+          glottal.connect(f1);
+          glottal.connect(f2);
+          subOsc.connect(f1);
+          f1.connect(vGain);
+          f2.connect(vGain);
+          vGain.connect(master);
+
+          glottal.start(startTime);
+          subOsc.start(startTime);
+          glottal.stop(startTime + duration + 0.02);
+          subOsc.stop(startTime + duration + 0.02);
+        }
+
+        // Schedule 3 bursts of "Ho! Ho! Ho!" across the 10-second flyby (at 0.25s, 3.6s, and 7.0s)
+        [0.25, 3.6, 7.0].forEach((burstStart) => {
+          scheduleHoSyllable(now + burstStart, 130, 0.28);
+          scheduleHoSyllable(now + burstStart + 0.34, 124, 0.28);
+          scheduleHoSyllable(now + burstStart + 0.68, 116, 0.42);
+        });
+
+        // Schedule 10 seconds of shimmering Reindeer Sleigh Bells (40 rhythmic jingles)
+        const bellNoiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.09), ctx.sampleRate);
+        const bellData = bellNoiseBuf.getChannelData(0);
+        for (let i = 0; i < bellData.length; i++) {
+          bellData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.025));
+        }
+
+        const bellFreqs = [2637, 3136, 3520, 4186];
+        for (let step = 0; step < 40; step++) {
+          const tStep = now + step * 0.24;
+          const nSrc = ctx.createBufferSource();
+          nSrc.buffer = bellNoiseBuf;
+          const bp = ctx.createBiquadFilter();
+          bp.type = 'bandpass';
+          bp.frequency.setValueAtTime(8400, tStep);
+          bp.Q.setValueAtTime(3.0, tStep);
+          const nG = ctx.createGain();
+          nG.gain.setValueAtTime(step % 2 === 0 ? 0.11 : 0.06, tStep);
+          nSrc.connect(bp);
+          bp.connect(nG);
+          nG.connect(master);
+          nSrc.start(tStep);
+
+          if (step % 2 === 0) {
+            const bf = bellFreqs[(step / 2) % bellFreqs.length];
+            const bOsc = ctx.createOscillator();
+            const bG = ctx.createGain();
+            bOsc.type = 'sine';
+            bOsc.frequency.setValueAtTime(bf, tStep);
+            bG.gain.setValueAtTime(0.001, tStep);
+            bG.gain.linearRampToValueAtTime(0.05, tStep + 0.008);
+            bG.gain.exponentialRampToValueAtTime(0.0001, tStep + 0.22);
+            bOsc.connect(bG);
+            bG.connect(master);
+            bOsc.start(tStep);
+            bOsc.stop(tStep + 0.24);
+          }
+        }
+      } catch (e) {}
+    }
+
     function buildReindeerSantaSleighSvg(isLeftToRight) {
       const flipTransform = isLeftToRight ? 'scale(1, 1)' : 'scale(-1, 1)';
       return `
