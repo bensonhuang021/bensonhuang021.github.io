@@ -1790,7 +1790,7 @@
     let nextSleighDirectionLeftToRight = true;
     state.lastSleighHourSlot = Math.floor(Date.now() / QR_ROTATION_MS);
 
-// 🎅 Play Hosted Santa MP3 ("https://bensonhuang021.github.io/hohoho.mp3") — No Chinese Speech
+    // 🎅 Play Hosted Santa MP3 ("https://bensonhuang021.github.io/hohoho.mp3") — No Chinese Speech
     const SANTA_HOHOHO_MP3_URL = 'https://bensonhuang021.github.io/hohoho.mp3';
     let santaHoHoHoAudioEl = null;
 
@@ -1814,7 +1814,6 @@
         santaHoHoHoAudioEl.play().catch(() => {});
       } catch (e) {}
     }
-
     function buildReindeerSantaSleighSvg(isLeftToRight) {
       const flipTransform = isLeftToRight ? 'scale(1, 1)' : 'scale(-1, 1)';
       return `
