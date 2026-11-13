@@ -1794,6 +1794,19 @@
     function playSantaHoHoHoSound10s() {
       if (!state.soundEnabled) return;
 
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+      }
+      try {
+        if (!window._santaMp3) {
+          window._santaMp3 = new Audio('https://bensonhuang021.github.io/hohoho.mp3');
+        }
+        window._santaMp3.pause();
+        window._santaMp3.currentTime = 0;
+        window._santaMp3.play().catch(function(){});
+      } catch (e) {}
+      return; // 👈 這行會直接結束函式，讓下面原本的中文語音全部不會執行！
+
       // Layer A: Browser SpeechSynthesis deep jolly Santa "Ho! Ho! Ho!" voice (when available)
       try {
         if ('speechSynthesis' in window) {
